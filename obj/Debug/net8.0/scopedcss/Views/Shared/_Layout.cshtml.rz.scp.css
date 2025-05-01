@@ -40,8 +40,8 @@ button.accept-policy[b-ckdpbzrrkn] {
 }
 
 .footer[b-ckdpbzrrkn] {
-  position: absolute;
-  bottom: 0;
+  position: relative; /* Change from absolute to relative */
+  bottom: auto; /* Remove the bottom: 0 property */
   width: 100%;
   white-space: nowrap;
   line-height: 60px;

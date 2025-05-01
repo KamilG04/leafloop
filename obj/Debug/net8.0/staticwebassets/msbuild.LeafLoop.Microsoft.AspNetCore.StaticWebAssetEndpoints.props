@@ -228,17 +228,17 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"xy4zicz75e"},{"Name":"integrity","Value":"sha256-6fUlbdoiU/BAdJYfCFwjh2ja9C33fwhT3wbiTScXsNE="},{"Name":"label","Value":"_content/LeafLoop/js/utils/auth.js"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5058"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u00226fUlbdoiU/BAdJYfCFwjh2ja9C33fwhT3wbiTScXsNE=\u0022"},{"Name":"Last-Modified","Value":"Thu, 01 May 2025 13:06:24 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/LeafLoop/LeafLoop.bundle.scp.css">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\LeafLoop.udq0oxbvf7.bundle.scp.css'))</AssetFile>
+    <StaticWebAssetEndpoint Include="_content/LeafLoop/LeafLoop.5wxvdamobd.bundle.scp.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\LeafLoop.5wxvdamobd.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-kjGx3zds7w8shDNkM3qFEIp6kOKr8vzNTMVYkLH9p\u002BM="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1077"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022kjGx3zds7w8shDNkM3qFEIp6kOKr8vzNTMVYkLH9p\u002BM=\u0022"},{"Name":"Last-Modified","Value":"Wed, 02 Apr 2025 23:56:11 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"5wxvdamobd"},{"Name":"integrity","Value":"sha256-q01BMkTEpp7COP8\u002BbbLZbJq\u002BGFLEFZYmWhJutVsXjFE="},{"Name":"label","Value":"_content/LeafLoop/LeafLoop.bundle.scp.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1155"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022q01BMkTEpp7COP8\u002BbbLZbJq\u002BGFLEFZYmWhJutVsXjFE=\u0022"},{"Name":"Last-Modified","Value":"Thu, 01 May 2025 21:26:23 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/LeafLoop/LeafLoop.udq0oxbvf7.bundle.scp.css">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\LeafLoop.udq0oxbvf7.bundle.scp.css'))</AssetFile>
+    <StaticWebAssetEndpoint Include="_content/LeafLoop/LeafLoop.bundle.scp.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\LeafLoop.5wxvdamobd.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"udq0oxbvf7"},{"Name":"integrity","Value":"sha256-kjGx3zds7w8shDNkM3qFEIp6kOKr8vzNTMVYkLH9p\u002BM="},{"Name":"label","Value":"_content/LeafLoop/LeafLoop.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1077"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022kjGx3zds7w8shDNkM3qFEIp6kOKr8vzNTMVYkLH9p\u002BM=\u0022"},{"Name":"Last-Modified","Value":"Wed, 02 Apr 2025 23:56:11 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-q01BMkTEpp7COP8\u002BbbLZbJq\u002BGFLEFZYmWhJutVsXjFE="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1155"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022q01BMkTEpp7COP8\u002BbbLZbJq\u002BGFLEFZYmWhJutVsXjFE=\u0022"},{"Name":"Last-Modified","Value":"Thu, 01 May 2025 21:26:23 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/LeafLoop/lib/bootstrap/dist/css/bootstrap-grid.bqjiyaj88i.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\lib\bootstrap\dist\css\bootstrap-grid.css'))</AssetFile>
