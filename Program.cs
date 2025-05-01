@@ -46,6 +46,9 @@ builder.Services.AddScoped<ISavedSearchRepository, SavedSearchRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IItemService, ItemService>();
+// In Program.cs
+builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 // Add memory cache for better performance
 builder.Services.AddMemoryCache();
 

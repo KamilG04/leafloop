@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Kontakt";
+}
+
+<div class="container">
+    <h1 class="mb-4">Skontaktuj się z nami</h1>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h4 class="mb-3"><i class="bi bi-info-circle text-success me-2"></i>Informacje kontaktowe</h4>
+                    <address>
+                        <strong>LeafLoop Sp. z o.o.</strong><br>
+                        ul. Szkolna 17<br>
+                        Białystok <br>
+                        <br>
+                        <i class="bi bi-telephone me-2"></i> <a href="tel:+48123456789">+48 123 456 789</a><br>
+                        <i class="bi bi-envelope me-2"></i> <a href="mailto:kamilglowacki25@gmail.com">kontakt@leafloop.pl</a>
+                    </address>
+                    
+                    <h5 class="mt-4 mb-3">Obserwuj nas</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-success fs-4"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-success fs-4"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-success fs-4"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-success fs-4"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h4 class="mb-3"><i class="bi bi-send text-success me-2"></i>Napisz do nas</h4>
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Imię i nazwisko</label>
+                            <input type="text" class="form-control" id="name" placeholder="Twoje imię i nazwisko">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" placeholder="Twój adres email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Temat</label>
+                            <input type="text" class="form-control" id="subject" placeholder="Temat wiadomości">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Wiadomość</label>
+                            <textarea class="form-control" id="message" rows="5" placeholder="Treść wiadomości"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Wyślij wiadomość</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-5">
+        <h4 class="mb-3"><i class="bi bi-geo-alt text-success me-2"></i>Znajdź nas</h4>
+        <div class="ratio ratio-21x9" style="max-height: 400px;">
+            <!-- You would replace this with an actual map integration -->
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2443.3652384930814!2d21.016504376900395!3d52.23763061070702!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471ecc669a869f01%3A0x72f0be2a88ead3fc!2sPalace%20of%20Culture%20and%20Science!5e0!3m2!1sen!2spl!4v1683044271366!5m2!1sen!2spl" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div>
+    
+    <div class="card bg-light border-0 mb-5">
+        <div class="card-body p-4">
+            <h4 class="mb-3"><i class="bi bi-question-circle text-success me-2"></i>Często zadawane pytania</h4>
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Jak działa LeafLoop?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            LeafLoop to platforma umożliwiająca wymianę, oddawanie i przekazywanie niepotrzebnych przedmiotów. Wystarczy, że się zarejestrujesz, dodasz przedmioty, które chcesz oddać lub wymienić, a następnie przeglądasz oferty innych użytkowników.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Czy korzystanie z LeafLoop jest bezpłatne?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Tak, korzystanie z podstawowych funkcji LeafLoop jest całkowicie bezpłatne. Możesz dodawać przedmioty, przeglądać oferty innych użytkowników i kontaktować się z nimi bez żadnych opłat.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Czym jest system EcoScore?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            EcoScore to nasz system punktów, które otrzymujesz za aktywności wspierające zrównoważony rozwój. Punkty zdobywasz za każdą przeprowadzoną wymianę, oddanie przedmiotu czy udział w wydarzeniach ekologicznych. Im wyższy Twój EcoScore, tym wyżej jesteś w rankingu użytkowników.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

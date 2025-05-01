@@ -1,183 +1,228 @@
-// Pełna ścieżka: wwwroot/js/components/itemList.js (lub .jsx) - POPRAWIONY
-
-// ----- POCZĄTEK PLIKU -----
 import React, { useState, useEffect, StrictMode } from 'react';
-import ReactDOM from 'react-dom/client'; // <<< --- DODANA/POPRAWIONA TA LINIA --- >>>
-import { getAuthHeaders, handleApiResponse } from '../utils/auth.js'; // Zaimportuj funkcje pomocnicze
+import ReactDOM from 'react-dom/client';
 
-// Komponent karty przedmiotu (bez zmian w stosunku do poprzedniej wersji)
+// Item Card Component
 const ItemCard = ({ item }) => {
     const photoPath = item.mainPhotoPath || null;
-    const placeholder = (
-        <div className="card-img-top bg-light d-flex align-items-center justify-content-center" style={{ height: '200px' }}>
-            <i className="bi bi-box-seam text-muted" style={{ fontSize: '3rem' }}></i>
-        </div>
-    );
 
     return (
-        <div className="col-sm-6 col-md-4 col-lg-3 mb-4">
+        <div className="col mb-4">
             <div className="card h-100 shadow-sm">
-                {photoPath ? (
-                    <img src={photoPath} className="card-img-top" alt={item.name} style={{ height: '200px', objectFit: 'cover' }} />
-                ) : (
-                    placeholder
-                )}
+                <div style={{ height: '200px', overflow: 'hidden' }}>
+                    {photoPath ? (
+                        <img src={photoPath} className="card-img-top" alt={item.name}
+                             style={{ objectFit: 'cover', height: '100%', width: '100%' }} />
+                    ) : (
+                        <div className="bg-light d-flex align-items-center justify-content-center h-100">
+                            <i className="bi bi-image text-secondary" style={{ fontSize: '3rem' }}></i>
+                        </div>
+                    )}
+                </div>
                 <div className="card-body d-flex flex-column">
-                    <h5 className="card-title">{item.name}</h5>
-                    <p className="card-text text-muted small flex-grow-1">
-                        {item.description?.substring(0, 70)}{item.description?.length > 70 ? '...' : ''}
+                    <h5 className="card-title text-truncate">{item.name}</h5>
+                    <p className="card-text small text-muted flex-grow-1">
+                        {item.description?.length > 70 ? item.description.substring(0, 70) + "..." : item.description}
                     </p>
-                    <div className="mb-2">
-                        {/* Zakładamy, że ItemDto ma pole isAvailable typu boolean */}
-                        <span className={`badge ${item.isAvailable ? 'bg-success' : 'bg-secondary'}`}>
-                            {item.isAvailable ? 'Dostępny' : 'Niedostępny'}
-                         </span>
-                        {/* Zakładamy, że ItemDto ma pole condition typu string */}
-                        <span className="badge bg-info ms-1">{item.condition}</span>
+                    <div className="d-flex gap-1 mb-2">
+                        {item.isAvailable ? (
+                            <span className="badge bg-success">Dostępny</span>
+                        ) : (
+                            <span className="badge bg-secondary">Niedostępny</span>
+                        )}
+
+                        {item.condition === "Used" && (
+                            <span className="badge bg-info">Używany</span>
+                        )}
+                        {item.condition === "New" && (
+                            <span className="badge bg-primary">Nowy</span>
+                        )}
+                        {item.condition === "Damaged" && (
+                            <span className="badge bg-warning">Uszkodzony</span>
+                        )}
                     </div>
-                    <p className="card-text small mb-2">
-                        {/* Zakładamy, że ItemDto ma pole categoryName */}
-                        Kategoria: {item.categoryName || 'Brak'} <br/>
-                        {/* Zakładamy, że ItemDto ma pola expectedValue i isForExchange */}
-                        Wartość: {item.expectedValue > 0 ? `${item.expectedValue.toFixed(2)} PLN` : (item.isForExchange ? 'Wymiana' : 'Za darmo')}
-                    </p>
-                    {/* Link do szczegółów przedmiotu */}
-                    <a href={`/Items/Details/${item.id}`} className="btn btn-outline-success mt-auto stretched-link">
+                    <div className="d-flex justify-content-between align-items-center">
+                        <small className="text-muted">Kategoria: {item.categoryName || 'Brak'}</small>
+                    </div>
+                    <a href={`/Items/Details/${item.id}`} className="btn btn-outline-success mt-2">
                         Zobacz szczegóły
                     </a>
                 </div>
-                <div className="card-footer text-muted small">
-                    {/* Zakładamy, że ItemDto ma pole dateAdded i userName */}
-                    Dodano: {new Date(item.dateAdded).toLocaleDateString()} przez {item.userName || 'Anonim'}
+                <div className="card-footer bg-white">
+                    <small className="text-muted">
+                        Dodano: {new Date(item.dateAdded).toLocaleDateString()}
+                    </small>
                 </div>
             </div>
         </div>
     );
 };
 
-// Główny komponent listy
+// Main Item List Component
 const ItemList = () => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedCategoryId, setSelectedCategoryId] = useState('');
-    const [categories, setCategories] = useState([]);
-    const [loadingCategories, setLoadingCategories] = useState(true); // Stan ładowania kategorii
 
-    // Funkcja pobierająca przedmioty z API
-    const fetchItems = async (currentSearchTerm = searchTerm, currentCategoryId = selectedCategoryId) => {
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(8);
+    const [totalPages, setTotalPages] = useState(1);
+
+    // Fetch items
+    const fetchItems = async () => {
         setLoading(true);
-        setError(null);
         try {
-            const searchParams = new URLSearchParams();
-            if (currentSearchTerm) searchParams.append('SearchTerm', currentSearchTerm);
-            if (currentCategoryId) searchParams.append('CategoryId', currentCategoryId);
-            searchParams.append('PageSize', '24'); // Przykładowy limit przedmiotów
+            // Use the existing controller endpoint instead of an API
+            const response = await fetch(`/Items/GetItems?page=${currentPage}&pageSize=${itemsPerPage}`);
 
-            const url = `/api/items?${searchParams.toString()}`;
-            console.log("Fetching items from:", url); // Logowanie URL zapytania
+            if (!response.ok) {
+                throw new Error(`Server error (status: ${response.status})`);
+            }
 
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: getAuthHeaders(false) // GET może być publiczny lub wymagać tokena
-            });
-            const data = await handleApiResponse(response); // Użyj funkcji obsługi odpowiedzi
-            setItems(data || []); // Ustaw przedmioty lub pustą tablicę
+            const data = await response.json();
+
+            // Check if data is in the expected format
+            if (!data.items || !Array.isArray(data.items)) {
+                console.warn("Unexpected data format:", data);
+                // Fallback: If data itself is an array, use it directly
+                if (Array.isArray(data)) {
+                    setItems(data);
+                    // Estimate total pages if not provided
+                    setTotalPages(Math.ceil(data.length / itemsPerPage) || 1);
+                } else {
+                    setItems([]);
+                    setTotalPages(1);
+                }
+            } else {
+                // Use the data as expected
+                setItems(data.items);
+                setTotalPages(data.totalPages || 1);
+            }
         } catch (err) {
-            console.error("Błąd pobierania listy przedmiotów:", err);
-            setError(err.message);
-            setItems([]); // Wyczyść w razie błędu
+            console.error("Error fetching items:", err);
+            setError(err.message || "Failed to load items");
+            setItems([]);
         } finally {
             setLoading(false);
         }
     };
 
-    // Pobieranie kategorii dla filtra (tylko raz przy montowaniu)
+    // Initial data loading
     useEffect(() => {
-        const fetchCategories = async () => {
-            console.log("Fetching categories for filter...");
-            setLoadingCategories(true); // Ustaw ładowanie kategorii
-            try {
-                const response = await fetch('/api/categories', { headers: getAuthHeaders(false) });
-                const data = await handleApiResponse(response);
-                setCategories(data || []);
-            } catch (err) {
-                console.warn("Nie udało się pobrać kategorii dla filtra:", err.message);
-                // Można ustawić stan błędu dla kategorii lub zostawić pustą listę
-            } finally {
-                setLoadingCategories(false); // Zakończ ładowanie kategorii
-            }
-        };
-        fetchCategories();
-        // Pierwsze pobranie przedmiotów po zamontowaniu komponentu
         fetchItems();
-    }, []); // Pusta tablica zależności - uruchom tylko raz
+    }, [currentPage]);
 
-    // Obsługa wysłania formularza wyszukiwania
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        // Wywołaj fetchItems z aktualnymi wartościami stanu (searchTerm, selectedCategoryId)
-        fetchItems(searchTerm, selectedCategoryId);
-    }
+    // Handle page change
+    const handlePageChange = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+            // Page change will trigger a new fetchItems via the useEffect
+        }
+    };
 
-    // --- Renderowanie JSX ---
     return (
-        <div>
-            {/* Formularz Wyszukiwania/Filtrowania */}
-            <form onSubmit={handleSearchSubmit} className="row g-3 mb-4 p-3 border rounded bg-light shadow-sm">
-                <div className="col-md-5">
-                    <label htmlFor="searchTerm" className="form-label visually-hidden">Szukaj</label>
-                    <input type="text" className="form-control" id="searchTerm" placeholder="Szukaj w nazwie lub opisie..."
-                           value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                </div>
-                <div className="col-md-5">
-                    <label htmlFor="categoryFilter" className="form-label visually-hidden">Kategoria</label>
-                    <select className="form-select" id="categoryFilter" value={selectedCategoryId}
-                            onChange={e => setSelectedCategoryId(e.target.value)} disabled={loadingCategories}> {/* Wyłącz podczas ładowania kategorii */}
-                        <option value="">{loadingCategories ? "Ładowanie kat..." : "Wszystkie kategorie"}</option>
-                        {/* Zakładamy, że CategoryDto ma pola 'id', 'name', 'itemsCount' */}
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name} ({cat.itemsCount})</option>
-                        ))}
-                    </select>
-                </div>
-                <div className="col-md-2 d-grid">
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
-                        {loading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Szukaj'}
-                    </button>
-                </div>
-            </form>
+        <div className="container mt-4">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h1>Przeglądaj Przedmioty</h1>
+                <a href="/Items/Create" className="btn btn-success">
+                    <i className="bi bi-plus-circle me-1"></i> Dodaj nowy przedmiot
+                </a>
+            </div>
 
-            {/* Wyświetlanie błędów lub stanu ładowania przedmiotów */}
+            {/* Loading indicator */}
             {loading && (
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-                    <div className="spinner-border text-success" role="status"><span className="visually-hidden">Ładowanie...</span></div>
+                <div className="d-flex justify-content-center my-5">
+                    <div className="spinner-border text-success" role="status">
+                        <span className="visually-hidden">Ładowanie...</span>
+                    </div>
                 </div>
             )}
-            {/* Wyświetl błąd tylko jeśli nie trwa ładowanie */}
-            {error && !loading && <div className="alert alert-danger" role="alert">Błąd podczas ładowania przedmiotów: {error}</div>}
 
-            {/* Lista Przedmiotów (renderuj tylko jeśli nie ma błędu i nie trwa ładowanie) */}
-            {!loading && !error && (
-                <div className="row">
-                    {items.length === 0 ? (
-                        <div className="col-12"><p className="text-center text-muted mt-4">Nie znaleziono przedmiotów spełniających kryteria.</p></div>
-                    ) : (
-                        items.map(item => <ItemCard key={item.id} item={item} />)
-                    )}
+            {/* Error message */}
+            {error && !loading && (
+                <div className="alert alert-danger" role="alert">
+                    <i className="bi bi-exclamation-triangle me-2"></i>
+                    {error}
                 </div>
+            )}
+
+            {/* Empty state */}
+            {!loading && !error && items.length === 0 && (
+                <div className="alert alert-info" role="alert">
+                    <i className="bi bi-info-circle me-2"></i>
+                    Brak przedmiotów do wyświetlenia.
+                </div>
+            )}
+
+            {/* Items grid */}
+            {!loading && !error && items.length > 0 && (
+                <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-4">
+                    {items.map(item => (
+                        <ItemCard key={item.id} item={item} />
+                    ))}
+                </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <nav aria-label="Page navigation">
+                    <ul className="pagination justify-content-center">
+                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                            <button
+                                className="page-link"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                <span aria-hidden="true">&laquo;</span>
+                            </button>
+                        </li>
+
+                        {[...Array(totalPages).keys()].map(i => (
+                            <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                <button
+                                    className="page-link"
+                                    onClick={() => handlePageChange(i + 1)}
+                                >
+                                    {i + 1}
+                                </button>
+                            </li>
+                        ))}
+
+                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button
+                                className="page-link"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                <span aria-hidden="true">&raquo;</span>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
             )}
         </div>
     );
 };
 
-// --- Renderowanie Komponentu ---
+// Render the component
 const container = document.getElementById('react-item-list-container');
 if (container) {
-    const root = ReactDOM.createRoot(container); // <<<--- UŻYWA ReactDOM --->>>
-    root.render(<StrictMode><ItemList /></StrictMode>);
+    try {
+        const root = ReactDOM.createRoot(container);
+        root.render(
+            <StrictMode>
+                <ItemList />
+            </StrictMode>
+        );
+    } catch (error) {
+        console.error("Error rendering React component:", error);
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <p><strong>Error rendering the component:</strong> ${error.message}</p>
+                <p>Please check the console for more details.</p>
+            </div>
+        `;
+    }
 } else {
-    console.error("Nie znaleziono kontenera 'react-item-list-container' do renderowania listy.");
+    console.error("Container 'react-item-list-container' not found");
 }
-

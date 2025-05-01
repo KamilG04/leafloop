@@ -29,3 +29,82 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Add these styles to your existing site.css */
+
+/* Hero section */
+.carousel-item img {
+  object-fit: cover;
+  width: 100%;
+  height: 500px;
+}
+
+.carousel-caption {
+  bottom: 20%;
+}
+
+/* Stats cards */
+.welcome-section .card-body {
+  padding: 2rem;
+}
+
+.welcome-section .display-4 {
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+/* Recent items */
+.recent-items-section .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Top users */
+.top-users-section {
+  background-color: #f8f9fa;
+}
+
+.top-users-section .card {
+  transition: all 0.3s ease;
+}
+
+.top-users-section .card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* Events */
+.events-section .card-header {
+  border-bottom: none;
+}
+
+/* CTA Section */
+.cta-section {
+  background: linear-gradient(to right, #198754, #20c997);
+  border-radius: 0;
+}
+
+/* General card hover effect */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1) !important;
+}
+
+/* Media queries for better responsiveness */
+@media (max-width: 768px) {
+  .carousel-caption {
+    bottom: 10%;
+  }
+
+  .carousel-caption h2 {
+    font-size: 1.5rem;
+  }
+
+  .welcome-section .display-4 {
+    font-size: 2rem;
+  }
+}

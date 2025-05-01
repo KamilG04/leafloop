@@ -1,27 +1,38 @@
-// Ścieżka: Controllers/ItemsController.cs
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-// Jeśli potrzebujesz pobrać kategorie dla formularza Create, dodaj using dla serwisu kategorii
-using LeafLoop.Services.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using LeafLoop.Models;
+using LeafLoop.Services.DTOs;
+using LeafLoop.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace LeafLoop.Controllers
 {
-    [Authorize] // Dostęp tylko dla zalogowanych użytkowników (można dostosować)
-    public class ItemsController : Controller // Dziedziczy z Controller
+    [Authorize] // Remove this if you want the items page to be accessible to anonymous users
+    public class ItemsController : Controller
     {
-        // Opcjonalnie: Wstrzyknij serwis kategorii, jeśli chcesz przekazać kategorie do widoku Create
+        private readonly IItemService _itemService;
         private readonly ICategoryService _categoryService;
-        public ItemsController(ICategoryService categoryService) { _categoryService = categoryService; }
+        private readonly ILogger<ItemsController> _logger;
 
-        // Zwraca widok listy przedmiotów (będzie hostował Reacta)
-        // GET: /Items lub /Items/Index
-        public IActionResult Index()
+        public ItemsController(
+            IItemService itemService,
+            ICategoryService categoryService,
+            ILogger<ItemsController> logger)
         {
-            return View(); // Szuka Views/Items/Index.cshtml
+            _itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
+            _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // Zwraca widok szczegółów przedmiotu (będzie hostował Reacta)
+        // GET: /Items
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         // GET: /Items/Details/5
         public IActionResult Details(int id)
         {
@@ -29,48 +40,86 @@ namespace LeafLoop.Controllers
             {
                 return BadRequest("Nieprawidłowe ID przedmiotu.");
             }
-            // Przekazujemy ID, React użyje go do pobrania danych z API
+            
             ViewBag.ItemId = id;
-            return View(); // Szuka Views/Items/Details.cshtml
+            return View();
         }
 
-        // Zwraca widok formularza tworzenia przedmiotu (będzie hostował Reacta)
         // GET: /Items/Create
-        public async Task<IActionResult> Create() // Zmienione na async jeśli pobierasz kategorie
+        public async Task<IActionResult> Create()
         {
-            // Przykład pobrania kategorii - odkomentuj jeśli potrzebne i masz ICategoryService
             try
             {
-                 var categories = await _categoryService.GetAllCategoriesAsync(); // Zakładając metodę GetAllCategoriesAsync w serwisie
-                 ViewBag.Categories = categories;
-             }
-             catch (System.Exception ex)
-             {
-                 // Logowanie błędu
-                 ViewBag.Categories = new List<LeafLoop.Services.DTOs.CategoryDto>(); // Pusta lista w razie błędu
+                var categories = await _categoryService.GetAllCategoriesAsync();
+                ViewBag.Categories = categories;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading categories for create form");
+                ViewBag.Categories = new List<CategoryDto>();
                 ModelState.AddModelError(string.Empty, "Nie udało się załadować kategorii.");
             }
-            return View(); // Szuka Views/Items/Create.cshtml
+            
+            return View();
         }
 
-        // Można dodać akcję Edit(int id) analogicznie do Details
         // GET: /Items/Edit/5
         [HttpGet]
         public IActionResult Edit(int id)
         {
             if (id <= 0)
             {
-                  return BadRequest("Nieprawidłowe ID przedmiotu.");
-             }
-             ViewBag.ItemId = id;
-             return View(); // Szuka Views/Items/Edit.cshtml
-         }
+                return BadRequest("Nieprawidłowe ID przedmiotu.");
+            }
+            
+            ViewBag.ItemId = id;
+            return View();
+        }
 
-// GET: /Items/MyItems
+        // GET: /Items/MyItems
         public IActionResult MyItems()
         {
-            // Ta akcja tylko zwraca widok. React pobierze dane z API.
-            return View(); // Będzie szukać widoku Views/Items/MyItems.cshtml
+            return View();
         }
+
+        // GET: /Items/GetItems (AJAX endpoint for React)
+        [HttpGet]
+        public async Task<IActionResult> GetItems(string searchTerm = null, int? categoryId = null, string condition = null, int page = 1, int pageSize = 8)
+        {
+            try
+            {
+                // Create search DTO with pagination
+                var searchDto = new ItemSearchDto
+                {
+                    SearchTerm = searchTerm,
+                    CategoryId = categoryId,
+                    Condition = condition,
+                    Page = page,
+                    PageSize = pageSize
+                };
+                
+                // Get items based on search criteria
+                var items = await _itemService.SearchItemsAsync(searchDto);
+                
+                // Get total count for pagination
+                var totalItems = await _itemService.GetItemsCountAsync(searchDto);
+                var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+                
+                // Return JSON result
+                return Json(new {
+                    items = items,
+                    totalItems = totalItems,
+                    totalPages = totalPages,
+                    currentPage = page
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving items");
+                return StatusCode(500, new { error = "Error retrieving items" });
+            }
+        }
+
+        // Add additional actions as needed...
     }
 }

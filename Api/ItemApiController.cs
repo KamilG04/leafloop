@@ -38,23 +38,46 @@ namespace LeafLoop.Api
 
         // --- Endpoints API ---
 
-        // GET: api/items (It shouldnt be like that but ye for those purposes enough)
+        // In API/ItemsController.cs
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ItemDto>>> GetItems([FromQuery] ItemSearchDto searchDto)
+        public async Task<ActionResult<ItemListResponseDto>> GetItems([FromQuery] ItemSearchDto searchDto)
         {
             try
             {
-                // Using service xd for 
-                // ItemService.SearchItemsAsync has to have every criteria from ItemSearchDto
+                // Set defaults if not provided
+                searchDto.Page ??= 1;
+                searchDto.PageSize ??= 8;
+        
+                // Get items based on search criteria
                 var items = await _itemService.SearchItemsAsync(searchDto);
-                return Ok(items);
+        
+                // Get total count for pagination
+                var totalItems = await _itemService.GetItemsCountAsync(searchDto);
+                var totalPages = (int)Math.Ceiling((double)totalItems / searchDto.PageSize.Value);
+        
+                // Return both items and pagination info
+                return Ok(new ItemListResponseDto
+                {
+                    Items = items,
+                    TotalItems = totalItems,
+                    TotalPages = totalPages,
+                    CurrentPage = searchDto.Page.Value
+                });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Błąd podczas wyszukiwania przedmiotów. Kryteria: {@SearchCriteria}", searchDto);
-                // Remove in production, if thats needed for project evaluation 
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas pobierania danych.");
+                _logger.LogError(ex, "Error retrieving items");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving items");
             }
+        }
+
+// Response DTO for the items list
+        public class ItemListResponseDto
+        {
+            public IEnumerable<ItemDto> Items { get; set; }
+            public int TotalItems { get; set; }
+            public int TotalPages { get; set; }
+            public int CurrentPage { get; set; }
         }
 
         // GET: api/items/{id} 
@@ -80,7 +103,7 @@ namespace LeafLoop.Api
                 return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas pobierania danych.");
             }
         }
-
+        
         // GET: api/items/my (Items for logged user )
         [HttpGet("my")]
         [Authorize] // should work always 

@@ -323,6 +323,25 @@ namespace LeafLoop.Services
                 _logger.LogError(ex, "Error marking item as sold. ItemId: {ItemId}", itemId);
                 throw;
             }
+            
         }
+        public async Task<int> GetItemsCountAsync(ItemSearchDto searchDto)
+        {
+            try
+            {
+                return await _unitOfWork.Items.CountAsync(i => 
+                    (string.IsNullOrEmpty(searchDto.SearchTerm) || 
+                     i.Name.Contains(searchDto.SearchTerm) || 
+                     i.Description.Contains(searchDto.SearchTerm)) &&
+                    (!searchDto.CategoryId.HasValue || i.CategoryId == searchDto.CategoryId) &&
+                    (string.IsNullOrEmpty(searchDto.Condition) || i.Condition == searchDto.Condition));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error counting items");
+                throw;
+            }
+        }
+        
     }
 }
