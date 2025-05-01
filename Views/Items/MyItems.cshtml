@@ -1,0 +1,23 @@
+@* Pełna ścieżka: Views/Items/MyItems.cshtml *@
+@{
+    ViewData["Title"] = "Moje Przedmioty";
+}
+
+<div class="container mt-4">
+    <h1>@ViewData["Title"]</h1>
+    <p>Tutaj znajdują się przedmioty dodane przez Ciebie.</p>
+
+    @* Kontener dla komponentu React MyItemList *@
+    <div id="react-my-item-list-container">
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Ładowanie moich przedmiotów...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Wskaż na zbudowany plik JS dla tego komponentu *@
+    <script src="~/js/dist/myItemList.bundle.js" asp-append-version="true"></script>
+}

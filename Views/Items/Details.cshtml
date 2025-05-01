@@ -1,0 +1,29 @@
+@* Pełna ścieżka: Views/Items/Details.cshtml *@
+@{
+    ViewData["Title"] = "Szczegóły przedmiotu";
+    var itemId = ViewBag.ItemId ?? 0; // Pobierz ID przekazane z kontrolera
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Items">Przedmioty</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Szczegóły</li>
+        </ol>
+    </nav>
+
+    @* Ten div będzie kontenerem dla komponentu React ItemDetails *@
+    @* Przekazujemy ID przedmiotu przez atrybut data-* *@
+    <div id="react-item-details-container" data-item-id="@itemId">
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Ładowanie szczegółów przedmiotu...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Ładuje zbudowany plik dla szczegółów przedmiotu *@
+    <script src="~/js/dist/itemDetails.bundle.js" asp-append-version="true"></script>
+}

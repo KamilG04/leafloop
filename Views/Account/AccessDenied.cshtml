@@ -1,0 +1,23 @@
+@{
+    ViewData["Title"] = "Brak dostępu";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-exclamation text-danger" style="font-size: 4rem;"></i>
+                    <h5 class="mt-3">Nie masz uprawnień do wyświetlenia tej strony.</h5>
+                    <p class="text-muted">Jeśli uważasz, że to błąd, skontaktuj się z administratorem.</p>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary mt-3">
+                        <i class="bi bi-house-door"></i> Wróć na stronę główną
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

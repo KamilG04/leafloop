@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Przedmioty";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Przeglądaj Przedmioty</h1>
+        <a asp-action="Create" asp-controller="Items" class="btn btn-success">
+            <i class="bi bi-plus-circle me-1"></i> Dodaj nowy przedmiot
+        </a>
+    </div>
+
+    @* Ten div będzie kontenerem dla komponentu React ItemList *@
+    <div id="react-item-list-container">
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Ładowanie przedmiotów...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Ładuje zbudowany plik dla listy przedmiotów *@
+    <script src="~/js/dist/itemList.bundle.js" asp-append-version="true"></script>
+}

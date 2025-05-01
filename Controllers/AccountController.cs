@@ -1,0 +1,248 @@
+using System;
+using System.Threading.Tasks;
+using LeafLoop.Models;
+using LeafLoop.Repositories.Interfaces;
+using LeafLoop.Services.Interfaces;
+using LeafLoop.ViewModels.Account;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+
+namespace LeafLoop.Controllers
+{
+    public class AccountController : BaseController
+    {
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly ILogger<AccountController> _logger;
+        private readonly IJwtTokenService _jwtTokenService;
+        private readonly IUserSessionService _sessionService;
+
+        public AccountController(
+            IUnitOfWork unitOfWork,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IJwtTokenService jwtTokenService,
+            IUserSessionService sessionService,
+            ILogger<AccountController> logger)
+            : base(unitOfWork)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _jwtTokenService = jwtTokenService;
+            _sessionService = sessionService;
+            _logger = logger;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Register(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var user = new User
+                    {
+                        UserName = model.Email,
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        CreatedDate = DateTime.UtcNow,
+                        LastActivity = DateTime.UtcNow,
+                        IsActive = true
+                    };
+
+                    var result = await _userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User created a new account with password.");
+
+                        // Generate JWT token for API access
+                        var token = await _jwtTokenService.GenerateTokenAsync(user);
+                        
+                        // Create user session with token
+                        await _sessionService.CreateSessionAsync(user, token, null, HttpContext);
+                        
+                        // Store token in a cookie for JavaScript access
+                        Response.Cookies.Append(
+                            "jwt_token",
+                            token,
+                            new CookieOptions
+                            {
+                                HttpOnly = false,
+                                Secure = true,
+                                SameSite = SameSiteMode.Lax,
+                                Expires = DateTime.Now.AddDays(7)
+                            });
+
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        _logger.LogInformation("User was logged in after registration.");
+
+                        return RedirectToLocal(returnUrl);
+                    }
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error during registration");
+                    ModelState.AddModelError(string.Empty, "An error occurred during registration. Please try again.");
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Login(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+       
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Perform the sign-in operation
+                    var result = await _signInManager.PasswordSignInAsync(
+                        model.Email, 
+                        model.Password, 
+                        model.RememberMe, 
+                        lockoutOnFailure: true);
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User logged in successfully: {Email}", model.Email);
+                
+                        // Get the user entity for token creation
+                        var user = await _userManager.FindByEmailAsync(model.Email);
+                        if (user == null)
+                        {
+                            _logger.LogError("Unable to find user after successful login: {Email}", model.Email);
+                            ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
+                            return View(model);
+                        }
+
+                        // Generate JWT token for API access
+                        var token = await _jwtTokenService.GenerateTokenAsync(user);
+                        if (string.IsNullOrEmpty(token))
+                        {
+                            _logger.LogError("Failed to generate JWT token for user: {Email}", model.Email);
+                            ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
+                            return View(model);
+                        }
+                
+                        // Create user session with token
+                        try
+                        {
+                            await _sessionService.CreateSessionAsync(user, token, null, HttpContext);
+                            _logger.LogInformation("Created session for user: {Email}", model.Email);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error creating session for user: {Email}", model.Email);
+                            // Continue even if session creation fails - not critical for authentication
+                        }
+                
+                        // Store token in a cookie for JavaScript access
+                        Response.Cookies.Append(
+                            "jwt_token",
+                            token,
+                            new CookieOptions
+                            {
+                                HttpOnly = false, // Make accessible to JavaScript
+                                Secure = true,
+                                SameSite = SameSiteMode.Lax, // Changed from Strict to Lax
+                                Expires = DateTime.Now.AddDays(7)
+                            });
+                        
+                        _logger.LogInformation("JWT token cookie set for user: {Email}", model.Email);
+                
+                        // Redirect to the return URL or home page
+                        return RedirectToLocal(returnUrl);
+                    }
+                    
+                    if (result.IsLockedOut)
+                    {
+                        _logger.LogWarning("User account locked out: {Email}", model.Email);
+                        return RedirectToAction(nameof(Lockout));
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Invalid login attempt for user: {Email}", model.Email);
+                        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                        return View(model);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Exception during login for email: {Email}", model.Email);
+                    ModelState.AddModelError(string.Empty, "An error occurred during login. Please try again.");
+                    return View(model);
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("User logged out.");
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Lockout()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+        }
+    }
+    
+}

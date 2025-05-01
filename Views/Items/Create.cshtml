@@ -1,0 +1,58 @@
+@* Views/Items/Create.cshtml - Poprawiony blok @{} dla błędu Serialize *@
+@using System.Text.Json 
+@using System.Text.Encodings.Web
+@using System.Collections
+
+@{
+    ViewData["Title"] = "Dodaj nowy przedmiot";
+    var categoriesJson = "[]"; // Domyślna, bezpieczna wartość JSON
+
+    if (ViewBag.Categories != null)
+    {
+        var categoriesList = ViewBag.Categories as IEnumerable;
+
+        if (categoriesList != null)
+        {
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping, // Bezpieczniejsze niż Default dla HTML
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,    // Jeśli Twoje DTO/JS używa camelCase
+                    // Dodaj tę opcję, aby uniknąć problemów z referencjami cyklicznymi
+                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+                };
+
+                // Użyj System.Text.Json.JsonSerializer ZAMIAST Json.Serialize
+                string serialized = System.Text.Json.JsonSerializer.Serialize(categoriesList, options); // <<<--- ZMIANA TUTAJ
+
+                // Użyj @Html.Raw aby zapobiec kodowaniu cudzysłowów przez Razor
+                categoriesJson = Html.Raw(serialized).ToString();
+            }
+            catch (Exception ex)
+            {
+                // Logowanie błędu (w Development można użyć Debug.WriteLine)
+                System.Diagnostics.Debug.WriteLine($"Error serializing categories for view: {ex.Message}");
+                // W razie błędu, categoriesJson pozostaje "[]"
+            }
+        }
+        else
+        {
+             System.Diagnostics.Debug.WriteLine("ViewBag.Categories was not null but could not be cast to IEnumerable.");
+             // categoriesJson pozostaje "[]"
+        }
+    }
+}
+
+@* Reszta pliku .cshtml bez zmian *@
+<div class="container mt-4">
+    @* ... (breadcrumb, h1, validation summary) ... *@
+    <div id="react-item-create-form-container" data-categories="@categoriesJson">
+         @* ... (loading spinner) ... *@
+    </div>
+</div>
+
+@section Scripts {
+    @* Pamiętaj, że src wskazuje na ZBUDOWANY plik z /dist *@
+    <script src="~/js/dist/itemCreateForm.bundle.js" asp-append-version="true"></script>
+}
