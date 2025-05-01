@@ -1,65 +1,65 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Security.Claims; // Potrzebne dla User.FindFirstValue
-using LeafLoop.Models;       // Modele encji
-using LeafLoop.Services.DTOs; // Twoje DTO
-using LeafLoop.Services.Interfaces; // Interfejsy serwisów
-using Microsoft.AspNetCore.Authorization; // Dla [Authorize]
-using Microsoft.AspNetCore.Http;         // Dla IFormFile i StatusCodes
-using Microsoft.AspNetCore.Identity;     // Dla UserManager<User>
-using Microsoft.AspNetCore.Mvc;          // Dla [Route], [ApiController], ActionResult itp.
-using Microsoft.Extensions.Logging;      // Dla ILogger
+using System.Security.Claims; // User.FindFirstValue
+using LeafLoop.Models;       
+using LeafLoop.Services.DTOs; // DTO
+using LeafLoop.Services.Interfaces; // Service interfaces
+using Microsoft.AspNetCore.Authorization; // [Authorize]
+using Microsoft.AspNetCore.Http;         // IFormFile i StatusCodes
+using Microsoft.AspNetCore.Identity;     // UserManager<User>
+using Microsoft.AspNetCore.Mvc;          // Route], [ApiController], ActionResult itp.
+using Microsoft.Extensions.Logging;      // ILogger
 
 namespace LeafLoop.Api
 {
-    [Route("api/[controller]")] // Trasa bazowa: /api/items
+    [Route("api/[controller]")] // /api/items
     [ApiController]
-    public class ItemsController : ControllerBase // Dziedziczenie z ControllerBase dla API
+    public class ItemsController : ControllerBase 
     {
-        // --- Zależności ---
+       
         private readonly IItemService _itemService;
-        private readonly IPhotoService _photoService; // Upewnij się, że ten serwis istnieje i jest wstrzykiwany
+        private readonly IPhotoService _photoService; // Check, add injections in the future
         private readonly UserManager<User> _userManager;
         private readonly ILogger<ItemsController> _logger;
 
-        // --- Konstruktor (Wstrzykiwanie Zależności) ---
+        // --- Dependency injections ---
         public ItemsController(
             IItemService itemService,
-            IPhotoService photoService, // Upewnij się, że ten serwis istnieje i jest zarejestrowany
+            IPhotoService photoService, 
             UserManager<User> userManager,
             ILogger<ItemsController> logger)
         {
             _itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
-            _photoService = photoService ?? throw new ArgumentNullException(nameof(photoService)); // Dodaj sprawdzenie null
+            _photoService = photoService ?? throw new ArgumentNullException(nameof(photoService)); // Check for null ??
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // --- Endpointy API ---
+        // --- Endpoints API ---
 
-        // GET: api/items (Wyszukiwanie/Listowanie wszystkich dostępnych przedmiotów)
+        // GET: api/items (It shouldnt be like that but ye for those purposes enough)
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ItemDto>>> GetItems([FromQuery] ItemSearchDto searchDto)
         {
             try
             {
-                // Użyj serwisu do wyszukiwania/filtrowania
-                // Zakładamy, że ItemService.SearchItemsAsync obsługuje wszystkie kryteria z ItemSearchDto
+                // Using service xd for 
+                // ItemService.SearchItemsAsync has to have every criteria from ItemSearchDto
                 var items = await _itemService.SearchItemsAsync(searchDto);
                 return Ok(items);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Błąd podczas wyszukiwania przedmiotów. Kryteria: {@SearchCriteria}", searchDto);
-                // Nie zwracaj szczegółów wyjątku do klienta w produkcji
+                // Remove in production, if thats needed for project evaluation 
                 return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas pobierania danych.");
             }
         }
 
-        // GET: api/items/{id} (Pobieranie szczegółów konkretnego przedmiotu)
-        // --- POPRAWKA ROUTINGU ---
-        [HttpGet("{id:int}")] // Dodano ograniczenie :int, aby uniknąć kolizji z "my"
+        // GET: api/items/{id} 
+        // --- AI FIX TODO CHECK if thats not fup---
+        [HttpGet("{id:int}")] // thats a fix proposed by ai, its working but i think it sucks 
         public async Task<ActionResult<ItemWithDetailsDto>> GetItem(int id)
         {
             if (id <= 0) {
@@ -67,7 +67,7 @@ namespace LeafLoop.Api
              }
             try
             {
-                var item = await _itemService.GetItemWithDetailsAsync(id); // Używamy metody zwracającej DTO ze szczegółami
+                var item = await _itemService.GetItemWithDetailsAsync(id); // Using method returning DTO 
                 if (item == null)
                 {
                     return NotFound($"Przedmiot o ID {id} nie został znaleziony.");
@@ -81,26 +81,25 @@ namespace LeafLoop.Api
             }
         }
 
-        // GET: api/items/my (Pobieranie przedmiotów ZALOGOWANEGO użytkownika)
-        // --- NOWA/POTWIERDZONA AKCJA ---
+        // GET: api/items/my (Items for logged user )
         [HttpGet("my")]
-        [Authorize] // Tylko zalogowani użytkownicy
+        [Authorize] // should work always 
         public async Task<ActionResult<IEnumerable<ItemDto>>> GetCurrentUserItems()
         {
             try
             {
-                // Bezpieczne pobranie ID zalogowanego użytkownika z Claimów
+                //Secure getting id of an user from claims, but better to check for better options
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
                 {
                     _logger.LogWarning("GetCurrentUserItems wywołane bez poprawnego identyfikatora użytkownika.");
-                    // Zwróć 401 Unauthorized zamiast polegać na [Authorize], który mógłby przepuścić np. zły token
+                    // 401 Unauthorized rather than [Authorize], for wrong tokens
                     return Unauthorized("Nie można zidentyfikować użytkownika.");
                 }
 
-                // Użyj serwisu do pobrania przedmiotów dla tego użytkownika
+                // Service 
                 var items = await _itemService.GetItemsByUserAsync(userId);
-                return Ok(items); // Zwraca listę ItemDto
+                return Ok(items); // LIST ItemDto
             }
             catch (Exception ex)
             {
@@ -109,8 +108,8 @@ namespace LeafLoop.Api
             }
         }
 
-        // GET: api/items/user/{userId} (Pobieranie przedmiotów DOWOLNEGO użytkownika po ID)
-        [HttpGet("user/{userId:int}")] // Dodano ograniczenie :int
+        // GET: api/items/user/{userId} (ANY user items from ID)
+        [HttpGet("user/{userId:int}")] // the same fix dont even thinking about it anymore just accepted it, dont touch it :int
         public async Task<ActionResult<IEnumerable<ItemDto>>> GetUserItems(int userId)
         {
              if (userId <= 0) {
@@ -118,7 +117,7 @@ namespace LeafLoop.Api
              }
             try
             {
-                // TODO: Rozważ dodanie sprawdzenia, czy użytkownik o podanym ID istnieje
+                // TODO: Check if user exists with that ID
                 var items = await _itemService.GetItemsByUserAsync(userId);
                 return Ok(items);
             }
@@ -129,8 +128,8 @@ namespace LeafLoop.Api
             }
         }
 
-        // GET: api/items/category/{categoryId} (Pobieranie przedmiotów z kategorii)
-        [HttpGet("category/{categoryId:int}")] // Dodano ograniczenie :int
+        // GET: api/items/category/{categoryId} (Category items)
+        [HttpGet("category/{categoryId:int}")] // :int
         public async Task<ActionResult<IEnumerable<ItemDto>>> GetCategoryItems(int categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
              if (categoryId <= 0) {
@@ -141,6 +140,7 @@ namespace LeafLoop.Api
 
             try
             {
+                // TODO: Fajnie byloby to zmienic bo troche niszczymy nasza koncepcje bo to filtrowanie w kontrolerze no chujowo po prostu 
                 // Zakładamy, że ItemService obsługuje paginację lub zwraca wszystko, a my filtrujemy (?)
                 // Lepsze byłoby przekazanie paginacji do serwisu/repozytorium
                 var items = await _itemService.GetItemsByCategoryAsync(categoryId, page, pageSize);
@@ -158,7 +158,7 @@ namespace LeafLoop.Api
             }
         }
 
-        // GET: api/items/{id}/photos (Pobieranie zdjęć dla przedmiotu)
+        // GET: api/items/{id}/photos (Photos for item)
         [HttpGet("{id:int}/photos")] // Dodano ograniczenie :int
         public async Task<ActionResult<IEnumerable<PhotoDto>>> GetItemPhotos(int id)
         {
@@ -167,7 +167,7 @@ namespace LeafLoop.Api
              }
             try
             {
-                 // Sprawdźmy najpierw czy przedmiot istnieje
+                 // If item exists
                  var itemExists = await _itemService.GetItemByIdAsync(id); // Użyj prostej metody
                  if (itemExists == null)
                  {
@@ -184,12 +184,12 @@ namespace LeafLoop.Api
             }
         }
 
-        // POST: api/items (Tworzenie nowego przedmiotu)
+        // POST: api/items (New item create )
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<ItemDto>> CreateItem([FromBody] ItemCreateDto itemDto) // Zmieniono zwracany typ na ItemDto dla spójności
         {
-             if (!ModelState.IsValid) // Sprawdź walidację DTO
+             if (!ModelState.IsValid) //  DTO if he dies he dies 
              {
                  return BadRequest(ModelState);
              }
@@ -199,10 +199,10 @@ namespace LeafLoop.Api
                 var user = await _userManager.GetUserAsync(User);
                  if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika."); // Dodatkowe sprawdzenie
 
-                // Użyj serwisu do dodania przedmiotu, który zwraca ID
+                // Service returns ID
                 var itemId = await _itemService.AddItemAsync(itemDto, user.Id);
 
-                // Po utworzeniu, pobierz nowo utworzony przedmiot jako DTO, aby go zwrócić
+                // Get new item as dto to return it  
                  var createdItemDto = await _itemService.GetItemByIdAsync(itemId);
                  if (createdItemDto == null) {
                       // Coś poszło bardzo nie tak, jeśli nie możemy pobrać właśnie dodanego itemu
@@ -210,7 +210,7 @@ namespace LeafLoop.Api
                       return StatusCode(StatusCodes.Status500InternalServerError, "Błąd podczas pobierania utworzonego przedmiotu.");
                  }
 
-                // Zwróć 201 Created z lokalizacją i utworzonym obiektem DTO
+                // 201 Created localization and dto
                 return CreatedAtAction(nameof(GetItem), new { id = itemId }, createdItemDto);
             }
             catch (Exception ex)
@@ -221,7 +221,7 @@ namespace LeafLoop.Api
         }
 
         // PUT: api/items/{id} (Aktualizacja przedmiotu)
-        [HttpPut("{id:int}")] // Dodano ograniczenie :int
+        [HttpPut("{id:int}")] //:int
         [Authorize]
         public async Task<IActionResult> UpdateItem(int id, [FromBody] ItemUpdateDto itemDto)
         {
@@ -239,10 +239,10 @@ namespace LeafLoop.Api
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika.");
 
-                // Serwis powinien sprawdzić własność i rzucić wyjątek lub zwrócić status
+                // Either it ll return status or throw exception
                 await _itemService.UpdateItemAsync(itemDto, user.Id);
 
-                return NoContent(); // Standardowa odpowiedź dla PUT zakończonego sukcesem
+                return NoContent(); // PUT  Succesfull 
             }
             catch (KeyNotFoundException ex)
             {
@@ -252,7 +252,7 @@ namespace LeafLoop.Api
             catch (UnauthorizedAccessException ex)
             {
                  _logger.LogWarning("Nieautoryzowana próba aktualizacji przedmiotu. ItemId: {ItemId}, UserId: {UserId}", id, User.FindFirstValue(ClaimTypes.NameIdentifier));
-                // Zwróć Forbid() zamiast 401, bo użytkownik jest zalogowany, ale nie ma uprawnień do tego zasobu
+                // Forbid() zamiast 401, users logged but not authorized
                 return Forbid(ex.Message);
             }
             catch (Exception ex)
@@ -262,8 +262,8 @@ namespace LeafLoop.Api
             }
         }
 
-        // DELETE: api/items/{id} (Usuwanie przedmiotu)
-        [HttpDelete("{id:int}")] // Dodano ograniczenie :int
+        // DELETE: api/items/{id} 
+        [HttpDelete("{id:int}")] // fix :int
         [Authorize]
         public async Task<IActionResult> DeleteItem(int id)
         {
@@ -275,10 +275,10 @@ namespace LeafLoop.Api
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika.");
 
-                // Serwis powinien sprawdzić własność i rzucić wyjątek lub zwrócić status
+                //As in other
                 await _itemService.DeleteItemAsync(id, user.Id);
 
-                return NoContent(); // Standardowa odpowiedź dla DELETE zakończonego sukcesem
+                return NoContent(); // worked
             }
             catch (KeyNotFoundException ex)
             {
@@ -510,5 +510,6 @@ public async Task<ActionResult<PhotoDto>> UploadPhoto(int id, IFormFile photo) /
 
         // --- Prywatna metoda pomocnicza (jeśli potrzebna) ---
         // private async Task<bool> CheckItemOwnership(int itemId) { ... }
+        // takze jak widac sporo to do komentarze typowo dla siebie kamilg zostawiam po polsku 
     }
 }

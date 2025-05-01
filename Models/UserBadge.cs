@@ -8,7 +8,7 @@ namespace LeafLoop.Models
         public int BadgeId { get; set; }
         public DateTime AcquiredDate { get; set; }
         
-        // Tu tez zjebana 
+        // seems to be working 
         public virtual User User { get; set; }
         public virtual Badge Badge { get; set; }
         

@@ -115,7 +115,8 @@ const initUserProfile = () => {
     const container = document.getElementById('react-user-profile');
     if (container) {
         const userId = container.getAttribute('data-user-id');
-        ReactDOM.render(<UserProfile userId={userId} />, container);
+        const root = ReactDOM.createRoot(container);
+        root.render(<React.StrictMode><UserProfile userId={userId} /></React.StrictMode>);
     }
 };
 

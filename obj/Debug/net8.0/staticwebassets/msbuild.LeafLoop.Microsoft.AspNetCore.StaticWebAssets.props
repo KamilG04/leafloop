@@ -300,8 +300,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>o45baoc1a3</Fingerprint>
-      <Integrity>uJggKzvvlZ9FBVhSxu+SvqMPzS2Hl1nDiBQdJjgK8vI=</Integrity>
+      <Fingerprint>4v6e0lutxc</Fingerprint>
+      <Integrity>wFEUazlQrMC5SleQ9VVGn14SWem63sAH2IRw1a0BR9M=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\react\userProfile.jsx'))</OriginalItemSpec>

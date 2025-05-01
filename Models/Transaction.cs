@@ -36,7 +36,7 @@ namespace LeafLoop.Models
         
         public int ItemId { get; set; }
         
-        // chujowo jak cos 
+        // Although its ok 
         public virtual User Seller { get; set; }
         public virtual User Buyer { get; set; }
         public virtual Item Item { get; set; }

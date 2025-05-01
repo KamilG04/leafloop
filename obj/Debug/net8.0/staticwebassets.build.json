@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "EgDC475cbkYJrBjA62JkPGyg+tKi936rd5AMJrYj0n4=",
+  "Hash": "93xuEWe45us3ZFWykJPeSR2WoCiA9Fxr5s5sjtNhJcs=",
   "Source": "LeafLoop",
   "BasePath": "_content/LeafLoop",
   "Mode": "Default",
@@ -409,8 +409,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "o45baoc1a3",
-      "Integrity": "uJggKzvvlZ9FBVhSxu+SvqMPzS2Hl1nDiBQdJjgK8vI=",
+      "Fingerprint": "4v6e0lutxc",
+      "Integrity": "wFEUazlQrMC5SleQ9VVGn14SWem63sAH2IRw1a0BR9M=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/react/userProfile.jsx"
@@ -3158,6 +3158,51 @@
       ]
     },
     {
+      "Route": "js/react/userProfile.4v6e0lutxc.jsx",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.jsx",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4623"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/jscript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"wFEUazlQrMC5SleQ9VVGn14SWem63sAH2IRw1a0BR9M=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 01 May 2025 18:48:43 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4v6e0lutxc"
+        },
+        {
+          "Name": "label",
+          "Value": "js/react/userProfile.jsx"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-wFEUazlQrMC5SleQ9VVGn14SWem63sAH2IRw1a0BR9M="
+        }
+      ]
+    },
+    {
       "Route": "js/react/userProfile.jsx",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.jsx",
       "Selectors": [],
@@ -3168,7 +3213,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4548"
+          "Value": "4623"
         },
         {
           "Name": "Content-Type",
@@ -3176,11 +3221,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"uJggKzvvlZ9FBVhSxu+SvqMPzS2Hl1nDiBQdJjgK8vI=\""
+          "Value": "\"wFEUazlQrMC5SleQ9VVGn14SWem63sAH2IRw1a0BR9M=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 09 Apr 2025 19:06:49 GMT"
+          "Value": "Thu, 01 May 2025 18:48:43 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3190,52 +3235,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-uJggKzvvlZ9FBVhSxu+SvqMPzS2Hl1nDiBQdJjgK8vI="
-        }
-      ]
-    },
-    {
-      "Route": "js/react/userProfile.o45baoc1a3.jsx",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.jsx",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "4548"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/jscript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"uJggKzvvlZ9FBVhSxu+SvqMPzS2Hl1nDiBQdJjgK8vI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Wed, 09 Apr 2025 19:06:49 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "o45baoc1a3"
-        },
-        {
-          "Name": "label",
-          "Value": "js/react/userProfile.jsx"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-uJggKzvvlZ9FBVhSxu+SvqMPzS2Hl1nDiBQdJjgK8vI="
+          "Value": "sha256-wFEUazlQrMC5SleQ9VVGn14SWem63sAH2IRw1a0BR9M="
         }
       ]
     },
