@@ -18,6 +18,9 @@ module.exports = {
         // Webpack automatycznie dołączy 'auth.js', ponieważ jest importowany w tych plikach.
         // Dołączy również React i ReactDOM z node_modules.
         myItemList: './wwwroot/js/components/MyItemList.js', // lub .jsx
+        darkModeToggle: './wwwroot/js/components/darkModeToggle.js',
+        itemEditForm: './wwwroot/js/components/itemEditForm.js',
+        
     },
     output: {
         path: path.resolve(__dirname, 'wwwroot/js/dist'), // Katalog wyjściowy

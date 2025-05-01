@@ -5,6 +5,7 @@ using LeafLoop.Models;
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -16,16 +17,20 @@ namespace LeafLoop.Controllers
         private readonly IItemService _itemService;
         private readonly ICategoryService _categoryService;
         private readonly ILogger<ItemsController> _logger;
-
+        private readonly UserManager<User> _userManager;
+    
         public ItemsController(
             IItemService itemService,
             ICategoryService categoryService,
+            UserManager<User> userManager, // Added parameter
             ILogger<ItemsController> logger)
         {
             _itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
             _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager)); // Initialize UserManager
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+        
 
         // GET: /Items
         public IActionResult Index()
@@ -64,16 +69,38 @@ namespace LeafLoop.Controllers
         }
 
         // GET: /Items/Edit/5
-        [HttpGet]
-        public IActionResult Edit(int id)
+        // In ItemsController.cs
+        [HttpGet("Edit/{id:int}")]
+        public async Task<IActionResult> Edit(int id)
         {
             if (id <= 0)
             {
-                return BadRequest("Nieprawidłowe ID przedmiotu.");
+                return BadRequest("Invalid item ID.");
             }
-            
-            ViewBag.ItemId = id;
-            return View();
+    
+            try
+            {
+                // Check if item exists
+                var item = await _itemService.GetItemByIdAsync(id);
+                if (item == null)
+                {
+                    return NotFound($"Item with ID {id} not found.");
+                }
+        
+                // Get categories for the dropdown
+                var categories = await _categoryService.GetAllCategoriesAsync();
+                ViewBag.Categories = categories;
+        
+                // Set item ID for client-side code
+                ViewBag.ItemId = id;
+        
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error preparing edit view for item: {ItemId}", id);
+                return View("Error");
+            }
         }
 
         // GET: /Items/MyItems

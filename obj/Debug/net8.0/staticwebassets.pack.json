@@ -13,8 +13,24 @@
       "PackagePath": "staticwebassets/favicon.ico"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/DarkModeToggle.js",
+      "PackagePath": "staticwebassets/js/components/DarkModeToggle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/DarkModeToggleComponent.js",
+      "PackagePath": "staticwebassets/js/components/DarkModeToggleComponent.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/ErrorFeedback.js",
+      "PackagePath": "staticwebassets/js/components/ErrorFeedback.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/MyItemList.js",
       "PackagePath": "staticwebassets/js/components/MyItemList.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/TransactionForm.js",
+      "PackagePath": "staticwebassets/js/components/TransactionForm.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemCreateForm.js",
@@ -25,8 +41,20 @@
       "PackagePath": "staticwebassets/js/components/itemDetails.js"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemEditForm.js",
+      "PackagePath": "staticwebassets/js/components/itemEditForm.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemList.js",
       "PackagePath": "staticwebassets/js/components/itemList.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/darkModeToggle.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/darkModeToggle.bundle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/darkModeToggle.bundle.js.LICENSE.txt",
+      "PackagePath": "staticwebassets/js/dist/darkModeToggle.bundle.js.LICENSE.txt"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemCreateForm.bundle.js",
@@ -43,6 +71,14 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemDetails.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/itemDetails.bundle.js.LICENSE.txt"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemEditForm.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/itemEditForm.bundle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemEditForm.bundle.js.LICENSE.txt",
+      "PackagePath": "staticwebassets/js/dist/itemEditForm.bundle.js.LICENSE.txt"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemList.bundle.js",

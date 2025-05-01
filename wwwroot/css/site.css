@@ -108,3 +108,85 @@ body {
     font-size: 2rem;
   }
 }
+:root {
+  --bs-body-color: #212529;
+  --bs-body-bg: #ffffff;
+  --card-bg: #ffffff;
+  --border-color: #dee2e6;
+}
+
+[data-bs-theme="dark"] {
+  --bs-body-color: #e9ecef;
+  --bs-body-bg: #212529;
+  --card-bg: #2c3034;
+  --border-color: #495057;
+
+  /* Override Bootstrap color variables */
+  --bs-primary: #75b798;
+  --bs-secondary: #6c757d;
+  --bs-success: #20c997;
+  --bs-info: #0dcaf0;
+  --bs-warning: #ffc107;
+  --bs-danger: #dc3545;
+  --bs-light: #343a40;
+  --bs-dark: #e9ecef;
+}
+
+/* Apply theme colors to elements */
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.border-top, .border-bottom {
+  border-color: var(--border-color) !important;
+}
+
+.bg-light {
+  background-color: var(--bs-light) !important;
+}
+
+.text-muted {
+  color: var(--bs-secondary) !important;
+}
+
+:root {
+  --bs-body-color: #212529;
+  --bs-body-bg: #ffffff;
+  --card-bg: #ffffff;
+  --border-color: #dee2e6;
+}
+
+[data-bs-theme="dark"] {
+  --bs-body-color: #e9ecef;
+  --bs-body-bg: #212529;
+  --card-bg: #2c3034;
+  --border-color: #495057;
+
+  --bs-primary: #75b798;
+  --bs-secondary: #6c757d;
+  --bs-success: #20c997;
+  --bs-info: #0dcaf0;
+  --bs-warning: #ffc107;
+  --bs-danger: #dc3545;
+  --bs-light: #343a40;
+  --bs-dark: #e9ecef;
+}
+
+/* Apply theme colors to elements */
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.border-top, .border-bottom {
+  border-color: var(--border-color) !important;
+}
+
+.bg-light {
+  background-color: var(--bs-light) !important;
+}
+
+.text-muted {
+  color: var(--bs-secondary) !important;
+}
