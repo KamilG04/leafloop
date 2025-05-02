@@ -59,33 +59,40 @@ builder.Services.AddMemoryCache();
 
 // Add AutoMapper with our MappingProfile
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+// --- POCZĄTEK POPRAWNEJ KONFIGURACJI ---
 
+// 1. Skonfiguruj Identity (TYLKO RAZ!)
+// To rejestruje usługi Identity ORAZ domyślne schematy uwierzytelniania (w tym ciasteczko)
 builder.Services.AddIdentity<User, IdentityRole<int>>(options => {
-        options.Password.RequireDigit = true;
-        options.Password.RequiredLength = 8;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireUppercase = true;
-        options.Password.RequireLowercase = true;
-    
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-        options.Lockout.MaxFailedAccessAttempts = 5;
-    
-        options.User.RequireUniqueEmail = true;
-    
-        // Allow redirects during login/logout
-        options.SignIn.RequireConfirmedAccount = false;
-        options.SignIn.RequireConfirmedEmail = false;
-        options.SignIn.RequireConfirmedPhoneNumber = false;
-    })
-    .AddEntityFrameworkStores<LeafLoopDbContext>()
-    .AddDefaultTokenProviders();
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
 
-// Configure JWT Authentication
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+
+    options.User.RequireUniqueEmail = true;
+
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
+})
+.AddEntityFrameworkStores<LeafLoopDbContext>()
+.AddDefaultTokenProviders();
+
+// 2. Skonfiguruj Uwierzytelnianie - ustaw domyślny schemat i dodaj obsługę JWT
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    // Ustaw domyślne schematy na ciasteczko zarejestrowane przez AddIdentity
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+     // DefaultSignInScheme często jest potrzebny dla operacji Identity jak ExternalLogin
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme; // Może być potrzebne przy logowaniu zewn.
 })
+// Dodaj obsługę JWT jako DODATKOWY schemat (nie domyślny)
 .AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -100,7 +107,31 @@ builder.Services.AddAuthentication(options =>
             Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
     };
 });
+// UWAGA: NIE wywołujemy tutaj .AddCookie(IdentityConstants.ApplicationScheme, ...)
+// AddIdentity już to zrobiło.
 
+// 3. Skonfiguruj OPCJE dla ciasteczek zarejestrowanych przez AddIdentity
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.Cookie.HttpOnly = true; // Zabezpieczenie przed XSS
+    // Upewnij się, że polityka Secure jest zgodna z Twoim środowiskiem (HTTPS)
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Zalecane dla HTTPS
+    options.Cookie.SameSite = SameSiteMode.Lax; // Dobra równowaga między bezpieczeństwem a wygodą
+    // options.ExpireTimeSpan = TimeSpan.FromDays(14); // Opcjonalnie: czas życia ciasteczka
+});
+
+// Skonfiguruj też ciasteczko zewnętrzne (jeśli planujesz np. logowanie Google/Facebook)
+builder.Services.ConfigureExternalCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Zalecane dla HTTPS
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
+
+// --- KONIEC POPRAWNEJ KONFIGURACJI ---
 // Add Swagger/OpenAPI support
 builder.Services.AddSwaggerGen(c =>
 {
@@ -166,7 +197,7 @@ else
 }
 
 // Add API exception handling middleware
-app.UseApiExceptionHandling();
+app.UseEnhancedErrorHandling();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -283,13 +314,33 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Error during database initialization");
     }
 }
+
 var provider = new FileExtensionContentTypeProvider();
-// Add MIME type for CSS if not present
+// Ensure CSS files have the correct MIME type
 if (!provider.Mappings.ContainsKey(".css"))
     provider.Mappings.Add(".css", "text/css");
+// Add any other MIME types that might be missing
+if (!provider.Mappings.ContainsKey(".webp"))
+    provider.Mappings.Add(".webp", "image/webp");
+if (!provider.Mappings.ContainsKey(".woff2"))
+    provider.Mappings.Add(".woff2", "font/woff2");
 
+// Configure static file middleware with proper MIME types
 app.UseStaticFiles(new StaticFileOptions
 {
-    ContentTypeProvider = provider
+    ContentTypeProvider = provider,
+    OnPrepareResponse = ctx =>
+    {
+        // Set cache control headers for better performance
+        var maxAge = ctx.File.Name.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ? 
+            TimeSpan.FromHours(1) : TimeSpan.FromDays(7);
+            
+        ctx.Context.Response.Headers.Append(
+            "Cache-Control", $"public, max-age={maxAge.TotalSeconds}");
+            
+        // Add security headers
+        ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    }
 });
+
 app.Run();

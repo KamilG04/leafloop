@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LeafLoop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d39dfef6b2fbdfa18ea6e8c99130423d267fd80f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a7788e7dcd98df7d8c3ea1c921a26e103a348b89")]
 [assembly: System.Reflection.AssemblyProductAttribute("LeafLoop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LeafLoop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

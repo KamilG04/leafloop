@@ -54,14 +54,14 @@ namespace LeafLoop.Api
                 var totalPages = (int)Math.Ceiling((double)totalItems / searchDto.PageSize.Value);
         
                 // Return both items and pagination info using our standardized response
-                return Ok(ApiResponse<IEnumerable<ItemDto>>.SuccessResponse(
-                    items, totalItems, totalPages, searchDto.Page.Value));
+                return this.ApiOkWithPagination(
+                    items, totalItems, totalPages, searchDto.Page.Value);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving items");
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    ApiResponse<IEnumerable<ItemDto>>.ErrorResponse("Error retrieving items"));
+                return this.ApiError<IEnumerable<ItemDto>>(
+                    StatusCodes.Status500InternalServerError, "Error retrieving items");
             }
         }
 
@@ -71,7 +71,7 @@ namespace LeafLoop.Api
         {
             if (id <= 0)
             {
-                return BadRequest(ApiResponse<ItemWithDetailsDto>.ErrorResponse("Invalid item ID"));
+                return this.ApiBadRequest<ItemWithDetailsDto>("Invalid item ID");
             }
             
             try
@@ -80,16 +80,16 @@ namespace LeafLoop.Api
                 
                 if (item == null)
                 {
-                    return NotFound(ApiResponse<ItemWithDetailsDto>.ErrorResponse($"Item with ID {id} not found"));
+                    return this.ApiNotFound<ItemWithDetailsDto>($"Item with ID {id} not found");
                 }
                 
-                return Ok(ApiResponse<ItemWithDetailsDto>.SuccessResponse(item));
+                return this.ApiOk(item);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving item details. ItemId: {ItemId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    ApiResponse<ItemWithDetailsDto>.ErrorResponse("Error retrieving item details"));
+                return this.ApiError<ItemWithDetailsDto>(
+                    StatusCodes.Status500InternalServerError, "Error retrieving item details");
             }
         }
         
@@ -104,17 +104,18 @@ namespace LeafLoop.Api
                 
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
                 {
-                    return Unauthorized(ApiResponse<IEnumerable<ItemDto>>.ErrorResponse("Unable to identify user"));
+                    return this.ApiError<IEnumerable<ItemDto>>(
+                        StatusCodes.Status401Unauthorized, "Unable to identify user");
                 }
 
                 var items = await _itemService.GetItemsByUserAsync(userId);
-                return Ok(ApiResponse<IEnumerable<ItemDto>>.SuccessResponse(items));
+                return this.ApiOk(items);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving current user items");
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    ApiResponse<IEnumerable<ItemDto>>.ErrorResponse("Error retrieving your items"));
+                return this.ApiError<IEnumerable<ItemDto>>(
+                    StatusCodes.Status500InternalServerError, "Error retrieving your items");
             }
         }
 
@@ -125,8 +126,8 @@ namespace LeafLoop.Api
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse<ItemDto>.ErrorResponse(
-                    "Invalid data. Please check your input and try again."));
+                return this.ApiBadRequest<ItemDto>(
+                    "Invalid data. Please check your input and try again.");
             }
 
             try
@@ -135,7 +136,8 @@ namespace LeafLoop.Api
                 
                 if (user == null)
                 {
-                    return Unauthorized(ApiResponse<ItemDto>.ErrorResponse("Unable to identify user"));
+                    return this.ApiError<ItemDto>(
+                        StatusCodes.Status401Unauthorized, "Unable to identify user");
                 }
 
                 var itemId = await _itemService.AddItemAsync(itemDto, user.Id);
@@ -144,18 +146,18 @@ namespace LeafLoop.Api
                 if (createdItemDto == null)
                 {
                     _logger.LogError("Could not retrieve the item (ID: {ItemId}) right after creation", itemId);
-                    return StatusCode(StatusCodes.Status500InternalServerError, 
-                        ApiResponse<ItemDto>.ErrorResponse("Error retrieving created item"));
+                    return this.ApiError<ItemDto>(
+                        StatusCodes.Status500InternalServerError, "Error retrieving created item");
                 }
 
-                return CreatedAtAction(nameof(GetItem), new { id = itemId }, 
+                return Created($"/api/items/{itemId}", 
                     ApiResponse<ItemDto>.SuccessResponse(createdItemDto, "Item created successfully"));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating item. DTO: {@ItemDto}", itemDto);
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    ApiResponse<ItemDto>.ErrorResponse("Error creating item"));
+                return this.ApiError<ItemDto>(
+                    StatusCodes.Status500InternalServerError, "Error creating item");
             }
         }
 
@@ -166,13 +168,13 @@ namespace LeafLoop.Api
         {
             if (id != itemDto.Id)
             {
-                return BadRequest(ApiResponse<object>.ErrorResponse("Item ID mismatch"));
+                return this.ApiBadRequest<object>("Item ID mismatch");
             }
             
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse<object>.ErrorResponse(
-                    "Invalid data. Please check your input and try again."));
+                return this.ApiBadRequest<object>(
+                    "Invalid data. Please check your input and try again.");
             }
 
             try
@@ -181,26 +183,27 @@ namespace LeafLoop.Api
                 
                 if (user == null)
                 {
-                    return Unauthorized(ApiResponse<object>.ErrorResponse("Unable to identify user"));
+                    return this.ApiError<object>(
+                        StatusCodes.Status401Unauthorized, "Unable to identify user");
                 }
 
                 await _itemService.UpdateItemAsync(itemDto, user.Id);
 
-                return Ok(ApiResponse<object>.SuccessResponse(null, "Item updated successfully"));
+                return this.ApiOk<object>(null, "Item updated successfully");
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ApiResponse<object>.ErrorResponse(ex.Message));
+                return this.ApiNotFound<object>(ex.Message);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException)
             {
                 return Forbid();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating item. ItemId: {ItemId}, DTO: {@ItemDto}", id, itemDto);
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    ApiResponse<object>.ErrorResponse("Error updating item"));
+                return this.ApiError<object>(
+                    StatusCodes.Status500InternalServerError, "Error updating item");
             }
         }
 
@@ -211,7 +214,7 @@ namespace LeafLoop.Api
         {
             if (id <= 0)
             {
-                return BadRequest(ApiResponse<object>.ErrorResponse("Invalid item ID"));
+                return this.ApiBadRequest<object>("Invalid item ID");
             }
             
             try
@@ -220,16 +223,17 @@ namespace LeafLoop.Api
                 
                 if (user == null)
                 {
-                    return Unauthorized(ApiResponse<object>.ErrorResponse("Unable to identify user"));
+                    return this.ApiError<object>(
+                        StatusCodes.Status401Unauthorized, "Unable to identify user");
                 }
 
                 await _itemService.DeleteItemAsync(id, user.Id);
 
-                return Ok(ApiResponse<object>.SuccessResponse(null, "Item deleted successfully"));
+                return this.ApiOk<object>(null, "Item deleted successfully");
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ApiResponse<object>.ErrorResponse(ex.Message));
+                return this.ApiNotFound<object>(ex.Message);
             }
             catch (UnauthorizedAccessException)
             {
@@ -238,8 +242,8 @@ namespace LeafLoop.Api
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting item. ItemId: {ItemId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    ApiResponse<object>.ErrorResponse("Error deleting item"));
+                return this.ApiError<object>(
+                    StatusCodes.Status500InternalServerError, "Error deleting item");
             }
         }
 
@@ -250,23 +254,23 @@ namespace LeafLoop.Api
         {
             if (id <= 0) 
             {
-                return BadRequest(ApiResponse<PhotoDto>.ErrorResponse("Invalid item ID"));
+                return this.ApiBadRequest<PhotoDto>("Invalid item ID");
             }
             
             if (photo == null || photo.Length == 0) 
             {
-                return BadRequest(ApiResponse<PhotoDto>.ErrorResponse("No photo file was uploaded"));
+                return this.ApiBadRequest<PhotoDto>("No photo file was uploaded");
             }
             
             if (photo.Length > 5 * 1024 * 1024) 
             {
-                return BadRequest(ApiResponse<PhotoDto>.ErrorResponse("File size exceeds maximum of 5MB"));
+                return this.ApiBadRequest<PhotoDto>("File size exceeds maximum of 5MB");
             }
             
             var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/webp" };
             if (!allowedContentTypes.Contains(photo.ContentType.ToLowerInvariant())) 
             {
-                return BadRequest(ApiResponse<PhotoDto>.ErrorResponse("Invalid file type (allowed: JPG, PNG, WEBP)"));
+                return this.ApiBadRequest<PhotoDto>("Invalid file type (allowed: JPG, PNG, WEBP)");
             }
 
             try
@@ -275,7 +279,8 @@ namespace LeafLoop.Api
                 
                 if (user == null)
                 {
-                    return Unauthorized(ApiResponse<PhotoDto>.ErrorResponse("Unable to identify user"));
+                    return this.ApiError<PhotoDto>(
+                        StatusCodes.Status401Unauthorized, "Unable to identify user");
                 }
 
                 // Check if user owns the item
@@ -303,8 +308,8 @@ namespace LeafLoop.Api
                 
                 if (createdPhotoDto == null)
                 {
-                    return StatusCode(StatusCodes.Status500InternalServerError, 
-                        ApiResponse<PhotoDto>.ErrorResponse("Error retrieving uploaded photo information"));
+                    return this.ApiError<PhotoDto>(
+                        StatusCodes.Status500InternalServerError, "Error retrieving uploaded photo information");
                 }
                 
                 return StatusCode(StatusCodes.Status201Created, 
@@ -316,13 +321,13 @@ namespace LeafLoop.Api
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ApiResponse<PhotoDto>.ErrorResponse(ex.Message));
+                return this.ApiNotFound<PhotoDto>(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error uploading photo for item. ItemId: {ItemId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    ApiResponse<PhotoDto>.ErrorResponse("Error uploading photo"));
+                return this.ApiError<PhotoDto>(
+                    StatusCodes.Status500InternalServerError, "Error uploading photo");
             }
         }
 
@@ -333,7 +338,7 @@ namespace LeafLoop.Api
         {
             if (itemId <= 0 || photoId <= 0)
             {
-                return BadRequest(ApiResponse<object>.ErrorResponse("Invalid item or photo ID"));
+                return this.ApiBadRequest<object>("Invalid item or photo ID");
             }
 
             try
@@ -342,7 +347,8 @@ namespace LeafLoop.Api
                 
                 if (user == null)
                 {
-                    return Unauthorized(ApiResponse<object>.ErrorResponse("Unable to identify user"));
+                    return this.ApiError<object>(
+                        StatusCodes.Status401Unauthorized, "Unable to identify user");
                 }
 
                 // Check if user owns the item
@@ -353,11 +359,11 @@ namespace LeafLoop.Api
 
                 await _photoService.DeletePhotoAsync(photoId, user.Id);
 
-                return Ok(ApiResponse<object>.SuccessResponse(null, "Photo deleted successfully"));
+                return this.ApiOk<object>(null, "Photo deleted successfully");
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ApiResponse<object>.ErrorResponse(ex.Message));
+                return this.ApiNotFound<object>(ex.Message);
             }
             catch (UnauthorizedAccessException)
             {
@@ -366,8 +372,8 @@ namespace LeafLoop.Api
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting photo. PhotoId: {PhotoId}, ItemId: {ItemId}", photoId, itemId);
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    ApiResponse<object>.ErrorResponse("Error deleting photo"));
+                return this.ApiError<object>(
+                    StatusCodes.Status500InternalServerError, "Error deleting photo");
             }
         }
     }

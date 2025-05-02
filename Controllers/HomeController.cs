@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using LeafLoop.Models;
 using LeafLoop.Repositories.Interfaces;
@@ -37,6 +38,14 @@ namespace LeafLoop.Controllers
 
         public async Task<IActionResult> Index()
         {
+            bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userName = User.Identity?.Name; // Często email
+
+            _logger.LogWarning(">>> HomeController.Index - Stan Uwierzytelnienia: {IsAuth}", isAuthenticated);
+            _logger.LogWarning(">>> HomeController.Index - User ID (Claim): {UserId}", userId ?? "BRAK");
+            _logger.LogWarning(">>> HomeController.Index - User Name (Identity): {UserName}", userName ?? "BRAK");
+            // --- KONIEC LOGOWANIA ---
             try
             {
                 var viewModel = new HomeViewModel();

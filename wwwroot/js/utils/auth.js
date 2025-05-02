@@ -1,108 +1,196 @@
-// Pełna ścieżka: wwwroot/js/utils/auth.js
+// wwwroot/js/utils/auth.js
 
 /**
- * Pobiera token JWT z ciasteczka 'jwt_token'.
- * @returns {string|null} Token JWT lub null, jeśli nie znaleziono.
+ * Gets the JWT token from cookies
+ * @returns {string|null} JWT token or null if not found
  */
 export const getJwtToken = () => {
-    const cookie = document.cookie.split('; ').find(row => row.startsWith('jwt_token='));
-    return cookie ? cookie.split('=')[1] : null;
+    try {
+        const cookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('jwt_token='));
+
+        if (!cookie) return null;
+
+        return cookie.split('=')[1];
+    } catch (err) {
+        console.error('Error getting JWT token from cookie:', err);
+        return null;
+    }
 };
 
 /**
- * Tworzy obiekt nagłówków HTTP do zapytań API, włączając token JWT.
- * @param {boolean} [includeContentType=true] Czy dołączyć nagłówek 'Content-Type: application/json'.
- * @returns {object} Obiekt nagłówków.
+ * Creates HTTP headers object including authorization if available
+ * @param {boolean} [includeContentType=true] Whether to include Content-Type header
+ * @returns {object} Headers object
  */
 export const getAuthHeaders = (includeContentType = true) => {
     const token = getJwtToken();
     const headers = {
-        'Accept': 'application/json', // Zawsze akceptujemy JSON
+        'Accept': 'application/json',
     };
+
     if (token) {
-        headers['Authorization'] = `Bearer ${token}`; // Dodaj token jeśli istnieje
+        headers['Authorization'] = `Bearer ${token}`;
     }
+
     if (includeContentType) {
-        headers['Content-Type'] = 'application/json'; // Dodaj Content-Type jeśli potrzebny
+        headers['Content-Type'] = 'application/json';
     }
+
     return headers;
 };
 
 /**
- * Obsługuje odpowiedź z Fetch API, sprawdzając statusy błędów i parsując JSON.
- * Automatycznie przekierowuje na stronę logowania przy błędzie 401.
- * @param {Response} response Obiekt Response z Fetch API.
- * @returns {Promise<object|array|null|true>} Przetworzone dane z odpowiedzi lub true/null dla odpowiedzi bez treści.
- * @throws {Error} Rzuca błąd w przypadku problemów z odpowiedzią (np. status 4xx/5xx).
+ * Check if the user is currently authenticated
+ * @returns {boolean} True if authenticated
+ */
+export const isAuthenticated = () => {
+    return getJwtToken() !== null;
+};
+
+/**
+ * Parses the JWT token to get the user claims
+ * @returns {object|null} User claims or null if invalid/not found
+ */
+export const getUserFromToken = () => {
+    const token = getJwtToken();
+    if (!token) return null;
+
+    try {
+        // Get the payload part of the token
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    } catch (err) {
+        console.error('Error parsing JWT token:', err);
+        return null;
+    }
+};
+
+/**
+ * Gets the current user ID from the token
+ * @returns {number|null} User ID or null if not found/authenticated
+ */
+export const getCurrentUserId = () => {
+    const userInfo = getUserFromToken();
+    if (!userInfo) return null;
+
+    // Try different claim types (depends on your JWT setup)
+    const nameIdentifierClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
+    const subClaim = 'sub';
+
+    if (userInfo[nameIdentifierClaim]) {
+        return parseInt(userInfo[nameIdentifierClaim], 10);
+    } else if (userInfo[subClaim]) {
+        return parseInt(userInfo[subClaim], 10);
+    }
+
+    return null;
+};
+
+/**
+ * Handles API response, checks for errors, parses JSON
+ * @param {Response} response Fetch API Response object
+ * @returns {Promise<any>} Parsed response data
+ * @throws {Error} If response has an error status
  */
 export const handleApiResponse = async (response) => {
-    if (response.status === 401) { // Unauthorized
-        console.warn('Błąd 401: Brak autoryzacji. Przekierowywanie do logowania.');
-        // Zachowaj obecny URL, aby wrócić po zalogowaniu
-        const returnUrl = window.location.pathname + window.location.search;
-        window.location.href = '/Account/Login?ReturnUrl=' + encodeURIComponent(returnUrl);
-        // Rzuć błąd, aby zatrzymać dalsze przetwarzanie w bloku .then()
-        throw new Error('Sesja wygasła lub brak autoryzacji. Zostaniesz przekierowany do strony logowania.');
+    // Handle authentication errors
+    if (response.status === 401) {
+        console.warn('Authentication required. Redirecting to login...');
+        // Save current URL to return after login
+        const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/Account/Login?ReturnUrl=${returnUrl}`;
+        throw new Error('Authentication required');
     }
-    if (response.status === 403) { // Forbidden
-        console.warn('Błąd 403: Brak uprawnień.');
-        throw new Error('Nie masz wystarczających uprawnień do wykonania tej akcji.');
-    }
-    if (!response.ok) { // Inne błędy (np. 400, 404, 500)
-        let errorMessage = `Błąd serwera (status: ${response.status})`;
+
+    // For other error responses, try to extract error details
+    if (!response.ok) {
+        let errorMessage = `Server error: ${response.status}`;
+
         try {
-            // Spróbuj odczytać szczegóły błędu z odpowiedzi API
+            // Try to get error details from response body
             const errorData = await response.json();
-            if (typeof errorData === 'string') {
-                errorMessage = errorData; // Jeśli błąd to prosty string
-            } else {
-                // Spróbuj znaleźć komunikat błędu w typowych polach
-                errorMessage = errorData.message || errorData.title || errorMessage;
-                // Jeśli są błędy walidacji (często w obiekcie 'errors')
-                if (errorData.errors && typeof errorData.errors === 'object') {
-                    const validationErrors = Object.values(errorData.errors).flat().join(' ');
-                    if (validationErrors) {
-                        errorMessage += `: ${validationErrors}`;
-                    }
+
+            // Handle standard API error format
+            if (errorData && !errorData.success && errorData.message) {
+                errorMessage = errorData.message;
+            }
+            // Handle validation errors
+            else if (errorData.errors) {
+                const validationErrors = Object.values(errorData.errors)
+                    .flat()
+                    .join('. ');
+
+                errorMessage = validationErrors || errorMessage;
+            }
+            // Handle simple string error
+            else if (typeof errorData === 'string') {
+                errorMessage = errorData;
+            }
+        } catch {
+            // If parsing JSON fails, use the status text
+            errorMessage = response.statusText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+    }
+
+    // For successful responses with no content
+    if (response.status === 204) {
+        return null;
+    }
+
+    // For successful responses with content
+    try {
+        // Check if content type is JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        }
+
+        // For non-JSON responses, return true to indicate success
+        return true;
+    } catch (error) {
+        console.warn('Error parsing JSON response:', error);
+
+        // For created resources (201), try to extract ID from Location header
+        if (response.status === 201) {
+            const location = response.headers.get('Location');
+            if (location) {
+                const parts = location.split('/');
+                const id = parseInt(parts[parts.length - 1], 10);
+                if (!isNaN(id)) {
+                    return { id };
                 }
             }
-        } catch (e) {
-            // Błąd parsowania JSON - użyj domyślnego komunikatu
-            console.warn("Nie udało się sparsować odpowiedzi błędu jako JSON.", e);
         }
-        console.error(`Błąd API (${response.status}): ${errorMessage}`);
-        throw new Error(errorMessage); // Rzuć błąd z komunikatem
-    }
 
-    // Odpowiedź jest OK (2xx)
-    if (response.status === 204) { // 204 No Content
-        return null; // Sukces, ale brak danych w ciele odpowiedzi
+        // Default to true to indicate success
+        return true;
     }
+};
 
-    // Spróbuj zwrócić JSON (dla 200 OK, 201 Created z ciałem)
-    try {
-        // Sprawdź Content-Type, aby uniknąć błędów parsowania np. plików
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-            return await response.json();
-        } else {
-            // Jeśli to nie JSON, ale odpowiedź jest OK, zwróć true (sukces)
-            // lub można zwrócić tekst: return await response.text();
-            return true;
-        }
-    } catch (e) {
-        // Błąd parsowania JSON, mimo statusu 2xx? Mało prawdopodobne, ale możliwe.
-        console.warn("Błąd parsowania JSON odpowiedzi sukcesu:", e);
-        // Spróbuj sprawdzić nagłówek Location dla 201 Created bez ciała
-        const locationHeader = response.headers.get('Location');
-        if (locationHeader && response.status === 201) {
-            const parts = locationHeader.split('/');
-            const id = parts[parts.length - 1];
-            // Zwróć obiekt z ID, aby można było go użyć (np. do przekierowania)
-            if (!isNaN(parseInt(id))) {
-                return { id: parseInt(id) };
-            }
-        }
-        return true; // Sukces, ale bez danych JSON
-    }
+/**
+ * Redirects to login page
+ */
+export const redirectToLogin = () => {
+    const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = `/Account/Login?ReturnUrl=${returnUrl}`;
+};
+
+/**
+ * Logs the user out
+ */
+export const logout = () => {
+    // Clear the JWT cookie
+    document.cookie = 'jwt_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax; Secure';
+
+    // Redirect to home page
+    window.location.href = '/';
 };

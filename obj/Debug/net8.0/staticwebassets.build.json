@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "NDGlICT4ozdG/cwgcmWYsU6762A2k9W1GHjeyDAj2fE=",
+  "Hash": "GWEX3CKpw+dfBN3Co3oJVYMtAzl36G/3wQReP1nl3Vo=",
   "Source": "LeafLoop",
   "BasePath": "_content/LeafLoop",
   "Mode": "Default",
@@ -59,12 +59,12 @@
       "OriginalItemSpec": "/Users/kamilglowacki/Downloads/LeafLoop-1/obj/Debug/net8.0/scopedcss/projectbundle/LeafLoop.bundle.scp.css"
     },
     {
-      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/Outdateddarkmode.css",
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/dark-mode.css",
       "SourceId": "LeafLoop",
       "SourceType": "Discovered",
       "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
       "BasePath": "_content/LeafLoop",
-      "RelativePath": "css/Outdateddarkmode#[.{fingerprint}]?.css",
+      "RelativePath": "css/dark-mode#[.{fingerprint}]?.css",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -73,11 +73,11 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "8ae65ax43t",
-      "Integrity": "0Crg+R7B0MV5rfIVCcwXLf2UtvvZxc9sGO9Ii3jPjzI=",
+      "Fingerprint": "eoccu3ygdx",
+      "Integrity": "LrWOlZuR585nLrQNZkb69oFhSMRdj9VSnCNmfhYdBJM=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot/css/Outdateddarkmode.css"
+      "OriginalItemSpec": "wwwroot/css/dark-mode.css"
     },
     {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/site.css",
@@ -311,6 +311,48 @@
       "OriginalItemSpec": "wwwroot/js/components/TransactionForm.js"
     },
     {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/commons.bundle.js",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "js/dist/commons.bundle#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "1na6uoe8y1",
+      "Integrity": "o2YAS8AeeYjnkT1ilKOxfCBA7z6TbJcwD8PmxbfmNt0=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/js/dist/commons.bundle.js"
+    },
+    {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/commons.bundle.js.LICENSE.txt",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "js/dist/commons.bundle.js.LICENSE#[.{fingerprint}]?.txt",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "q26incsnen",
+      "Integrity": "vmmuIs3PrfmlObLgWYCSbBNqw1FYQxuiE+wD09sfeHg=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/js/dist/commons.bundle.js.LICENSE.txt"
+    },
+    {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/darkModeToggle.bundle.js",
       "SourceId": "LeafLoop",
       "SourceType": "Discovered",
@@ -325,8 +367,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "whh2j078jc",
-      "Integrity": "FCiX98QsFxgEgc50HDiyAS819RThn8njO/lAFslqtHE=",
+      "Fingerprint": "6p1nn9iigd",
+      "Integrity": "WkMxD9GXZREJVXk4ZCxAgdmBvgDk1fX5W/ptMAfHx4k=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/darkModeToggle.bundle.js"
@@ -346,8 +388,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "ruxydoh9je",
-      "Integrity": "HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=",
+      "Fingerprint": "rqbryodwmw",
+      "Integrity": "zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/darkModeToggle.bundle.js.LICENSE.txt"
@@ -367,8 +409,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "14kpxwft26",
-      "Integrity": "EaP9qko/Mnd2WBL6+6mO0NkFXEeOfaTmW7usUitN7D8=",
+      "Fingerprint": "fwzcu5rfsd",
+      "Integrity": "v8JrKv3cvu144PWzidC5nxlA8+FSEH+W62/ms2f2soc=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/itemCreateForm.bundle.js"
@@ -388,8 +430,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "ruxydoh9je",
-      "Integrity": "HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=",
+      "Fingerprint": "rqbryodwmw",
+      "Integrity": "zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/itemCreateForm.bundle.js.LICENSE.txt"
@@ -409,8 +451,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "klntzk3ykd",
-      "Integrity": "SGArKDntl/rHNIBacbBpRRHolqNyzmIH9pV0PL4KHSI=",
+      "Fingerprint": "1maye863kq",
+      "Integrity": "x4cqmfeTkD/3EAdWbutaOyy8aDB/LYxAs/A0o9PnIT4=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/itemDetails.bundle.js"
@@ -430,8 +472,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "ruxydoh9je",
-      "Integrity": "HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=",
+      "Fingerprint": "rqbryodwmw",
+      "Integrity": "zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/itemDetails.bundle.js.LICENSE.txt"
@@ -451,8 +493,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "izkd4g65kc",
-      "Integrity": "gvDvcvyAEXfuSOV0q+nxODmzcA9Jh2ntWFbmqMtgKxA=",
+      "Fingerprint": "u70qom5jqo",
+      "Integrity": "ZjxYoZPPog3JJ+iEzZ8VbGCs+VR84kTE0xv5X4nBAwo=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/itemEditForm.bundle.js"
@@ -472,8 +514,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "ruxydoh9je",
-      "Integrity": "HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=",
+      "Fingerprint": "rqbryodwmw",
+      "Integrity": "zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/itemEditForm.bundle.js.LICENSE.txt"
@@ -493,8 +535,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "k6sm6cnwfe",
-      "Integrity": "LB5jwTXGV0wUx8mDZ12NJJi88Wo7Sk7O2Us245s33mU=",
+      "Fingerprint": "y6ysuoovk4",
+      "Integrity": "5uWDZXpJ7XTYCc3WzsFC5jaZ8da+c3UqTRu4vCkt8iE=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/itemList.bundle.js"
@@ -514,8 +556,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "ruxydoh9je",
-      "Integrity": "HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=",
+      "Fingerprint": "rqbryodwmw",
+      "Integrity": "zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/itemList.bundle.js.LICENSE.txt"
@@ -535,8 +577,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "zlg2ufvnaz",
-      "Integrity": "aRX9Z/a+ukDQmwhdwu3qZC0zP36vk68nYRW0cEngGYM=",
+      "Fingerprint": "r7q347vbwf",
+      "Integrity": "d1cfRoa2a5AInFLVkDNWXG+8b7Il/hsIPJ3zcP3zvog=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/myItemList.bundle.js"
@@ -556,11 +598,53 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "ruxydoh9je",
-      "Integrity": "HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=",
+      "Fingerprint": "rqbryodwmw",
+      "Integrity": "zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/myItemList.bundle.js.LICENSE.txt"
+    },
+    {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/react-vendors.bundle.js",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "js/dist/react-vendors.bundle#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "200vpsukjg",
+      "Integrity": "wppUFalrWg5jARjCI+jxSx4Q4KMG3FVcsHAgospMno0=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/js/dist/react-vendors.bundle.js"
+    },
+    {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/react-vendors.bundle.js.LICENSE.txt",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "js/dist/react-vendors.bundle.js.LICENSE#[.{fingerprint}]?.txt",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "ysr2cw0ub0",
+      "Integrity": "QoXgGGner2laR0U9FxNj2gzBGrAMAEtMjgTz8P/aCss=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/js/dist/react-vendors.bundle.js.LICENSE.txt"
     },
     {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",
@@ -577,8 +661,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "vj6cli4zq4",
-      "Integrity": "1ZZEVDXh6RzXhYVcE1WwpVbnCPB3pPgOJnrJShrasFM=",
+      "Fingerprint": "8lkaao0bw5",
+      "Integrity": "vPBHbXRWLVh8sEqpmCihySR5kqL1pEUIYwXY6wUTpg4=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/userProfile.bundle.js"
@@ -598,8 +682,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "ruxydoh9je",
-      "Integrity": "HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=",
+      "Fingerprint": "rqbryodwmw",
+      "Integrity": "zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/userProfile.bundle.js.LICENSE.txt"
@@ -640,8 +724,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "m4cxxlo3hb",
-      "Integrity": "pjBGDrm+/QIq8tcm1q1Y9OKKuciSQCZpc+XoHKD9M6A=",
+      "Fingerprint": "4ogb9klzw3",
+      "Integrity": "JLKeEFHf/JZlUWRqz3Ga17vtrQGq2dIrC8ogRRGsrHM=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/site.js"
@@ -661,11 +745,32 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "xy4zicz75e",
-      "Integrity": "6fUlbdoiU/BAdJYfCFwjh2ja9C33fwhT3wbiTScXsNE=",
+      "Fingerprint": "yvr827wz1i",
+      "Integrity": "Lr2h1SVv9Rtt7NTwj2nvaAn8utXjwC+WyBtRNxlfyJo=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/utils/auth.js"
+    },
+    {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/reactHelpers.js",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "js/utils/reactHelpers#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "qnpdjz1oi4",
+      "Integrity": "JjKsh9fFD4JhrmRtdbFo6DtxVxp4TC2vrclHV5b7BAk=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/js/utils/reactHelpers.js"
     },
     {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.css",
@@ -2077,8 +2182,8 @@
   ],
   "Endpoints": [
     {
-      "Route": "css/Outdateddarkmode.8ae65ax43t.css",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/Outdateddarkmode.css",
+      "Route": "css/dark-mode.css",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/dark-mode.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -2087,7 +2192,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "864"
+          "Value": "2525"
         },
         {
           "Name": "Content-Type",
@@ -2095,56 +2200,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"0Crg+R7B0MV5rfIVCcwXLf2UtvvZxc9sGO9Ii3jPjzI=\""
+          "Value": "\"LrWOlZuR585nLrQNZkb69oFhSMRdj9VSnCNmfhYdBJM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 13:15:03 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "8ae65ax43t"
-        },
-        {
-          "Name": "label",
-          "Value": "css/Outdateddarkmode.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-0Crg+R7B0MV5rfIVCcwXLf2UtvvZxc9sGO9Ii3jPjzI="
-        }
-      ]
-    },
-    {
-      "Route": "css/Outdateddarkmode.css",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/Outdateddarkmode.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "864"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"0Crg+R7B0MV5rfIVCcwXLf2UtvvZxc9sGO9Ii3jPjzI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 13:15:03 GMT"
+          "Value": "Fri, 02 May 2025 13:37:57 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2154,7 +2214,52 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-0Crg+R7B0MV5rfIVCcwXLf2UtvvZxc9sGO9Ii3jPjzI="
+          "Value": "sha256-LrWOlZuR585nLrQNZkb69oFhSMRdj9VSnCNmfhYdBJM="
+        }
+      ]
+    },
+    {
+      "Route": "css/dark-mode.eoccu3ygdx.css",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/dark-mode.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2525"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"LrWOlZuR585nLrQNZkb69oFhSMRdj9VSnCNmfhYdBJM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:37:57 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "eoccu3ygdx"
+        },
+        {
+          "Name": "label",
+          "Value": "css/dark-mode.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-LrWOlZuR585nLrQNZkb69oFhSMRdj9VSnCNmfhYdBJM="
         }
       ]
     },
@@ -3061,6 +3166,215 @@
       ]
     },
     {
+      "Route": "js/dist/commons.bundle.1na6uoe8y1.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/commons.bundle.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12930"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"o2YAS8AeeYjnkT1ilKOxfCBA7z6TbJcwD8PmxbfmNt0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "1na6uoe8y1"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dist/commons.bundle.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-o2YAS8AeeYjnkT1ilKOxfCBA7z6TbJcwD8PmxbfmNt0="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/commons.bundle.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/commons.bundle.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12930"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"o2YAS8AeeYjnkT1ilKOxfCBA7z6TbJcwD8PmxbfmNt0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-o2YAS8AeeYjnkT1ilKOxfCBA7z6TbJcwD8PmxbfmNt0="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/commons.bundle.js.LICENSE.q26incsnen.txt",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/commons.bundle.js.LICENSE.txt",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "391"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/plain"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"vmmuIs3PrfmlObLgWYCSbBNqw1FYQxuiE+wD09sfeHg=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "q26incsnen"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dist/commons.bundle.js.LICENSE.txt"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-vmmuIs3PrfmlObLgWYCSbBNqw1FYQxuiE+wD09sfeHg="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/commons.bundle.js.LICENSE.txt",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/commons.bundle.js.LICENSE.txt",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "391"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/plain"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"vmmuIs3PrfmlObLgWYCSbBNqw1FYQxuiE+wD09sfeHg=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-vmmuIs3PrfmlObLgWYCSbBNqw1FYQxuiE+wD09sfeHg="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/darkModeToggle.bundle.6p1nn9iigd.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/darkModeToggle.bundle.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11210"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"WkMxD9GXZREJVXk4ZCxAgdmBvgDk1fX5W/ptMAfHx4k=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "6p1nn9iigd"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dist/darkModeToggle.bundle.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-WkMxD9GXZREJVXk4ZCxAgdmBvgDk1fX5W/ptMAfHx4k="
+        }
+      ]
+    },
+    {
       "Route": "js/dist/darkModeToggle.bundle.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/darkModeToggle.bundle.js",
       "Selectors": [],
@@ -3071,7 +3385,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "158563"
+          "Value": "11210"
         },
         {
           "Name": "Content-Type",
@@ -3079,11 +3393,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"FCiX98QsFxgEgc50HDiyAS819RThn8njO/lAFslqtHE=\""
+          "Value": "\"WkMxD9GXZREJVXk4ZCxAgdmBvgDk1fX5W/ptMAfHx4k=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:48:09 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3093,12 +3407,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-FCiX98QsFxgEgc50HDiyAS819RThn8njO/lAFslqtHE="
+          "Value": "sha256-WkMxD9GXZREJVXk4ZCxAgdmBvgDk1fX5W/ptMAfHx4k="
         }
       ]
     },
     {
-      "Route": "js/dist/darkModeToggle.bundle.js.LICENSE.ruxydoh9je.txt",
+      "Route": "js/dist/darkModeToggle.bundle.js.LICENSE.rqbryodwmw.txt",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/darkModeToggle.bundle.js.LICENSE.txt",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3108,7 +3422,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3116,11 +3430,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:48:09 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3130,7 +3444,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ruxydoh9je"
+          "Value": "rqbryodwmw"
         },
         {
           "Name": "label",
@@ -3138,7 +3452,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
@@ -3153,7 +3467,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3161,11 +3475,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:48:09 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3175,57 +3489,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
     {
-      "Route": "js/dist/darkModeToggle.bundle.whh2j078jc.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/darkModeToggle.bundle.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "158563"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"FCiX98QsFxgEgc50HDiyAS819RThn8njO/lAFslqtHE=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:48:09 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "whh2j078jc"
-        },
-        {
-          "Name": "label",
-          "Value": "js/dist/darkModeToggle.bundle.js"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-FCiX98QsFxgEgc50HDiyAS819RThn8njO/lAFslqtHE="
-        }
-      ]
-    },
-    {
-      "Route": "js/dist/itemCreateForm.bundle.14kpxwft26.js",
+      "Route": "js/dist/itemCreateForm.bundle.fwzcu5rfsd.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemCreateForm.bundle.js",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3235,7 +3504,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "166574"
+          "Value": "19371"
         },
         {
           "Name": "Content-Type",
@@ -3243,11 +3512,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"EaP9qko/Mnd2WBL6+6mO0NkFXEeOfaTmW7usUitN7D8=\""
+          "Value": "\"v8JrKv3cvu144PWzidC5nxlA8+FSEH+W62/ms2f2soc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:03:03 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3257,7 +3526,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "14kpxwft26"
+          "Value": "fwzcu5rfsd"
         },
         {
           "Name": "label",
@@ -3265,7 +3534,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-EaP9qko/Mnd2WBL6+6mO0NkFXEeOfaTmW7usUitN7D8="
+          "Value": "sha256-v8JrKv3cvu144PWzidC5nxlA8+FSEH+W62/ms2f2soc="
         }
       ]
     },
@@ -3280,7 +3549,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "166574"
+          "Value": "19371"
         },
         {
           "Name": "Content-Type",
@@ -3288,11 +3557,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"EaP9qko/Mnd2WBL6+6mO0NkFXEeOfaTmW7usUitN7D8=\""
+          "Value": "\"v8JrKv3cvu144PWzidC5nxlA8+FSEH+W62/ms2f2soc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:03:03 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3302,12 +3571,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-EaP9qko/Mnd2WBL6+6mO0NkFXEeOfaTmW7usUitN7D8="
+          "Value": "sha256-v8JrKv3cvu144PWzidC5nxlA8+FSEH+W62/ms2f2soc="
         }
       ]
     },
     {
-      "Route": "js/dist/itemCreateForm.bundle.js.LICENSE.ruxydoh9je.txt",
+      "Route": "js/dist/itemCreateForm.bundle.js.LICENSE.rqbryodwmw.txt",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemCreateForm.bundle.js.LICENSE.txt",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3317,7 +3586,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3325,11 +3594,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 13:55:31 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3339,7 +3608,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ruxydoh9je"
+          "Value": "rqbryodwmw"
         },
         {
           "Name": "label",
@@ -3347,7 +3616,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
@@ -3362,7 +3631,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3370,11 +3639,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 13:55:31 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3384,7 +3653,52 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/itemDetails.bundle.1maye863kq.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemDetails.bundle.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "17795"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"x4cqmfeTkD/3EAdWbutaOyy8aDB/LYxAs/A0o9PnIT4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "1maye863kq"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dist/itemDetails.bundle.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-x4cqmfeTkD/3EAdWbutaOyy8aDB/LYxAs/A0o9PnIT4="
         }
       ]
     },
@@ -3399,7 +3713,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "165064"
+          "Value": "17795"
         },
         {
           "Name": "Content-Type",
@@ -3407,11 +3721,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"SGArKDntl/rHNIBacbBpRRHolqNyzmIH9pV0PL4KHSI=\""
+          "Value": "\"x4cqmfeTkD/3EAdWbutaOyy8aDB/LYxAs/A0o9PnIT4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 13:22:50 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3421,12 +3735,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-SGArKDntl/rHNIBacbBpRRHolqNyzmIH9pV0PL4KHSI="
+          "Value": "sha256-x4cqmfeTkD/3EAdWbutaOyy8aDB/LYxAs/A0o9PnIT4="
         }
       ]
     },
     {
-      "Route": "js/dist/itemDetails.bundle.js.LICENSE.ruxydoh9je.txt",
+      "Route": "js/dist/itemDetails.bundle.js.LICENSE.rqbryodwmw.txt",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemDetails.bundle.js.LICENSE.txt",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3436,7 +3750,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3444,11 +3758,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:11:25 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3458,7 +3772,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ruxydoh9je"
+          "Value": "rqbryodwmw"
         },
         {
           "Name": "label",
@@ -3466,7 +3780,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
@@ -3481,7 +3795,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3489,11 +3803,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:11:25 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3503,97 +3817,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
-        }
-      ]
-    },
-    {
-      "Route": "js/dist/itemDetails.bundle.klntzk3ykd.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemDetails.bundle.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "165064"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"SGArKDntl/rHNIBacbBpRRHolqNyzmIH9pV0PL4KHSI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 13:22:50 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "klntzk3ykd"
-        },
-        {
-          "Name": "label",
-          "Value": "js/dist/itemDetails.bundle.js"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-SGArKDntl/rHNIBacbBpRRHolqNyzmIH9pV0PL4KHSI="
-        }
-      ]
-    },
-    {
-      "Route": "js/dist/itemEditForm.bundle.izkd4g65kc.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemEditForm.bundle.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "164502"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"gvDvcvyAEXfuSOV0q+nxODmzcA9Jh2ntWFbmqMtgKxA=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 22:13:14 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "izkd4g65kc"
-        },
-        {
-          "Name": "label",
-          "Value": "js/dist/itemEditForm.bundle.js"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-gvDvcvyAEXfuSOV0q+nxODmzcA9Jh2ntWFbmqMtgKxA="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
@@ -3608,7 +3832,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "164502"
+          "Value": "17318"
         },
         {
           "Name": "Content-Type",
@@ -3616,11 +3840,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"gvDvcvyAEXfuSOV0q+nxODmzcA9Jh2ntWFbmqMtgKxA=\""
+          "Value": "\"ZjxYoZPPog3JJ+iEzZ8VbGCs+VR84kTE0xv5X4nBAwo=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 22:13:14 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3630,12 +3854,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-gvDvcvyAEXfuSOV0q+nxODmzcA9Jh2ntWFbmqMtgKxA="
+          "Value": "sha256-ZjxYoZPPog3JJ+iEzZ8VbGCs+VR84kTE0xv5X4nBAwo="
         }
       ]
     },
     {
-      "Route": "js/dist/itemEditForm.bundle.js.LICENSE.ruxydoh9je.txt",
+      "Route": "js/dist/itemEditForm.bundle.js.LICENSE.rqbryodwmw.txt",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemEditForm.bundle.js.LICENSE.txt",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3645,7 +3869,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3653,11 +3877,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:48:09 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3667,7 +3891,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ruxydoh9je"
+          "Value": "rqbryodwmw"
         },
         {
           "Name": "label",
@@ -3675,7 +3899,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
@@ -3690,7 +3914,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3698,11 +3922,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:48:09 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3712,7 +3936,52 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/itemEditForm.bundle.u70qom5jqo.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemEditForm.bundle.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "17318"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"ZjxYoZPPog3JJ+iEzZ8VbGCs+VR84kTE0xv5X4nBAwo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "u70qom5jqo"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dist/itemEditForm.bundle.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-ZjxYoZPPog3JJ+iEzZ8VbGCs+VR84kTE0xv5X4nBAwo="
         }
       ]
     },
@@ -3727,7 +3996,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "165215"
+          "Value": "18043"
         },
         {
           "Name": "Content-Type",
@@ -3735,11 +4004,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"LB5jwTXGV0wUx8mDZ12NJJi88Wo7Sk7O2Us245s33mU=\""
+          "Value": "\"5uWDZXpJ7XTYCc3WzsFC5jaZ8da+c3UqTRu4vCkt8iE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 12:48:00 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3749,12 +4018,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-LB5jwTXGV0wUx8mDZ12NJJi88Wo7Sk7O2Us245s33mU="
+          "Value": "sha256-5uWDZXpJ7XTYCc3WzsFC5jaZ8da+c3UqTRu4vCkt8iE="
         }
       ]
     },
     {
-      "Route": "js/dist/itemList.bundle.js.LICENSE.ruxydoh9je.txt",
+      "Route": "js/dist/itemList.bundle.js.LICENSE.rqbryodwmw.txt",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemList.bundle.js.LICENSE.txt",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3764,7 +4033,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3772,11 +4041,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:18:14 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3786,7 +4055,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ruxydoh9je"
+          "Value": "rqbryodwmw"
         },
         {
           "Name": "label",
@@ -3794,7 +4063,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
@@ -3809,7 +4078,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3817,11 +4086,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:18:14 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3831,12 +4100,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
     {
-      "Route": "js/dist/itemList.bundle.k6sm6cnwfe.js",
+      "Route": "js/dist/itemList.bundle.y6ysuoovk4.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemList.bundle.js",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3846,7 +4115,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "165215"
+          "Value": "18043"
         },
         {
           "Name": "Content-Type",
@@ -3854,11 +4123,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"LB5jwTXGV0wUx8mDZ12NJJi88Wo7Sk7O2Us245s33mU=\""
+          "Value": "\"5uWDZXpJ7XTYCc3WzsFC5jaZ8da+c3UqTRu4vCkt8iE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 12:48:00 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3868,7 +4137,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "k6sm6cnwfe"
+          "Value": "y6ysuoovk4"
         },
         {
           "Name": "label",
@@ -3876,7 +4145,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-LB5jwTXGV0wUx8mDZ12NJJi88Wo7Sk7O2Us245s33mU="
+          "Value": "sha256-5uWDZXpJ7XTYCc3WzsFC5jaZ8da+c3UqTRu4vCkt8iE="
         }
       ]
     },
@@ -3891,7 +4160,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "161151"
+          "Value": "13885"
         },
         {
           "Name": "Content-Type",
@@ -3899,11 +4168,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"aRX9Z/a+ukDQmwhdwu3qZC0zP36vk68nYRW0cEngGYM=\""
+          "Value": "\"d1cfRoa2a5AInFLVkDNWXG+8b7Il/hsIPJ3zcP3zvog=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:28:51 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3913,12 +4182,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-aRX9Z/a+ukDQmwhdwu3qZC0zP36vk68nYRW0cEngGYM="
+          "Value": "sha256-d1cfRoa2a5AInFLVkDNWXG+8b7Il/hsIPJ3zcP3zvog="
         }
       ]
     },
     {
-      "Route": "js/dist/myItemList.bundle.js.LICENSE.ruxydoh9je.txt",
+      "Route": "js/dist/myItemList.bundle.js.LICENSE.rqbryodwmw.txt",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myItemList.bundle.js.LICENSE.txt",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3928,7 +4197,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3936,11 +4205,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:28:51 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3950,7 +4219,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ruxydoh9je"
+          "Value": "rqbryodwmw"
         },
         {
           "Name": "label",
@@ -3958,7 +4227,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
@@ -3973,7 +4242,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -3981,11 +4250,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:28:51 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3995,12 +4264,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
     {
-      "Route": "js/dist/myItemList.bundle.zlg2ufvnaz.js",
+      "Route": "js/dist/myItemList.bundle.r7q347vbwf.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myItemList.bundle.js",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4010,7 +4279,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "161151"
+          "Value": "13885"
         },
         {
           "Name": "Content-Type",
@@ -4018,11 +4287,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"aRX9Z/a+ukDQmwhdwu3qZC0zP36vk68nYRW0cEngGYM=\""
+          "Value": "\"d1cfRoa2a5AInFLVkDNWXG+8b7Il/hsIPJ3zcP3zvog=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 14:28:51 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4032,7 +4301,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "zlg2ufvnaz"
+          "Value": "r7q347vbwf"
         },
         {
           "Name": "label",
@@ -4040,7 +4309,216 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-aRX9Z/a+ukDQmwhdwu3qZC0zP36vk68nYRW0cEngGYM="
+          "Value": "sha256-d1cfRoa2a5AInFLVkDNWXG+8b7Il/hsIPJ3zcP3zvog="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/react-vendors.bundle.200vpsukjg.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/react-vendors.bundle.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "136016"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"wppUFalrWg5jARjCI+jxSx4Q4KMG3FVcsHAgospMno0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "200vpsukjg"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dist/react-vendors.bundle.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-wppUFalrWg5jARjCI+jxSx4Q4KMG3FVcsHAgospMno0="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/react-vendors.bundle.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/react-vendors.bundle.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "136016"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"wppUFalrWg5jARjCI+jxSx4Q4KMG3FVcsHAgospMno0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-wppUFalrWg5jARjCI+jxSx4Q4KMG3FVcsHAgospMno0="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/react-vendors.bundle.js.LICENSE.txt",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/react-vendors.bundle.js.LICENSE.txt",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "729"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/plain"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"QoXgGGner2laR0U9FxNj2gzBGrAMAEtMjgTz8P/aCss=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-QoXgGGner2laR0U9FxNj2gzBGrAMAEtMjgTz8P/aCss="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/react-vendors.bundle.js.LICENSE.ysr2cw0ub0.txt",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/react-vendors.bundle.js.LICENSE.txt",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "729"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/plain"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"QoXgGGner2laR0U9FxNj2gzBGrAMAEtMjgTz8P/aCss=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ysr2cw0ub0"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dist/react-vendors.bundle.js.LICENSE.txt"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-QoXgGGner2laR0U9FxNj2gzBGrAMAEtMjgTz8P/aCss="
+        }
+      ]
+    },
+    {
+      "Route": "js/dist/userProfile.bundle.8lkaao0bw5.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12337"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"vPBHbXRWLVh8sEqpmCihySR5kqL1pEUIYwXY6wUTpg4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "8lkaao0bw5"
+        },
+        {
+          "Name": "label",
+          "Value": "js/dist/userProfile.bundle.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-vPBHbXRWLVh8sEqpmCihySR5kqL1pEUIYwXY6wUTpg4="
         }
       ]
     },
@@ -4055,7 +4533,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "150338"
+          "Value": "12337"
         },
         {
           "Name": "Content-Type",
@@ -4063,11 +4541,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"1ZZEVDXh6RzXhYVcE1WwpVbnCPB3pPgOJnrJShrasFM=\""
+          "Value": "\"vPBHbXRWLVh8sEqpmCihySR5kqL1pEUIYwXY6wUTpg4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 18:59:23 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4077,12 +4555,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-1ZZEVDXh6RzXhYVcE1WwpVbnCPB3pPgOJnrJShrasFM="
+          "Value": "sha256-vPBHbXRWLVh8sEqpmCihySR5kqL1pEUIYwXY6wUTpg4="
         }
       ]
     },
     {
-      "Route": "js/dist/userProfile.bundle.js.LICENSE.ruxydoh9je.txt",
+      "Route": "js/dist/userProfile.bundle.js.LICENSE.rqbryodwmw.txt",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js.LICENSE.txt",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4092,7 +4570,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -4100,11 +4578,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 13:35:13 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4114,7 +4592,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "ruxydoh9je"
+          "Value": "rqbryodwmw"
         },
         {
           "Name": "label",
@@ -4122,7 +4600,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
@@ -4137,7 +4615,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "871"
+          "Value": "149"
         },
         {
           "Name": "Content-Type",
@@ -4145,11 +4623,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=\""
+          "Value": "\"zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 13:35:13 GMT"
+          "Value": "Fri, 02 May 2025 13:48:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4159,52 +4637,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic="
-        }
-      ]
-    },
-    {
-      "Route": "js/dist/userProfile.bundle.vj6cli4zq4.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "150338"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"1ZZEVDXh6RzXhYVcE1WwpVbnCPB3pPgOJnrJShrasFM=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 18:59:23 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "vj6cli4zq4"
-        },
-        {
-          "Name": "label",
-          "Value": "js/dist/userProfile.bundle.js"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-1ZZEVDXh6RzXhYVcE1WwpVbnCPB3pPgOJnrJShrasFM="
+          "Value": "sha256-zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I="
         }
       ]
     },
@@ -4291,6 +4724,51 @@
       ]
     },
     {
+      "Route": "js/site.4ogb9klzw3.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/site.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3200"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"JLKeEFHf/JZlUWRqz3Ga17vtrQGq2dIrC8ogRRGsrHM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:39:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4ogb9klzw3"
+        },
+        {
+          "Name": "label",
+          "Value": "js/site.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-JLKeEFHf/JZlUWRqz3Ga17vtrQGq2dIrC8ogRRGsrHM="
+        }
+      ]
+    },
+    {
       "Route": "js/site.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/site.js",
       "Selectors": [],
@@ -4301,7 +4779,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "3870"
+          "Value": "3200"
         },
         {
           "Name": "Content-Type",
@@ -4309,11 +4787,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"pjBGDrm+/QIq8tcm1q1Y9OKKuciSQCZpc+XoHKD9M6A=\""
+          "Value": "\"JLKeEFHf/JZlUWRqz3Ga17vtrQGq2dIrC8ogRRGsrHM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 13:20:43 GMT"
+          "Value": "Fri, 02 May 2025 13:39:11 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4323,52 +4801,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-pjBGDrm+/QIq8tcm1q1Y9OKKuciSQCZpc+XoHKD9M6A="
-        }
-      ]
-    },
-    {
-      "Route": "js/site.m4cxxlo3hb.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/site.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "3870"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"pjBGDrm+/QIq8tcm1q1Y9OKKuciSQCZpc+XoHKD9M6A=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 13:20:43 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "m4cxxlo3hb"
-        },
-        {
-          "Name": "label",
-          "Value": "js/site.js"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-pjBGDrm+/QIq8tcm1q1Y9OKKuciSQCZpc+XoHKD9M6A="
+          "Value": "sha256-JLKeEFHf/JZlUWRqz3Ga17vtrQGq2dIrC8ogRRGsrHM="
         }
       ]
     },
@@ -4383,7 +4816,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5058"
+          "Value": "5975"
         },
         {
           "Name": "Content-Type",
@@ -4391,11 +4824,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"6fUlbdoiU/BAdJYfCFwjh2ja9C33fwhT3wbiTScXsNE=\""
+          "Value": "\"Lr2h1SVv9Rtt7NTwj2nvaAn8utXjwC+WyBtRNxlfyJo=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 13:06:24 GMT"
+          "Value": "Fri, 02 May 2025 13:39:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4405,12 +4838,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-6fUlbdoiU/BAdJYfCFwjh2ja9C33fwhT3wbiTScXsNE="
+          "Value": "sha256-Lr2h1SVv9Rtt7NTwj2nvaAn8utXjwC+WyBtRNxlfyJo="
         }
       ]
     },
     {
-      "Route": "js/utils/auth.xy4zicz75e.js",
+      "Route": "js/utils/auth.yvr827wz1i.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/auth.js",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4420,7 +4853,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5058"
+          "Value": "5975"
         },
         {
           "Name": "Content-Type",
@@ -4428,11 +4861,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"6fUlbdoiU/BAdJYfCFwjh2ja9C33fwhT3wbiTScXsNE=\""
+          "Value": "\"Lr2h1SVv9Rtt7NTwj2nvaAn8utXjwC+WyBtRNxlfyJo=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 13:06:24 GMT"
+          "Value": "Fri, 02 May 2025 13:39:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4442,7 +4875,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "xy4zicz75e"
+          "Value": "yvr827wz1i"
         },
         {
           "Name": "label",
@@ -4450,7 +4883,89 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-6fUlbdoiU/BAdJYfCFwjh2ja9C33fwhT3wbiTScXsNE="
+          "Value": "sha256-Lr2h1SVv9Rtt7NTwj2nvaAn8utXjwC+WyBtRNxlfyJo="
+        }
+      ]
+    },
+    {
+      "Route": "js/utils/reactHelpers.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/reactHelpers.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4614"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"JjKsh9fFD4JhrmRtdbFo6DtxVxp4TC2vrclHV5b7BAk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:45:53 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-JjKsh9fFD4JhrmRtdbFo6DtxVxp4TC2vrclHV5b7BAk="
+        }
+      ]
+    },
+    {
+      "Route": "js/utils/reactHelpers.qnpdjz1oi4.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/reactHelpers.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4614"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"JjKsh9fFD4JhrmRtdbFo6DtxVxp4TC2vrclHV5b7BAk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 13:45:53 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "qnpdjz1oi4"
+        },
+        {
+          "Name": "label",
+          "Value": "js/utils/reactHelpers.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-JjKsh9fFD4JhrmRtdbFo6DtxVxp4TC2vrclHV5b7BAk="
         }
       ]
     },

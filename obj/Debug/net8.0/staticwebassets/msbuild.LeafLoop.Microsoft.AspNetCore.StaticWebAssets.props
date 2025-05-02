@@ -1,22 +1,22 @@
 ﻿<Project>
   <ItemGroup>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\Outdateddarkmode.css'))">
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\dark-mode.css'))">
       <SourceType>Package</SourceType>
       <SourceId>LeafLoop</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
       <BasePath>_content/LeafLoop</BasePath>
-      <RelativePath>css/Outdateddarkmode.css</RelativePath>
+      <RelativePath>css/dark-mode.css</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
       <AssetRole>Primary</AssetRole>
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>8ae65ax43t</Fingerprint>
-      <Integrity>0Crg+R7B0MV5rfIVCcwXLf2UtvvZxc9sGO9Ii3jPjzI=</Integrity>
+      <Fingerprint>eoccu3ygdx</Fingerprint>
+      <Integrity>LrWOlZuR585nLrQNZkb69oFhSMRdj9VSnCNmfhYdBJM=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\Outdateddarkmode.css'))</OriginalItemSpec>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\dark-mode.css'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))">
       <SourceType>Package</SourceType>
@@ -216,6 +216,42 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\components\TransactionForm.js'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\commons.bundle.js'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>js/dist/commons.bundle.js</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>1na6uoe8y1</Fingerprint>
+      <Integrity>o2YAS8AeeYjnkT1ilKOxfCBA7z6TbJcwD8PmxbfmNt0=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\commons.bundle.js'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\commons.bundle.js.LICENSE.txt'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>js/dist/commons.bundle.js.LICENSE.txt</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>q26incsnen</Fingerprint>
+      <Integrity>vmmuIs3PrfmlObLgWYCSbBNqw1FYQxuiE+wD09sfeHg=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\commons.bundle.js.LICENSE.txt'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\darkModeToggle.bundle.js'))">
       <SourceType>Package</SourceType>
       <SourceId>LeafLoop</SourceId>
@@ -228,8 +264,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>whh2j078jc</Fingerprint>
-      <Integrity>FCiX98QsFxgEgc50HDiyAS819RThn8njO/lAFslqtHE=</Integrity>
+      <Fingerprint>6p1nn9iigd</Fingerprint>
+      <Integrity>WkMxD9GXZREJVXk4ZCxAgdmBvgDk1fX5W/ptMAfHx4k=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\darkModeToggle.bundle.js'))</OriginalItemSpec>
@@ -246,8 +282,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ruxydoh9je</Fingerprint>
-      <Integrity>HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=</Integrity>
+      <Fingerprint>rqbryodwmw</Fingerprint>
+      <Integrity>zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\darkModeToggle.bundle.js.LICENSE.txt'))</OriginalItemSpec>
@@ -264,8 +300,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>14kpxwft26</Fingerprint>
-      <Integrity>EaP9qko/Mnd2WBL6+6mO0NkFXEeOfaTmW7usUitN7D8=</Integrity>
+      <Fingerprint>fwzcu5rfsd</Fingerprint>
+      <Integrity>v8JrKv3cvu144PWzidC5nxlA8+FSEH+W62/ms2f2soc=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\itemCreateForm.bundle.js'))</OriginalItemSpec>
@@ -282,8 +318,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ruxydoh9je</Fingerprint>
-      <Integrity>HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=</Integrity>
+      <Fingerprint>rqbryodwmw</Fingerprint>
+      <Integrity>zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\itemCreateForm.bundle.js.LICENSE.txt'))</OriginalItemSpec>
@@ -300,8 +336,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>klntzk3ykd</Fingerprint>
-      <Integrity>SGArKDntl/rHNIBacbBpRRHolqNyzmIH9pV0PL4KHSI=</Integrity>
+      <Fingerprint>1maye863kq</Fingerprint>
+      <Integrity>x4cqmfeTkD/3EAdWbutaOyy8aDB/LYxAs/A0o9PnIT4=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\itemDetails.bundle.js'))</OriginalItemSpec>
@@ -318,8 +354,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ruxydoh9je</Fingerprint>
-      <Integrity>HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=</Integrity>
+      <Fingerprint>rqbryodwmw</Fingerprint>
+      <Integrity>zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\itemDetails.bundle.js.LICENSE.txt'))</OriginalItemSpec>
@@ -336,8 +372,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>izkd4g65kc</Fingerprint>
-      <Integrity>gvDvcvyAEXfuSOV0q+nxODmzcA9Jh2ntWFbmqMtgKxA=</Integrity>
+      <Fingerprint>u70qom5jqo</Fingerprint>
+      <Integrity>ZjxYoZPPog3JJ+iEzZ8VbGCs+VR84kTE0xv5X4nBAwo=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\itemEditForm.bundle.js'))</OriginalItemSpec>
@@ -354,8 +390,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ruxydoh9je</Fingerprint>
-      <Integrity>HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=</Integrity>
+      <Fingerprint>rqbryodwmw</Fingerprint>
+      <Integrity>zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\itemEditForm.bundle.js.LICENSE.txt'))</OriginalItemSpec>
@@ -372,8 +408,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>k6sm6cnwfe</Fingerprint>
-      <Integrity>LB5jwTXGV0wUx8mDZ12NJJi88Wo7Sk7O2Us245s33mU=</Integrity>
+      <Fingerprint>y6ysuoovk4</Fingerprint>
+      <Integrity>5uWDZXpJ7XTYCc3WzsFC5jaZ8da+c3UqTRu4vCkt8iE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\itemList.bundle.js'))</OriginalItemSpec>
@@ -390,8 +426,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ruxydoh9je</Fingerprint>
-      <Integrity>HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=</Integrity>
+      <Fingerprint>rqbryodwmw</Fingerprint>
+      <Integrity>zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\itemList.bundle.js.LICENSE.txt'))</OriginalItemSpec>
@@ -408,8 +444,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>zlg2ufvnaz</Fingerprint>
-      <Integrity>aRX9Z/a+ukDQmwhdwu3qZC0zP36vk68nYRW0cEngGYM=</Integrity>
+      <Fingerprint>r7q347vbwf</Fingerprint>
+      <Integrity>d1cfRoa2a5AInFLVkDNWXG+8b7Il/hsIPJ3zcP3zvog=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\myItemList.bundle.js'))</OriginalItemSpec>
@@ -426,11 +462,47 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ruxydoh9je</Fingerprint>
-      <Integrity>HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=</Integrity>
+      <Fingerprint>rqbryodwmw</Fingerprint>
+      <Integrity>zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\myItemList.bundle.js.LICENSE.txt'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\react-vendors.bundle.js'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>js/dist/react-vendors.bundle.js</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>200vpsukjg</Fingerprint>
+      <Integrity>wppUFalrWg5jARjCI+jxSx4Q4KMG3FVcsHAgospMno0=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\react-vendors.bundle.js'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\react-vendors.bundle.js.LICENSE.txt'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>js/dist/react-vendors.bundle.js.LICENSE.txt</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>ysr2cw0ub0</Fingerprint>
+      <Integrity>QoXgGGner2laR0U9FxNj2gzBGrAMAEtMjgTz8P/aCss=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\react-vendors.bundle.js.LICENSE.txt'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\userProfile.bundle.js'))">
       <SourceType>Package</SourceType>
@@ -444,8 +516,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>vj6cli4zq4</Fingerprint>
-      <Integrity>1ZZEVDXh6RzXhYVcE1WwpVbnCPB3pPgOJnrJShrasFM=</Integrity>
+      <Fingerprint>8lkaao0bw5</Fingerprint>
+      <Integrity>vPBHbXRWLVh8sEqpmCihySR5kqL1pEUIYwXY6wUTpg4=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\userProfile.bundle.js'))</OriginalItemSpec>
@@ -462,8 +534,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ruxydoh9je</Fingerprint>
-      <Integrity>HUOP3cZZ81P7PbergiFqVecfaqOvolOYSeaBkgN+pic=</Integrity>
+      <Fingerprint>rqbryodwmw</Fingerprint>
+      <Integrity>zfljztfSWg+YkBpUdke01uLb4Bl/14yHoFmoew5UL+I=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\userProfile.bundle.js.LICENSE.txt'))</OriginalItemSpec>
@@ -498,8 +570,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>m4cxxlo3hb</Fingerprint>
-      <Integrity>pjBGDrm+/QIq8tcm1q1Y9OKKuciSQCZpc+XoHKD9M6A=</Integrity>
+      <Fingerprint>4ogb9klzw3</Fingerprint>
+      <Integrity>JLKeEFHf/JZlUWRqz3Ga17vtrQGq2dIrC8ogRRGsrHM=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\site.js'))</OriginalItemSpec>
@@ -516,11 +588,29 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>xy4zicz75e</Fingerprint>
-      <Integrity>6fUlbdoiU/BAdJYfCFwjh2ja9C33fwhT3wbiTScXsNE=</Integrity>
+      <Fingerprint>yvr827wz1i</Fingerprint>
+      <Integrity>Lr2h1SVv9Rtt7NTwj2nvaAn8utXjwC+WyBtRNxlfyJo=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\utils\auth.js'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\utils\reactHelpers.js'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>js/utils/reactHelpers.js</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>qnpdjz1oi4</Fingerprint>
+      <Integrity>JjKsh9fFD4JhrmRtdbFo6DtxVxp4TC2vrclHV5b7BAk=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\utils\reactHelpers.js'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\LeafLoop.5wxvdamobd.bundle.scp.css'))">
       <SourceType>Package</SourceType>

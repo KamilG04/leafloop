@@ -121,7 +121,7 @@ namespace LeafLoop.Controllers
         [ValidateAntiForgeryToken]
         // In Controllers/AccountController.cs
 
-
+// In AccountController.cs - Fix the login flow
 public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
 {
     ViewData["ReturnUrl"] = returnUrl;
@@ -176,6 +176,10 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
             
             _logger.LogInformation("JWT token cookie set for user: {Email}", model.Email);
     
+            // Update the user's LastActivity time
+            user.LastActivity = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+            
             // Redirect to the return URL or home page
             return RedirectToLocal(returnUrl);
         }

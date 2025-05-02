@@ -1,10 +1,12 @@
 {
   "name": "leafloop",
-  "version": "0.0.0",
+  "version": "0.5.1",
   "description": "LeafLoop sustainable item exchange platform",
   "scripts": {
     "build": "webpack --mode production",
-    "dev": "webpack --mode development --watch"
+    "dev": "webpack --mode development --watch",
+    "watch": "webpack --mode development --watch",
+    "clean": "rm -rf ./wwwroot/js/dist"
   },
   "dependencies": {
     "react": "^18.2.0",

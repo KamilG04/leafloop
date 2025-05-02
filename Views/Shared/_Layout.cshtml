@@ -4,12 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - LeafLoop</title>
-    <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dark-mode.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LeafLoop.styles.css" asp-append-version="true" />
+    <script type="importmap"></script>
 </head>
 <body>
 <header>
@@ -41,17 +41,12 @@
                     }
                 </ul>
                 <ul class="navbar-nav">
-                    <!-- Add theme toggle button -->
-                    <!-- In _Layout.cshtml, replace the theme toggle button with this: -->
-                    <!-- In _Layout.cshtml -->
+                    <!-- Theme toggle button -->
                     <li class="nav-item">
                         <button id="theme-toggle" class="btn btn-link nav-link">
                             <i class="bi bi-moon-stars"></i>
                         </button>
                     </li>
-
-                    <!-- Remove the theme toggle script from the bottom of _Layout.cshtml -->
-                    
                     <partial name="_LoginPartial" />
                 </ul>
             </div>
@@ -105,10 +100,6 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
-
-<!-- Theme toggle script -->
-
-
 
 @await RenderSectionAsync("Scripts", required: false)
 </body>

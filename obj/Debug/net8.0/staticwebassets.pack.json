@@ -5,8 +5,8 @@
       "PackagePath": "staticwebassets/LeafLoop.5wxvdamobd.bundle.scp.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/Outdateddarkmode.css",
-      "PackagePath": "staticwebassets/css/Outdateddarkmode.css"
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/dark-mode.css",
+      "PackagePath": "staticwebassets/css/dark-mode.css"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/site.css",
@@ -51,6 +51,14 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemList.js",
       "PackagePath": "staticwebassets/js/components/itemList.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/commons.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/commons.bundle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/commons.bundle.js.LICENSE.txt",
+      "PackagePath": "staticwebassets/js/dist/commons.bundle.js.LICENSE.txt"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/darkModeToggle.bundle.js",
@@ -101,6 +109,14 @@
       "PackagePath": "staticwebassets/js/dist/myItemList.bundle.js.LICENSE.txt"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/react-vendors.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/react-vendors.bundle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/react-vendors.bundle.js.LICENSE.txt",
+      "PackagePath": "staticwebassets/js/dist/react-vendors.bundle.js.LICENSE.txt"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",
       "PackagePath": "staticwebassets/js/dist/userProfile.bundle.js"
     },
@@ -119,6 +135,10 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/auth.js",
       "PackagePath": "staticwebassets/js/utils/auth.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/reactHelpers.js",
+      "PackagePath": "staticwebassets/js/utils/reactHelpers.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/LICENSE",

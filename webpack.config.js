@@ -1,53 +1,74 @@
-// Pełna ścieżka: webpack.config.js (ZAKTUALIZOWANY)
 const path = require('path');
 
 module.exports = {
-    // Tryb można ustawić tutaj lub przez argumenty CLI (jak w package.json)
-    // mode: 'development', // lub 'production'
-    // devtool: 'inline-source-map', // Pomocne przy debugowaniu w trybie development
-
+    // Mode will be set by CLI arguments in package.json
     entry: {
-        // Istniejący punkt wejścia:
+        // React components
         userProfile: './wwwroot/js/react/userProfile.jsx',
-
-        // NOWE punkty wejścia dla komponentów przedmiotów:
-        // Klucz (np. 'itemList') zostanie użyty jako nazwa pliku wynikowego ([name].bundle.js)
         itemList: './wwwroot/js/components/itemList.js',
         itemDetails: './wwwroot/js/components/itemDetails.js',
         itemCreateForm: './wwwroot/js/components/itemCreateForm.js',
-        // Webpack automatycznie dołączy 'auth.js', ponieważ jest importowany w tych plikach.
-        // Dołączy również React i ReactDOM z node_modules.
-        myItemList: './wwwroot/js/components/MyItemList.js', // lub .jsx
-        darkModeToggle: './wwwroot/js/components/darkModeToggle.js',
         itemEditForm: './wwwroot/js/components/itemEditForm.js',
-        
+        myItemList: './wwwroot/js/components/MyItemList.js',
+        darkModeToggle: './wwwroot/js/components/darkModeToggle.js',
+
+        // Add other entry points as needed
     },
     output: {
-        path: path.resolve(__dirname, 'wwwroot/js/dist'), // Katalog wyjściowy
-        filename: '[name].bundle.js', // Nazwa pliku wynikowego, np. itemList.bundle.js
-        clean: true // Czyści folder /dist przed każdym buildem (zalecane)
+        path: path.resolve(__dirname, 'wwwroot/js/dist'),
+        filename: '[name].bundle.js',
+        clean: true // Clean output directory before each build
     },
     module: {
         rules: [
             {
-                test: /\.(js|jsx)$/, // Przetwarzaj pliki .js i .jsx
-                exclude: /node_modules/, // Wyklucz folder node_modules
+                test: /\.(js|jsx)$/,
+                exclude: /node_modules/,
                 use: {
-                    loader: 'babel-loader', // Użyj Babel Loader
+                    loader: 'babel-loader',
                     options: {
                         presets: [
-                            '@babel/preset-env',  // Transpiluj nowoczesny JS do starszych wersji
-                            '@babel/preset-react' // Transpiluj JSX i funkcje Reacta
+                            '@babel/preset-env',
+                            ['@babel/preset-react', {runtime: 'automatic'}] // Automatic import of React
+                        ],
+                        plugins: [
+                            // Add any Babel plugins here
                         ]
                     }
                 }
             }
-            // Tutaj można dodać reguły dla CSS/SCSS, obrazków itp., jeśli potrzebujesz
         ]
     },
     resolve: {
-        extensions: ['.js', '.jsx'] // Pozwala importować pliki bez podawania rozszerzenia
-    }
-    // Można dodać optymalizacje dla trybu production, np. minimalizację kodu
-    // optimization: { minimize: true }
+        extensions: ['.js', '.jsx'], // Allows importing without specifying extension
+        alias: {
+            // Add aliases if needed
+            '@utils': path.resolve(__dirname, 'wwwroot/js/utils'),
+            '@components': path.resolve(__dirname, 'wwwroot/js/components')
+        }
+    },
+    optimization: {
+        // Extract common dependencies into shared chunks
+        splitChunks: {
+            chunks: 'all',
+            name: 'vendors',
+            cacheGroups: {
+                // Extract React and ReactDOM into a separate vendor chunk
+                vendors: {
+                    test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+                    name: 'react-vendors',
+                    chunks: 'all',
+                    priority: 10
+                },
+                // Common code used across multiple chunks
+                commons: {
+                    name: 'commons',
+                    minChunks: 2, // Minimum number of chunks that must share a module
+                    priority: 5
+                }
+            }
+        }
+    },
+    // Development tools
+    devtool: process.env.NODE_ENV === 'development' ? 'source-map' : false
 };
