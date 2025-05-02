@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "Ha9i77vyysBFbZ2jxa4kIQcOJh05nQqTLhe4cMUX6oY=",
+  "Hash": "yjUFBW/AgxRyoenKnGpUvpl8jFx6myzUcOqVRmOKR9A=",
   "Source": "LeafLoop",
   "BasePath": "_content/LeafLoop",
   "Mode": "Default",
@@ -73,8 +73,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "igp0fuplgp",
-      "Integrity": "4vfn+HtUb+YDwZZY86Wohh6SEJWLkvukoGJYPoNhzD0=",
+      "Fingerprint": "jtjga7365x",
+      "Integrity": "Vz7idX+qL64XO7oDThybq4FODGrmFz/NJBHEJS7CIUk=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/css/site.css"
@@ -1928,6 +1928,27 @@
       "OriginalItemSpec": "wwwroot/uploads/items/1e6ee7c2-8d47-45fc-af18-bfb163011a67_Zrzut ekranu 2025-04-30 o 18.42.27.png"
     },
     {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "1q7na21wmd",
+      "Integrity": "J9eYlm8RlBOjwqlAQVc2JCJBvy4oifT0t9pCPYTy6GI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png"
+    },
+    {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/5aae4af3-cb7e-419c-a5a3-0e394351a768_Zrzut ekranu 2024-12-3 o 23.34.39.png",
       "SourceId": "LeafLoop",
       "SourceType": "Discovered",
@@ -2045,7 +2066,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "3491"
+          "Value": "2443"
         },
         {
           "Name": "Content-Type",
@@ -2053,11 +2074,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"4vfn+HtUb+YDwZZY86Wohh6SEJWLkvukoGJYPoNhzD0=\""
+          "Value": "\"Vz7idX+qL64XO7oDThybq4FODGrmFz/NJBHEJS7CIUk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:51:01 GMT"
+          "Value": "Fri, 02 May 2025 11:33:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2067,12 +2088,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-4vfn+HtUb+YDwZZY86Wohh6SEJWLkvukoGJYPoNhzD0="
+          "Value": "sha256-Vz7idX+qL64XO7oDThybq4FODGrmFz/NJBHEJS7CIUk="
         }
       ]
     },
     {
-      "Route": "css/site.igp0fuplgp.css",
+      "Route": "css/site.jtjga7365x.css",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/site.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -2082,7 +2103,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "3491"
+          "Value": "2443"
         },
         {
           "Name": "Content-Type",
@@ -2090,11 +2111,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"4vfn+HtUb+YDwZZY86Wohh6SEJWLkvukoGJYPoNhzD0=\""
+          "Value": "\"Vz7idX+qL64XO7oDThybq4FODGrmFz/NJBHEJS7CIUk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:51:01 GMT"
+          "Value": "Fri, 02 May 2025 11:33:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2104,7 +2125,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "igp0fuplgp"
+          "Value": "jtjga7365x"
         },
         {
           "Name": "label",
@@ -2112,7 +2133,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-4vfn+HtUb+YDwZZY86Wohh6SEJWLkvukoGJYPoNhzD0="
+          "Value": "sha256-Vz7idX+qL64XO7oDThybq4FODGrmFz/NJBHEJS7CIUk="
         }
       ]
     },
@@ -9493,6 +9514,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-L9BFDamtQwK5u1KhsfbDg6VoTcK3Z9PEKBtnTDiNUMU="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.1q7na21wmd.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "277213"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"J9eYlm8RlBOjwqlAQVc2JCJBvy4oifT0t9pCPYTy6GI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 11:28:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "1q7na21wmd"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-J9eYlm8RlBOjwqlAQVc2JCJBvy4oifT0t9pCPYTy6GI="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "277213"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"J9eYlm8RlBOjwqlAQVc2JCJBvy4oifT0t9pCPYTy6GI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 02 May 2025 11:28:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-J9eYlm8RlBOjwqlAQVc2JCJBvy4oifT0t9pCPYTy6GI="
         }
       ]
     },

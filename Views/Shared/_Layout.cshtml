@@ -21,6 +21,13 @@
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            <li class="nav-item">
+                <button id="theme-toggle" class="btn btn-link nav-link">
+                    <i class="bi bi-moon-stars" id="dark-icon"></i>
+                    <i class="bi bi-sun" id="light-icon" style="display: none;"></i>
+                </button>
+            </li>
+
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
@@ -93,7 +100,47 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
-<script src="~/js/dist/darkModeToggle.bundle.js" asp-append-version="true"></script>
+
 @await RenderSectionAsync("Scripts", required: false)
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('dark-icon');
+        const lightIcon = document.getElementById('light-icon');
+
+        // Check for saved theme preference or set based on system preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+            updateIcons(savedTheme);
+        } else {
+            // Check for system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+                updateIcons('dark');
+            }
+        }
+
+        // Toggle theme on button click
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcons(newTheme);
+        });
+
+        function updateIcons(theme) {
+            if (theme === 'dark') {
+                darkIcon.style.display = 'none';
+                lightIcon.style.display = 'inline-block';
+            } else {
+                darkIcon.style.display = 'inline-block';
+                lightIcon.style.display = 'none';
+            }
+        }
+    });
+</script>
 </body>
 </html>
