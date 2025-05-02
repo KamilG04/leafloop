@@ -85,10 +85,11 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options => {
 
 // 2. Configure Authentication Schemes (Cookie for MVC, JWT for API)
 builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-})
+    {
+        options.DefaultScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Add this line
+    })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters

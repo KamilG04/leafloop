@@ -129,6 +129,10 @@
       "PackagePath": "staticwebassets/js/react/userProfile.js"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/services/authService.js",
+      "PackagePath": "staticwebassets/js/services/authService.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/site.js",
       "PackagePath": "staticwebassets/js/site.js"
     },

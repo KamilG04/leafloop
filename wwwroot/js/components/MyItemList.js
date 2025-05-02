@@ -1,5 +1,5 @@
 // Pełna ścieżka: wwwroot/js/components/MyItemList.js
-
+import { AuthService } from '../services/authService.js';
 import React, { useState, useEffect, StrictMode, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 // === DODANO getResponseData DO IMPORTU ===
@@ -62,60 +62,14 @@ const MyItemList = () => {
     const [error, setError] = useState(null);
     const [actionError, setActionError] = useState(null);
 
-    const fetchMyItems = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        setActionError(null);
+    const fetchMyItems = async () => {
         try {
-            const url = '/api/items/my';
-            const headers = getAuthHeaders(false); // Pobierz nagłówki
-
-            // === DODANE LOGOWANIE NAGŁÓWKÓW ===
-            console.log("MyItemList: Wysyłanie żądania do", url, "z nagłówkami:", headers);
-            // ==================================
-
-            const response = await fetch(url, { method: 'GET', headers: headers });
-
-            // Sprawdźmy content-type ZANIM wywołamy handleApiResponse, na wypadek gdyby backend nadal zwracał HTML
-            const contentType = response.headers.get("content-type");
-            if (contentType && !contentType.includes("application/json")) {
-                console.error("MyItemList: Otrzymano odpowiedź inną niż JSON (prawdopodobnie HTML strony logowania). Status:", response.status);
-                // Rzuć błąd, który zostanie obsłużony przez handleApiResponse lub catch poniżej
-                // handleApiResponse powinien sam obsłużyć 401 i przekierować
-                if(response.status === 401 || response.status === 403) {
-                    // Pozwól handleApiResponse zadziałać i przekierować
-                } else {
-                    // Inny błąd z niepoprawnym content-type
-                    throw new Error("Otrzymano nieoczekiwany format odpowiedzi z serwera.");
-                }
-            }
-
-            // Użyj handleApiResponse (który powinien obsłużyć 401/403 i inne błędy)
-            const apiResult = await handleApiResponse(response);
-            console.log("MyItemList: Surowy wynik z API (po handleApiResponse):", apiResult);
-
-            // === UŻYCIE getResponseData ===
-            const itemsData = getResponseData(apiResult);
-            console.log("MyItemList: Dane przedmiotów (po getResponseData):", itemsData);
-            // =============================
-
-            // Upewnij się, że itemsData to tablica
-            setItems(Array.isArray(itemsData) ? itemsData : []);
-
-        } catch (err) {
-            console.error("MyItemList: Błąd podczas pobierania przedmiotów:", err);
-            // Komunikat błędu z handleApiResponse lub inny
-            setError(err.message || "Wystąpił błąd podczas ładowania Twoich przedmiotów.");
-            // handleApiResponse powinien przekierować przy 401, ale dla pewności:
-            if (err.message.includes("Authentication required")) {
-                // Można dodać opóźnienie, jeśli przekierowanie w handleApiResponse nie zadziała od razu
-                // setTimeout(() => window.location.href = '/Account/Login', 500);
-            }
-            setItems([]);
-        } finally {
-            setLoading(false);
+            const data = await AuthService.fetchWithAuth('/api/items/my');
+            setItems(Array.isArray(data) ? data : []);
+        } catch (error) {
+            setError(error.message);
         }
-    }, []);
+    };
 
     useEffect(() => {
         fetchMyItems();
