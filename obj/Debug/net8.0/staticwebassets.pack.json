@@ -5,6 +5,10 @@
       "PackagePath": "staticwebassets/LeafLoop.5wxvdamobd.bundle.scp.css"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/Outdateddarkmode.css",
+      "PackagePath": "staticwebassets/css/Outdateddarkmode.css"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/site.css",
       "PackagePath": "staticwebassets/css/site.css"
     },

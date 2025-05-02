@@ -2,35 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using LeafLoop.Models;
+using LeafLoop.Models.API;
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace LeafLoop.Controllers
 {
-    [Authorize] // Remove this if you want the items page to be accessible to anonymous users
     public class ItemsController : Controller
     {
         private readonly IItemService _itemService;
         private readonly ICategoryService _categoryService;
         private readonly ILogger<ItemsController> _logger;
-        private readonly UserManager<User> _userManager;
-    
+
         public ItemsController(
             IItemService itemService,
             ICategoryService categoryService,
-            UserManager<User> userManager, // Added parameter
             ILogger<ItemsController> logger)
         {
             _itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
             _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager)); // Initialize UserManager
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-        
 
         // GET: /Items
         public IActionResult Index()
@@ -43,7 +38,7 @@ namespace LeafLoop.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest("Nieprawidłowe ID przedmiotu.");
+                return BadRequest("Invalid item ID");
             }
             
             ViewBag.ItemId = id;
@@ -51,6 +46,7 @@ namespace LeafLoop.Controllers
         }
 
         // GET: /Items/Create
+        [Authorize]
         public async Task<IActionResult> Create()
         {
             try
@@ -62,60 +58,40 @@ namespace LeafLoop.Controllers
             {
                 _logger.LogError(ex, "Error loading categories for create form");
                 ViewBag.Categories = new List<CategoryDto>();
-                ModelState.AddModelError(string.Empty, "Nie udało się załadować kategorii.");
+                ModelState.AddModelError(string.Empty, "Failed to load categories");
             }
             
             return View();
         }
 
         // GET: /Items/Edit/5
-        // In ItemsController.cs
-        [HttpGet("Edit/{id:int}")]
-        public async Task<IActionResult> Edit(int id)
+        [Authorize]
+        [HttpGet]
+        public IActionResult Edit(int id)
         {
             if (id <= 0)
             {
-                return BadRequest("Invalid item ID.");
+                return BadRequest("Invalid item ID");
             }
-    
-            try
-            {
-                // Check if item exists
-                var item = await _itemService.GetItemByIdAsync(id);
-                if (item == null)
-                {
-                    return NotFound($"Item with ID {id} not found.");
-                }
-        
-                // Get categories for the dropdown
-                var categories = await _categoryService.GetAllCategoriesAsync();
-                ViewBag.Categories = categories;
-        
-                // Set item ID for client-side code
-                ViewBag.ItemId = id;
-        
-                return View();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error preparing edit view for item: {ItemId}", id);
-                return View("Error");
-            }
+            
+            ViewBag.ItemId = id;
+            return View();
         }
 
         // GET: /Items/MyItems
+        [Authorize]
         public IActionResult MyItems()
         {
             return View();
         }
 
-        // GET: /Items/GetItems (AJAX endpoint for React)
+        // This action serves as a bridge between MVC and the API
+        // It uses the same service as the API but returns JSON directly
         [HttpGet]
         public async Task<IActionResult> GetItems(string searchTerm = null, int? categoryId = null, string condition = null, int page = 1, int pageSize = 8)
         {
             try
             {
-                // Create search DTO with pagination
                 var searchDto = new ItemSearchDto
                 {
                     SearchTerm = searchTerm,
@@ -125,28 +101,29 @@ namespace LeafLoop.Controllers
                     PageSize = pageSize
                 };
                 
-                // Get items based on search criteria
                 var items = await _itemService.SearchItemsAsync(searchDto);
-                
-                // Get total count for pagination
                 var totalItems = await _itemService.GetItemsCountAsync(searchDto);
                 var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
                 
-                // Return JSON result
-                return Json(new {
-                    items = items,
-                    totalItems = totalItems,
-                    totalPages = totalPages,
-                    currentPage = page
+                // Return JSON in the same format as the API
+                return Json(new ApiResponse<IEnumerable<ItemDto>>
+                {
+                    Success = true,
+                    Data = items,
+                    TotalItems = totalItems,
+                    TotalPages = totalPages,
+                    CurrentPage = page
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving items");
-                return StatusCode(500, new { error = "Error retrieving items" });
+                return StatusCode(500, new ApiResponse<object> 
+                { 
+                    Success = false, 
+                    Message = "Error retrieving items" 
+                });
             }
         }
-
-        // Add additional actions as needed...
     }
 }

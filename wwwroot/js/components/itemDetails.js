@@ -179,7 +179,7 @@ const ItemDetails = ({ itemId }) => {
                         <p><strong>Stan:</strong> {condition}</p>
                         <p><strong>Kategoria:</strong> {categoryName}</p>
                         <p><strong>Wartość/Cel:</strong> {expectedValue > 0 ? `${expectedValue.toFixed(2)} PLN` : (isForExchange ? 'Wymiana' : 'Za darmo')}</p>
-                        <p><strong>Data dodania:</strong> {new Date(dateAdded).toLocaleString()}</p>
+                        <p><strong>Data dodania:</strong> {dateAdded ? new Date(dateAdded).toLocaleString('pl-PL') : 'Brak daty'}</p>
 
                         {/* Tagi */}
                         {tags && tags.length > 0 && (
