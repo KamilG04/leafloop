@@ -125,8 +125,8 @@
       "PackagePath": "staticwebassets/js/dist/userProfile.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.jsx",
-      "PackagePath": "staticwebassets/js/react/userProfile.jsx"
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.js",
+      "PackagePath": "staticwebassets/js/react/userProfile.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/site.js",

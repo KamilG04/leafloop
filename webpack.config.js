@@ -4,7 +4,7 @@ module.exports = {
     // Mode will be set by CLI arguments in package.json
     entry: {
         // React components
-        userProfile: './wwwroot/js/react/userProfile.jsx',
+        userProfile: './wwwroot/js/react/userProfile.js',
         itemList: './wwwroot/js/components/itemList.js',
         itemDetails: './wwwroot/js/components/itemDetails.js',
         itemCreateForm: './wwwroot/js/components/itemCreateForm.js',
