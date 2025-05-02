@@ -122,6 +122,7 @@ namespace LeafLoop.Controllers
         // In Controllers/AccountController.cs
 
 // In AccountController.cs - Fix the login flow
+// In AccountController.cs - Update the Login method
 public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
 {
     ViewData["ReturnUrl"] = returnUrl;
@@ -169,16 +170,20 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
                 new CookieOptions
                 {
                     HttpOnly = false, // Make accessible to JavaScript
-                    Secure = true,
+                    Secure = Request.IsHttps, // Use true in production only
                     SameSite = SameSiteMode.Lax,
                     Expires = DateTime.Now.AddDays(7)
                 });
             
+            // Add explicit logging to track cookie setting
             _logger.LogInformation("JWT token cookie set for user: {Email}", model.Email);
     
             // Update the user's LastActivity time
             user.LastActivity = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
+            
+            // Create user session explicitly if needed
+            await _sessionService.CreateSessionAsync(user, token, null, HttpContext);
             
             // Redirect to the return URL or home page
             return RedirectToLocal(returnUrl);

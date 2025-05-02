@@ -99,8 +99,35 @@
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/site.js" asp-append-version="true" type="module"></script>
+<!-- Add near the end of _Layout.cshtml, before </body> -->
+@if (User.Identity.IsAuthenticated)
+{
+    <script>
+        console.log("User is authenticated according to server-side check");
+        console.log("User claims:", @Html.Raw(Json.Serialize(User.Claims.Select(c => new { type = c.Type, value = c.Value }))));
+    </script>
+}
+else
+{
+    <script>
+        console.log("User is NOT authenticated according to server-side check");
+    </script>
+}
 
+<script>
+    // Check client-side auth state
+    document.addEventListener('DOMContentLoaded', function() {
+        const hasJwtCookie = document.cookie.includes('jwt_token=');
+        console.log("Has JWT cookie:", hasJwtCookie);
+
+        // If logged in but no cookie, might indicate a problem
+        const isLoggedIn = @(User.Identity.IsAuthenticated ? "true" : "false");
+        if (isLoggedIn && !hasJwtCookie) {
+            console.warn("Server thinks user is logged in but no JWT cookie found!");
+        }
+    });
+</script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

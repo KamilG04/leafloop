@@ -24,91 +24,94 @@ namespace LeafLoop.Services
             UserManager<User> userManager,
             ILogger<JwtTokenService> logger)
         {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _configuration = configuration;
+            _userManager = userManager;
+            _logger = logger;
         }
 
         public async Task<string> GenerateTokenAsync(User user)
         {
             try
             {
+                if (user == null) 
+                {
+                    _logger.LogError("Cannot generate token for null user");
+                    return null;
+                }
+
+                var userClaims = await _userManager.GetClaimsAsync(user);
                 var userRoles = await _userManager.GetRolesAsync(user);
-                
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
-                
-                // Add roles as claims
+
+                // Add role claims
                 foreach (var role in userRoles)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
                 }
-                
-                // Add custom claims
-                claims.Add(new Claim("FirstName", user.FirstName ?? string.Empty));
-                claims.Add(new Claim("LastName", user.LastName ?? string.Empty));
-                claims.Add(new Claim("EcoScore", user.EcoScore.ToString()));
-                claims.Add(new Claim("IsActive", user.IsActive.ToString()));
-                
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                    _configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT Key not configured")));
-                
+
+                // Add any additional user claims
+                claims.AddRange(userClaims);
+
+                var key = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                
-                var expires = DateTime.Now.AddDays(Convert.ToDouble(
-                    _configuration["JwtSettings:ExpiryInDays"] ?? "7"));
-                
+                var expiry = DateTime.Now.AddDays(
+                    Convert.ToDouble(_configuration["JwtSettings:ExpiryInDays"]));
+
                 var token = new JwtSecurityToken(
                     issuer: _configuration["JwtSettings:Issuer"],
                     audience: _configuration["JwtSettings:Audience"],
                     claims: claims,
-                    expires: expires,
+                    expires: expiry,
                     signingCredentials: creds
                 );
-                
+
+                _logger.LogInformation("Generated JWT token for user: {UserId}", user.Id);
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating JWT token for user: {UserId}", user.Id);
-                throw;
+                _logger.LogError(ex, "Error generating token for user ID: {UserId}", user?.Id);
+                return null;
             }
         }
+
 
         public ClaimsPrincipal ValidateToken(string token)
         {
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]);
-                
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
+            
                 var validationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = true,
-                    ValidIssuer = _configuration["JwtSettings:Issuer"],
                     ValidateAudience = true,
-                    ValidAudience = _configuration["JwtSettings:Audience"],
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _configuration["JwtSettings:Issuer"],
+                    ValidAudience = _configuration["JwtSettings:Audience"],
+                    IssuerSigningKey = key
                 };
-                
+
                 SecurityToken validatedToken;
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-                
+            
                 return principal;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error validating JWT token");
-                throw;
+                _logger.LogError(ex, "Error validating token");
+                return null;
             }
         }
+    
     }
 }

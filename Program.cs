@@ -86,41 +86,35 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options => {
 // 2. Configure Authentication Schemes (Cookie for MVC, JWT for API)
 builder.Services.AddAuthentication(options =>
     {
+        // For web pages - use cookie auth by default
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Add this line
+        options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+        // DO NOT set DefaultAuthenticateScheme here
     })
-.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-        ValidAudience = builder.Configuration["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT Key not configured")))
-    };
-});
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT Key not configured")))
+        };
+    });
 
-// 3. Configure Application Cookie Options
-builder.Services.ConfigureApplicationCookie(options =>
+// Then add this AUTHORIZATION policy after authentication setup
+builder.Services.AddAuthorization(options =>
 {
-    options.LoginPath = "/Account/Login";
-    options.LogoutPath = "/Account/Logout";
-    options.AccessDeniedPath = "/Account/AccessDenied";
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-
-    // --- Corrected API Redirect Handling ---
-    options.Events = new CookieAuthenticationEvents
+    // Add a specific policy for API endpoints
+    options.AddPolicy("ApiAuthPolicy", policy =>
     {
-        OnRedirectToLogin = context => HandleApiRedirect(context, StatusCodes.Status401Unauthorized, "Authentication required."),
-        OnRedirectToAccessDenied = context => HandleApiRedirect(context, StatusCodes.Status403Forbidden, "Access denied. You do not have permission.")
-    };
+        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
 });
 
 // --- Koniec konfiguracji Authentication & Authorization ---

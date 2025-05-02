@@ -1,20 +1,18 @@
 // Pełna ścieżka: wwwroot/js/components/MyItemList.js
-import { AuthService } from '../services/authService.js';
 import React, { useState, useEffect, StrictMode, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
-// === DODANO getResponseData DO IMPORTU ===
+// Używamy standardowych helperów
 import { getAuthHeaders, handleApiResponse, getResponseData } from '../utils/auth.js';
 
 // Komponent MyItemCard (bez zmian)
 const MyItemCard = ({ item, onDelete }) => {
-    // ... (kod komponentu bez zmian) ...
-    const photoPath = item.mainPhotoPath || null;
+    const photoPath = item.mainPhotoPath || '/img/placeholder-item.png'; // Dodano fallback
     const placeholder = (
         <div className="card-img-top bg-light d-flex align-items-center justify-content-center" style={{ height: '180px' }}>
             <i className="bi bi-box-seam text-muted" style={{ fontSize: '2.5rem' }}></i>
         </div>
     );
-    const getStatusBadge = (isAvailable) => { /* ... */
+    const getStatusBadge = (isAvailable) => {
         return isAvailable
             ? <span className="badge bg-success">Dostępny</span>
             : <span className="badge bg-secondary">Niedostępny</span>;
@@ -23,13 +21,9 @@ const MyItemCard = ({ item, onDelete }) => {
     return (
         <div className="col-sm-6 col-md-4 col-lg-3 mb-4">
             <div className="card h-100 shadow-sm">
-                {photoPath ? (
-                    <img src={photoPath} className="card-img-top" alt={item.name} style={{ height: '180px', objectFit: 'cover' }} onError={(e) => { e.target.src = '/img/placeholder-item.png'; }}/>
-                ) : (
-                    placeholder
-                )}
+                <img src={photoPath} className="card-img-top" alt={item.name} style={{ height: '180px', objectFit: 'cover' }} onError={(e) => { e.target.src = '/img/placeholder-item.png'; }}/>
                 <div className="card-body d-flex flex-column pb-2">
-                    <h5 className="card-title">{item.name}</h5>
+                    <h5 className="card-title text-truncate">{item.name}</h5>
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         {getStatusBadge(item.isAvailable)}
                         <span className="badge bg-info">{item.condition}</span>
@@ -62,14 +56,53 @@ const MyItemList = () => {
     const [error, setError] = useState(null);
     const [actionError, setActionError] = useState(null);
 
-    const fetchMyItems = async () => {
+    const fetchMyItems = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        setActionError(null);
         try {
-            const data = await AuthService.fetchWithAuth('/api/items/my');
-            setItems(Array.isArray(data) ? data : []);
-        } catch (error) {
-            setError(error.message);
+            const url = '/api/items/my';
+            const headers = getAuthHeaders(false); // Pobierz nagłówki z tokenem
+
+            // === LOGOWANIE WYSYŁANYCH NAGŁÓWKÓW ===
+            console.log("MyItemList: Wysyłanie żądania do", url);
+            console.log("MyItemList: Nagłówki:", headers);
+            if (!headers['Authorization']) {
+                console.warn("MyItemList: Brak nagłówka Authorization! Token nie został znaleziony?");
+            }
+            // =====================================
+
+            const response = await fetch(url, { method: 'GET', headers: headers });
+
+            // Sprawdź content-type przed handleApiResponse
+            const contentType = response.headers.get("content-type");
+            if (contentType && !contentType.includes("application/json") && response.status !== 204) {
+                console.error("MyItemList: Otrzymano odpowiedź inną niż JSON. Status:", response.status);
+                // handleApiResponse powinien obsłużyć 401/403 i przekierować
+                if (response.status !== 401 && response.status !== 403) {
+                    throw new Error(`Otrzymano nieoczekiwany format odpowiedzi (${contentType || 'brak'}) z serwera.`);
+                }
+            }
+
+            const apiResult = await handleApiResponse(response); // Obsługa błędów i parsowanie
+            console.log("MyItemList: Surowy wynik z API (po handleApiResponse):", apiResult);
+
+            // === UŻYCIE getResponseData ===
+            const itemsData = getResponseData(apiResult); // Wyciągnij dane z pola 'data'
+            console.log("MyItemList: Dane przedmiotów (po getResponseData):", itemsData);
+            // =============================
+
+            setItems(Array.isArray(itemsData) ? itemsData : []); // Ustaw stan poprawnymi danymi
+
+        } catch (err) {
+            console.error("MyItemList: Błąd podczas pobierania przedmiotów:", err);
+            setError(err.message || "Wystąpił błąd podczas ładowania Twoich przedmiotów.");
+            // handleApiResponse powinien przekierować przy 401
+            setItems([]);
+        } finally {
+            setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchMyItems();
@@ -113,11 +146,10 @@ const MyItemList = () => {
                 <i className="bi bi-exclamation-triangle-fill me-2"></i>
                 Błąd podczas ładowania Twoich przedmiotów: {error}
                 <div className="mt-3">
-                    <button className="btn btn-outline-danger" onClick={fetchMyItems}>
+                    <button className="btn btn-outline-danger btn-sm me-2" onClick={fetchMyItems}>
                         <i className="bi bi-arrow-clockwise me-1"></i> Spróbuj ponownie
                     </button>
-                    {/* Można dodać link do wylogowania/zalogowania */}
-                    <a href="/Account/Login" className="btn btn-outline-primary ms-2">
+                    <a href="/Account/Login" className="btn btn-outline-primary btn-sm">
                         <i className="bi bi-box-arrow-in-right me-1"></i> Zaloguj się
                     </a>
                 </div>
