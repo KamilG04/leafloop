@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LeafLoop.Models;
-using LeafLoop.Services.DTOs;
+using LeafLoop.Models;          // Dla User, KeyNotFoundException, UnauthorizedAccessException, ParticipationStatus, OrganizerType
+using LeafLoop.Models.API;      // Dla ApiResponse<T> i ApiResponse
+using LeafLoop.Services.DTOs;   // Dla DTOs
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;      // Dla StatusCodes
+using Microsoft.AspNetCore.Identity;  // Dla UserManager
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using LeafLoop.Api;             // <<<=== DODAJ TEN USING dla ApiControllerExtensions
 
 namespace LeafLoop.Api
 {
@@ -25,288 +27,335 @@ namespace LeafLoop.Api
             UserManager<User> userManager,
             ILogger<EventsController> logger)
         {
-            _eventService = eventService;
-            _userManager = userManager;
-            _logger = logger;
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         // GET: api/events
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EventDto>>> GetAllEvents()
+        public async Task<IActionResult> GetAllEvents() // Zmieniono sygnaturę na IActionResult
         {
             try
             {
                 var events = await _eventService.GetAllEventsAsync();
-                return Ok(events);
+                return this.ApiOk(events); // Użyj ApiOk<T>
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving events");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving events");
+                return this.ApiInternalError("Error retrieving events", ex); // Użyj ApiInternalError
             }
         }
 
         // GET: api/events/upcoming
         [HttpGet("upcoming")]
-        public async Task<ActionResult<IEnumerable<EventDto>>> GetUpcomingEvents([FromQuery] int count = 10)
+        public async Task<IActionResult> GetUpcomingEvents([FromQuery] int count = 10) // Zmieniono sygnaturę na IActionResult
         {
+            if (count <= 0) count = 10;
             try
             {
                 var events = await _eventService.GetUpcomingEventsAsync(count);
-                return Ok(events);
+                return this.ApiOk(events); // Użyj ApiOk<T>
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving upcoming events");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving events");
+                return this.ApiInternalError("Error retrieving upcoming events", ex); // Użyj ApiInternalError
             }
         }
 
         // GET: api/events/past
         [HttpGet("past")]
-        public async Task<ActionResult<IEnumerable<EventDto>>> GetPastEvents([FromQuery] int count = 10)
+        public async Task<IActionResult> GetPastEvents([FromQuery] int count = 10) // Zmieniono sygnaturę na IActionResult
         {
+            if (count <= 0) count = 10;
             try
             {
                 var events = await _eventService.GetPastEventsAsync(count);
-                return Ok(events);
+                return this.ApiOk(events); // Użyj ApiOk<T>
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving past events");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving events");
+                return this.ApiInternalError("Error retrieving past events", ex); // Użyj ApiInternalError
             }
         }
 
-        // GET: api/events/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EventWithDetailsDto>> GetEvent(int id)
+        // GET: api/events/{id:int}
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetEvent(int id) // Zmieniono sygnaturę na IActionResult
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid Event ID.");
+
             try
             {
-                var eventDetails = await _eventService.GetEventWithDetailsAsync(id);
-                
+                var eventDetails = await _eventService.GetEventWithDetailsAsync(id); // Zakładamy, że zwraca EventWithDetailsDto
+
                 if (eventDetails == null)
                 {
-                    return NotFound();
+                    return this.ApiNotFound($"Event with ID {id} not found."); // Użyj ApiNotFound
                 }
-                
-                return Ok(eventDetails);
+
+                return this.ApiOk(eventDetails); // Użyj ApiOk<T>
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving event details. EventId: {EventId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving event details");
+                return this.ApiInternalError("Error retrieving event details", ex); // Użyj ApiInternalError
             }
         }
 
-        // GET: api/events/5/participants
-        [HttpGet("{id}/participants")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetEventParticipants(int id)
+        // GET: api/events/{id:int}/participants
+        [HttpGet("{id:int}/participants")]
+        public async Task<IActionResult> GetEventParticipants(int id) // Zmieniono sygnaturę na IActionResult
         {
+             if (id <= 0) return this.ApiBadRequest("Invalid Event ID.");
+
             try
             {
-                var participants = await _eventService.GetEventParticipantsAsync(id);
-                return Ok(participants);
+                // Zakładamy, że serwis rzuca KeyNotFoundException, jeśli event nie istnieje
+                var participants = await _eventService.GetEventParticipantsAsync(id); // Zakładamy, że zwraca IEnumerable<UserDto>
+                return this.ApiOk(participants); // Użyj ApiOk<T>
+            }
+            catch (KeyNotFoundException) // Jawnie łap KeyNotFoundException z serwisu
+            {
+                return this.ApiNotFound($"Event with ID {id} not found.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving event participants. EventId: {EventId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving participants");
+                return this.ApiInternalError("Error retrieving participants", ex); // Użyj ApiInternalError
             }
         }
 
         // POST: api/events
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<int>> CreateEvent(EventCreateDto eventDto)
+        public async Task<IActionResult> CreateEvent([FromBody] EventCreateDto eventDto) // Zmieniono sygnaturę na IActionResult
         {
+             if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                
-                // Setting the organizer as the current user
+                if (user == null) return this.ApiUnauthorized("User not found.");
+
+                // Ustawienie organizatora - upewnij się, że OrganizerType enum jest poprawny
                 eventDto.OrganizerId = user.Id;
-                eventDto.OrganizerType = OrganizerType.User;
-                
+                eventDto.OrganizerType = Models.OrganizerType.User; // Użyj pełnej nazwy, jeśli jest konflikt
+
                 var eventId = await _eventService.CreateEventAsync(eventDto);
-                
-                return CreatedAtAction(nameof(GetEvent), new { id = eventId }, eventId);
+
+                var createdEvent = await _eventService.GetEventWithDetailsAsync(eventId); // Pobierz DTO do odpowiedzi
+                if(createdEvent == null)
+                {
+                     _logger.LogError("Could not retrieve event (ID: {EventId}) immediately after creation.", eventId);
+                     return this.ApiInternalError("Failed to retrieve event details after creation.");
+                }
+
+                // Użyj ApiCreatedAtAction
+                return this.ApiCreatedAtAction(
+                    createdEvent,
+                    nameof(GetEvent),
+                    "Events",
+                    new { id = eventId }
+                );
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating event");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating event");
+                _logger.LogError(ex, "Error creating event with Name: {EventName}", eventDto?.Name);
+                return this.ApiInternalError("Error creating event", ex); // Użyj ApiInternalError
             }
         }
 
-        // PUT: api/events/5
-        [HttpPut("{id}")]
+        // PUT: api/events/{id:int}
+        [HttpPut("{id:int}")]
         [Authorize]
-        public async Task<IActionResult> UpdateEvent(int id, EventUpdateDto eventDto)
+        public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventUpdateDto eventDto)
         {
             if (id != eventDto.Id)
             {
-                return BadRequest("Event ID mismatch");
+                return this.ApiBadRequest("Event ID mismatch in URL and body."); // Użyj ApiBadRequest
             }
-            
+
+            if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
                 var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-                
-                // Get event to check ownership
-                var eventEntity = await _eventService.GetEventByIdAsync(id);
-                if (eventEntity == null)
+
+                // Sprawdź, czy użytkownik może edytować ten event (jest właścicielem lub adminem)
+                // Zakładamy, że GetEventByIdAsync zwraca podstawowy Event lub null
+                var eventToCheck = await _eventService.GetEventByIdAsync(id);
+                if (eventToCheck == null)
                 {
-                    return NotFound();
+                     return this.ApiNotFound($"Event with ID {id} not found.");
                 }
-                
-                // Check if user is the organizer or an admin
-                if (eventEntity.OrganizerId != user.Id && eventEntity.OrganizerType != OrganizerType.User && !isAdmin)
+                bool isOwner = (eventToCheck.OrganizerId == user.Id && eventToCheck.OrganizerType == Models.OrganizerType.User);
+                if (!isOwner && !isAdmin)
                 {
-                    return Forbid();
+                    return this.ApiForbidden("You are not authorized to update this event.");
                 }
-                
+
+                // Jeśli wszystko ok, wykonaj aktualizację
+                // Zakładamy, że UpdateEventAsync rzuca KeyNotFoundException, jeśli wewnętrznie nie znajdzie eventu
                 await _eventService.UpdateEventAsync(eventDto);
-                
-                return NoContent();
+
+                return this.ApiNoContent(); // Użyj ApiNoContent
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException) // Jeśli UpdateEventAsync rzuci ten błąd
             {
-                return NotFound($"Event with ID {id} not found");
+                 return this.ApiNotFound($"Event with ID {id} not found during update.");
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException) // Chociaż sprawdzamy wcześniej, dla pewności
             {
-                return Forbid();
+                 return this.ApiForbidden("Authorization error during update.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating event. EventId: {EventId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error updating event");
+                return this.ApiInternalError("Error updating event", ex); // Użyj ApiInternalError
             }
         }
 
-        // DELETE: api/events/5
-        [HttpDelete("{id}")]
+        // DELETE: api/events/{id:int}
+        [HttpDelete("{id:int}")]
         [Authorize]
         public async Task<IActionResult> DeleteEvent(int id)
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid Event ID.");
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-                
-                // Get event to check ownership
-                var eventEntity = await _eventService.GetEventByIdAsync(id);
-                if (eventEntity == null)
-                {
-                    return NotFound();
-                }
-                
-                await _eventService.DeleteEventAsync(id, user.Id, OrganizerType.User);
-                
-                return NoContent();
+                if (user == null) return this.ApiUnauthorized("User not found.");
+
+                // Zakładamy, że DeleteEventAsync wewnętrznie sprawdza uprawnienia
+                // i rzuca UnauthorizedAccessException lub KeyNotFoundException
+                await _eventService.DeleteEventAsync(id, user.Id, Models.OrganizerType.User);
+
+                return this.ApiNoContent(); // Użyj ApiNoContent
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Event with ID {id} not found");
+                return this.ApiNotFound($"Event with ID {id} not found."); // Użyj ApiNotFound
             }
             catch (UnauthorizedAccessException)
             {
-                return Forbid();
+                 return this.ApiForbidden("You are not authorized to delete this event."); // Użyj ApiForbidden
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting event. EventId: {EventId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error deleting event");
+                return this.ApiInternalError("Error deleting event", ex); // Użyj ApiInternalError
             }
         }
 
-        // POST: api/events/5/register
-        [HttpPost("{id}/register")]
+        // POST: api/events/{id:int}/register
+        [HttpPost("{id:int}/register")]
         [Authorize]
         public async Task<IActionResult> RegisterForEvent(int id)
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid Event ID.");
+            User? user = null; // Deklaracja przed try
+
             try
             {
-                var user = await _userManager.GetUserAsync(User);
-                
+                user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
+
                 var success = await _eventService.RegisterForEventAsync(id, user.Id);
-                
+
                 if (!success)
                 {
-                    return BadRequest("Unable to register for event. The event might be full or not available for registration.");
+                    return this.ApiBadRequest("Unable to register for event. The event might be full, past, or not available."); // Użyj ApiBadRequest
                 }
-                
-                return NoContent();
+
+                return this.ApiNoContent(); // Użyj ApiNoContent
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Event with ID {id} not found");
+                return this.ApiNotFound($"Event with ID {id} not found."); // Użyj ApiNotFound
+            }
+            catch (InvalidOperationException ex) // Np. już zarejestrowany
+            {
+                 return this.ApiBadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registering for event. EventId: {EventId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error registering for event");
+                _logger.LogError(ex, "Error registering for event. EventId: {EventId}, UserId: {UserId}", id, user?.Id);
+                return this.ApiInternalError("Error registering for event", ex); // Użyj ApiInternalError
             }
         }
 
-        // DELETE: api/events/5/register
-        [HttpDelete("{id}/register")]
+        // DELETE: api/events/{id:int}/register
+        [HttpDelete("{id:int}/register")]
         [Authorize]
         public async Task<IActionResult> CancelEventRegistration(int id)
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid Event ID.");
+            User? user = null; // Deklaracja przed try
+
             try
             {
-                var user = await _userManager.GetUserAsync(User);
-                
+                user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
+
                 var success = await _eventService.CancelEventRegistrationAsync(id, user.Id);
-                
+
                 if (!success)
                 {
-                    return BadRequest("Unable to cancel registration. You might not be registered for this event.");
+                    return this.ApiBadRequest("Unable to cancel registration. You might not be registered or the event is not active."); // Użyj ApiBadRequest
                 }
-                
-                return NoContent();
+
+                return this.ApiNoContent(); // Użyj ApiNoContent
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Event with ID {id} not found");
+                return this.ApiNotFound($"Event with ID {id} not found."); // Użyj ApiNotFound
+            }
+            catch (InvalidOperationException ex) // Np. nie był zarejestrowany
+            {
+                 return this.ApiBadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error cancelling event registration. EventId: {EventId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error cancelling registration");
+                _logger.LogError(ex, "Error cancelling event registration. EventId: {EventId}, UserId: {UserId}", id, user?.Id);
+                return this.ApiInternalError("Error cancelling registration", ex); // Użyj ApiInternalError
             }
         }
 
-        // PUT: api/events/5/participants/3
-        [HttpPut("{eventId}/participants/{userId}")]
+        // PUT: api/events/{eventId:int}/participants/{userId:int}
+        [HttpPut("{eventId:int}/participants/{userId:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateParticipationStatus(int eventId, int userId, [FromBody] ParticipationStatusUpdateDto statusUpdateDto)
         {
+            if (eventId <= 0 || userId <= 0) return this.ApiBadRequest("Invalid Event or User ID.");
+            if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
             try
             {
+                // Zakładamy, że serwis rzuca KeyNotFoundException lub ArgumentException
                 await _eventService.UpdateParticipationStatusAsync(eventId, userId, statusUpdateDto.Status);
-                
-                return NoContent();
+
+                return this.ApiNoContent(); // Użyj ApiNoContent
             }
             catch (KeyNotFoundException)
             {
-                return NotFound("Event or participant not found");
+                return this.ApiNotFound("Event or participant not found."); // Użyj ApiNotFound
+            }
+            catch (ArgumentException ex) // Np. nieprawidłowy status
+            {
+                 return this.ApiBadRequest(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating participation status. EventId: {EventId}, UserId: {UserId}", eventId, userId);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error updating participation status");
+                return this.ApiInternalError("Error updating participation status", ex); // Użyj ApiInternalError
             }
         }
-    }
-
-    // Helper class for participation status update
-    public class ParticipationStatusUpdateDto
-    {
-        public ParticipationStatus Status { get; set; }
     }
 }

@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LeafLoop.Models;
-using LeafLoop.Services.DTOs;
+using LeafLoop.Models;          // Potrzebne, jeśli np. KeyNotFoundException jest specyficzne dla modelu
+using LeafLoop.Models.API;      // Dla ApiResponse<T> i ApiResponse
+using LeafLoop.Services.DTOs;   // Dla DTOs
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;      // Dla StatusCodes
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using LeafLoop.Api;             // Dla ApiControllerExtensions
 
 namespace LeafLoop.Api
 {
@@ -28,107 +30,173 @@ namespace LeafLoop.Api
 
         // GET: api/categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories()
+        // === ZMIANA SYGNATURY ===
+        // Zmieniono Task<ActionResult<IEnumerable<CategoryDto>>> na Task<IActionResult>
+        public async Task<IActionResult> GetAllCategories()
         {
             try
             {
                 var categories = await _categoryService.GetAllCategoriesAsync();
-                return Ok(categories);
+                // Użyj ApiOk<T> zwracającego dane
+                return this.ApiOk(categories);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving categories");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving categories");
+                // Użyj ApiInternalError
+                return this.ApiInternalError("Error retrieving categories", ex);
             }
         }
 
         // GET: api/categories/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryDto>> GetCategory(int id)
+        [HttpGet("{id:int}")] // Dodano :int dla routingu
+        // === ZMIANA SYGNATURY ===
+        // Zmieniono Task<ActionResult<CategoryDto>> na Task<IActionResult>
+        public async Task<IActionResult> GetCategory(int id)
         {
+            // Podstawowa walidacja
+            if (id <= 0)
+            {
+                 return this.ApiBadRequest("Invalid Category ID.");
+            }
+
             try
             {
                 var category = await _categoryService.GetCategoryByIdAsync(id);
-                
+
                 if (category == null)
                 {
-                    return NotFound();
+                    // Użyj ApiNotFound
+                    return this.ApiNotFound($"Category with ID {id} not found");
                 }
-                
-                return Ok(category);
+
+                // Użyj ApiOk<T> zwracającego dane
+                return this.ApiOk(category);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving category. CategoryId: {CategoryId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving category");
+                // Użyj ApiInternalError
+                return this.ApiInternalError("Error retrieving category", ex);
             }
         }
 
         // POST: api/categories
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<int>> CreateCategory(CategoryCreateDto categoryDto)
+        [Authorize(Roles = "Admin")] // Zakładając, że tylko admin może tworzyć kategorie
+        // === ZMIANA SYGNATURY ===
+        // Zmieniono Task<ActionResult<int>> na Task<IActionResult> (zwrócimy całe DTO, nie tylko ID)
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDto categoryDto) // Zmieniono typ parametru na FromBody
         {
+             // Walidacja modelu (jeśli używasz atrybutów w DTO)
+             if (!ModelState.IsValid)
+             {
+                 return this.ApiBadRequest(ModelState);
+             }
+
             try
             {
+                // Utwórz kategorię i pobierz ID
                 var categoryId = await _categoryService.CreateCategoryAsync(categoryDto);
-                return CreatedAtAction(nameof(GetCategory), new { id = categoryId }, categoryId);
+
+                // Pobierz utworzoną kategorię jako DTO, aby zwrócić ją w odpowiedzi
+                var createdCategory = await _categoryService.GetCategoryByIdAsync(categoryId);
+                if(createdCategory == null)
+                {
+                    // Coś poszło nie tak, jeśli nie możemy odzyskać właśnie utworzonej kategorii
+                    _logger.LogError("Could not retrieve category (ID: {CategoryId}) immediately after creation.", categoryId);
+                    return this.ApiInternalError("Failed to retrieve category details after creation.");
+                }
+
+                // Użyj ApiCreatedAtAction zwracającego 201 Created z lokalizacją i danymi
+                return this.ApiCreatedAtAction(
+                    createdCategory,          // Zwracany obiekt
+                    nameof(GetCategory),      // Nazwa akcji do pobrania zasobu
+                    "Categories",             // Nazwa kontrolera
+                    new { id = categoryId }   // Parametry routingu dla lokalizacji
+                    // Opcjonalny komunikat można dodać na końcu
+                );
             }
-            catch (Exception ex)
+            catch (Exception ex) // Złap bardziej specyficzne wyjątki, jeśli możliwe (np. DbUpdateException)
             {
-                _logger.LogError(ex, "Error creating category");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating category");
+                _logger.LogError(ex, "Error creating category with Name: {CategoryName}", categoryDto?.Name);
+                // Użyj ApiInternalError
+                return this.ApiInternalError("Error creating category", ex);
             }
         }
 
         // PUT: api/categories/{id}
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")] // Dodano :int
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateCategory(int id, CategoryUpdateDto categoryDto)
+        // Sygnatura już jest poprawna: Task<IActionResult>
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateDto categoryDto) // Zmieniono typ parametru na FromBody
         {
+            // Sprawdź zgodność ID
             if (id != categoryDto.Id)
             {
-                return BadRequest("Category ID mismatch");
+                // Użyj ApiBadRequest
+                return this.ApiBadRequest("Category ID mismatch in URL and body.");
             }
-            
+
+             // Walidacja modelu
+            if (!ModelState.IsValid)
+            {
+                 return this.ApiBadRequest(ModelState);
+            }
+
             try
             {
+                // UpdateCategoryAsync powinien rzucić KeyNotFoundException, jeśli kategoria nie istnieje
                 await _categoryService.UpdateCategoryAsync(categoryDto);
-                return NoContent();
+                // Użyj ApiNoContent dla sukcesu bez zwracania danych
+                return this.ApiNoContent();
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException) // Łapanie specyficznego wyjątku z serwisu
             {
-                return NotFound($"Category with ID {id} not found");
+                 // Użyj ApiNotFound
+                return this.ApiNotFound($"Category with ID {id} not found");
             }
-            catch (Exception ex)
+            catch (Exception ex) // Inne, niespodziewane błędy
             {
                 _logger.LogError(ex, "Error updating category. CategoryId: {CategoryId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error updating category");
+                 // Użyj ApiInternalError
+                return this.ApiInternalError("Error updating category", ex);
             }
         }
 
         // DELETE: api/categories/{id}
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")] // Dodano :int
         [Authorize(Roles = "Admin")]
+         // Sygnatura już jest poprawna: Task<IActionResult>
         public async Task<IActionResult> DeleteCategory(int id)
         {
+             if (id <= 0)
+            {
+                 return this.ApiBadRequest("Invalid Category ID.");
+            }
+
             try
             {
+                 // DeleteCategoryAsync powinien rzucić KeyNotFoundException lub InvalidOperationException
                 await _categoryService.DeleteCategoryAsync(id);
-                return NoContent();
+                // Użyj ApiNoContent dla sukcesu
+                return this.ApiNoContent();
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException) // Kategoria nie znaleziona
             {
-                return NotFound($"Category with ID {id} not found");
+                // Użyj ApiNotFound
+                return this.ApiNotFound($"Category with ID {id} not found");
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException ex) // Błąd logiki biznesowej (np. nie można usunąć, bo ma powiązane itemy)
             {
-                return BadRequest(ex.Message); // For example, "Cannot delete category with associated items"
+                // Użyj ApiBadRequest, przekazując komunikat z wyjątku
+                return this.ApiBadRequest(ex.Message);
             }
-            catch (Exception ex)
+            catch (Exception ex) // Inne, niespodziewane błędy
             {
                 _logger.LogError(ex, "Error deleting category. CategoryId: {CategoryId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error deleting category");
+                // Użyj ApiInternalError
+                return this.ApiInternalError("Error deleting category", ex);
             }
         }
     }

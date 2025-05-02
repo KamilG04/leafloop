@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using LeafLoop.Models;
+using LeafLoop.Models.API;      // Dla ApiResponse<T> i ApiResponse
 using LeafLoop.Services;
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.DTOs.Auth;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using LeafLoop.Api;             // Dla ApiControllerExtensions
 
 namespace LeafLoop.Api
 {
@@ -43,110 +45,120 @@ namespace LeafLoop.Api
         // POST: api/auth/register
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult> Register([FromBody] UserRegistrationDto registrationDto)
+        // === ZMIANA SYGNATURY z powrotem na Task<IActionResult> ===
+        public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationDto)
         {
+            if (registrationDto == null || string.IsNullOrWhiteSpace(registrationDto.Email) || string.IsNullOrWhiteSpace(registrationDto.Password))
+            {
+                // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
+                return this.ApiBadRequest("Registration data is incomplete.");
+            }
+
             try
             {
-                // Check if email already exists
                 var existingUser = await _userManager.FindByEmailAsync(registrationDto.Email);
                 if (existingUser != null)
                 {
-                    return Conflict(new { message = "Email is already registered" });
+                    return this.ApiError(StatusCodes.Status409Conflict, "Email is already registered.");
                 }
 
-                // Validate password match
                 if (registrationDto.Password != registrationDto.ConfirmPassword)
                 {
-                    return BadRequest(new { message = "Passwords do not match" });
+                    return this.ApiBadRequest("Passwords do not match.");
                 }
 
-                // Create the user
                 var userId = await _userService.RegisterUserAsync(registrationDto);
-                
-                // Get the user for token generation
+
                 var user = await _userManager.FindByIdAsync(userId.ToString());
-                
-                // Generate token
+                if (user == null)
+                {
+                     _logger.LogError("User not found immediately after registration. UserID: {UserId}", userId);
+                     return this.ApiInternalError("Failed to retrieve user after registration.");
+                }
+
                 var token = await _jwtTokenService.GenerateTokenAsync(user);
-                
-                // Create user session
                 await _sessionService.CreateSessionAsync(user, token, null, HttpContext);
-                
                 var userDto = await _userService.GetUserByIdAsync(userId);
-                
-                // Return the token and user info
-                return Ok(new TokenResponseDto
+
+                var tokenResponse = new TokenResponseDto
                 {
                     Token = token,
                     User = userDto
-                });
+                };
+
+                // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
+                return this.ApiOk(tokenResponse, "User registered successfully.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred during user registration");
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred during registration" });
+                _logger.LogError(ex, "Error occurred during user registration for email {Email}", registrationDto?.Email);
+                 // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
+                return this.ApiInternalError("An error occurred during registration. Please try again later.", ex);
             }
         }
 
         // POST: api/auth/login
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult> Login([FromBody] LoginDto loginDto)
+        // === ZMIANA SYGNATURY z powrotem na Task<IActionResult> ===
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
+             if (loginDto == null || string.IsNullOrWhiteSpace(loginDto.Email) || string.IsNullOrWhiteSpace(loginDto.Password))
+            {
+                 // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
+                return this.ApiBadRequest("Login data is incomplete.");
+            }
+
             try
             {
-                // Find the user by email
                 var user = await _userManager.FindByEmailAsync(loginDto.Email);
                 if (user == null)
                 {
-                    return Unauthorized(new { message = "Invalid email or password" });
+                    // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
+                    return this.ApiUnauthorized("Invalid email or password.");
                 }
 
-                // Check if the user is active
                 if (!user.IsActive)
                 {
-                    return Unauthorized(new { message = "Account is deactivated" });
+                     // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
+                    return this.ApiUnauthorized("Account is deactivated. Please contact support.");
                 }
 
-                // Verify password
-                var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+                var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, lockoutOnFailure: false);
                 if (!result.Succeeded)
                 {
-                    return Unauthorized(new { message = "Invalid email or password" });
+                    _logger.LogWarning("Failed login attempt for email {Email}", loginDto.Email);
+                    // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
+                    return this.ApiUnauthorized("Invalid email or password.");
                 }
 
-                // Update last activity time
                 user.LastActivity = DateTime.UtcNow;
-                await _userManager.UpdateAsync(user);
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                     _logger.LogError("Failed to update LastActivity for user {UserId}. Errors: {@Errors}", user.Id, updateResult.Errors);
+                }
 
-                // Generate token
                 var token = await _jwtTokenService.GenerateTokenAsync(user);
-                
-                // Create user session
                 await _sessionService.CreateSessionAsync(user, token, null, HttpContext);
-                
                 var userDto = await _userService.GetUserByIdAsync(user.Id);
-                
-                // Return the token and user info
-                return Ok(new TokenResponseDto
+
+                var tokenResponse = new TokenResponseDto
                 {
                     Token = token,
                     User = userDto
-                });
+                };
+
+                // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
+                return this.ApiOk(tokenResponse, "Login successful.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred during user login");
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred during login" });
+                _logger.LogError(ex, "Error occurred during user login for email {Email}", loginDto?.Email);
+                 // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
+                 return this.ApiInternalError("An error occurred during login. Please try again later.", ex);
             }
         }
     }
-
-    // Helper class for login
-    public class LoginDto
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public bool RememberMe { get; set; }
-    }
+    // Pozostałe definicje DTO bez zmian...
 }

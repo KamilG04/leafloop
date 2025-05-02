@@ -4,7 +4,7 @@
 import React, { useState, useEffect, StrictMode } from 'react';
 import ReactDOM from 'react-dom/client'; // <<< --- DODANA/POPRAWIONA TA LINIA --- >>>
 import { getAuthHeaders, handleApiResponse } from '../utils/auth.js'; // Zaimportuj funkcje pomocnicze
-
+console.log(">>> itemDetails.js: START PLIKU!");
 // Komponent wyświetlający zdjęcie w karuzeli lub jako pojedyncze
 const ItemPhotoDisplay = ({ photos, itemName }) => {
     if (!photos || photos.length === 0) {
@@ -55,10 +55,15 @@ const ItemDetails = ({ itemId }) => {
     const [error, setError] = useState(null);
     const [isOwner, setIsOwner] = useState(false); // Czy bieżący użytkownik jest właścicielem
 
+    
     // Funkcja do pobierania ID bieżącego użytkownika
     const getCurrentUserId = () => {
-        const token = getAuthHeaders(false)['Authorization']; // Pobierz tylko nagłówek Auth
-        if (!token || !token.startsWith('Bearer ')) return null;
+        const token = getAuthHeaders(false)['Authorization'];
+        console.log(">>> LOG 1 - Token w getCurrentUserId:", token); // Log 1
+        if (!token || !token.startsWith('Bearer ')) {
+            console.log(">>> LOG 1a - Brak tokenu Bearer");
+            return null;
+        }
         try {
             const base64Url = token.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -66,16 +71,20 @@ const ItemDetails = ({ itemId }) => {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
             const decodedToken = JSON.parse(jsonPayload);
-            const userIdClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
-            const userIdStr = decodedToken[userIdClaim];
-            return userIdStr ? parseInt(userIdStr, 10) : null;
+            console.log(">>> LOG 2 - Zdekodowany token:", decodedToken); // Log 2
+            // Sprawdź oba popularne typy claimów dla ID użytkownika
+            const nameIdClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+            const subClaim = "sub"; // Inny popularny claim ID
+            const userIdStr = decodedToken[nameIdClaim] || decodedToken[subClaim]; // Spróbuj obu
+            console.log(">>> LOG 3 - Pobrany User ID (string):", userIdStr); // Log 3
+            const userIdInt = userIdStr ? parseInt(userIdStr, 10) : null;
+            console.log(">>> LOG 3a - Pobrany User ID (int):", userIdInt); // Log 3a
+            return userIdInt;
         } catch (e) {
             console.error("Błąd dekodowania tokena JWT w ItemDetails:", e);
             return null;
         }
     };
-
-
     useEffect(() => {
         const fetchItemData = async () => {
             if (!itemId || itemId <= 0) {
@@ -83,35 +92,57 @@ const ItemDetails = ({ itemId }) => {
                 setLoading(false);
                 return;
             }
+            console.log(`>>> Rozpoczęcie fetchItemData dla itemId: ${itemId}`); // Log startu
             setLoading(true);
             setError(null);
             try {
+                console.log(">>> Wywołanie API: GET /api/items/" + itemId); // Log API call
                 const response = await fetch(`/api/items/${itemId}`, {
                     method: 'GET',
-                    headers: getAuthHeaders(false) // Zakładamy, że API zwraca 404 jeśli nie ma itemu, lub 401/403 jeśli jest chronione
+                    headers: getAuthHeaders(false)
                 });
-                const data = await handleApiResponse(response); // Oczekujemy ItemWithDetailsDto
+                // Użyj handleApiResponse do obsługi błędów i parsowania
+                const data = await handleApiResponse(response);
+                console.log(">>> LOG 4 - Dane przedmiotu z API (po handleApiResponse):", data); // Log 4
+
+                // Sprawdź, czy dane nie są null/undefined po handleApiResponse
+                if (!data) {
+                    console.error(">>> BŁĄD: handleApiResponse zwróciło puste dane, mimo że status był OK?");
+                    throw new Error("Otrzymano puste dane z API.");
+                }
+
                 setItem(data);
 
-                // Sprawdź, czy bieżący użytkownik jest właścicielem (porównaj ID)
-                const currentUserId = getCurrentUserId();
-                // DTO ItemWithDetailsDto zawiera obiekt 'user' z polem 'id'
-                if (data && data.user && currentUserId && data.user.id === currentUserId) {
+                const currentUserId = getCurrentUserId(); // Ta funkcja już loguje (Log 1, 2, 3, 3a)
+                console.log(">>> LOG 5 - ID bieżącego użytkownika (z tokenu):", currentUserId); // Log 5
+
+                // Sprawdź ostrożnie, czy data i user istnieją przed dostępem do id
+                const ownerIdFromApi = data && data.user ? data.user.id : null;
+                console.log(">>> LOG 6 - ID właściciela (z danych API):", ownerIdFromApi); // Log 6
+
+                // Porównanie ID
+                if (ownerIdFromApi !== null && currentUserId !== null && ownerIdFromApi === currentUserId) {
+                    console.log(">>> LOG 7a - Użytkownik JEST właścicielem."); // Log 7a
                     setIsOwner(true);
                 } else {
+                    console.log(">>> LOG 7b - Użytkownik NIE JEST właścicielem (lub dane niekompletne/różne ID)."); // Log 7b
+                    console.log(`>>> LOG 7c - Szczegóły porównania: ownerIdFromApi=${ownerIdFromApi}, currentUserId=${currentUserId}`); // Dodatkowy log porównania
                     setIsOwner(false);
                 }
 
             } catch (err) {
-                console.error("Błąd pobierania danych przedmiotu:", err);
+                console.error(">>> Błąd w fetchItemData lub handleApiResponse:", err); // Log błędu
                 setError(err.message);
-                setItem(null); // Wyczyść item w razie błędu
+                setItem(null);
             } finally {
+                console.log(">>> Zakończenie fetchItemData, setLoading(false)"); // Log końca
                 setLoading(false);
             }
         };
+        console.log(`>>> ItemDetails Component: RENDER START dla itemId: ${itemId}`);
         fetchItemData();
-    }, [itemId]); // Zależność od itemId
+    }, [itemId]);
+    // --- KONIEC LOGÓW W fetchItemData ---
 
     // Funkcja do usuwania przedmiotu
     const handleDelete = async () => {
@@ -139,16 +170,22 @@ const ItemDetails = ({ itemId }) => {
 
     // --- Renderowanie ---
     if (loading) {
+        // Możesz dodać console.log tutaj, żeby zobaczyć, czy spinner się pokazuje
+         console.log("Renderowanie: Stan ładowania (spinner)");
         return <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}><div className="spinner-border text-success" role="status"><span className="visually-hidden">Ładowanie...</span></div></div>;
     }
-    if (error) { return <div className="alert alert-danger" role="alert">Błąd: {error}</div>; }
-    // Jeśli nie ma błędu, ale item jest null (np. API zwróciło 404 i handleApiResponse rzuciło błąd przechwycony wyżej)
-    if (!item) { return <div className="alert alert-warning" role="alert">Nie znaleziono przedmiotu o podanym ID lub wystąpił błąd podczas ładowania.</div>; }
+    if (error) {
+        console.log(`Renderowanie: Stan błędu: ${error}`);
+        return <div className="alert alert-danger" role="alert">Błąd: {error}</div>;
+    }
+    if (!item) {
+        console.log("Renderowanie: Brak danych przedmiotu (po załadowaniu/błędzie)");
+        return <div className="alert alert-warning" role="alert">Nie znaleziono przedmiotu o podanym ID lub wystąpił błąd podczas ładowania.</div>;
+    }
 
-    // Destrukturyzacja dla łatwiejszego dostępu (z ItemWithDetailsDto)
+    // console.log("Renderowanie: Wyświetlanie szczegółów przedmiotu", item);
+    // Destrukturyzacja i reszta renderowania (bez zmian)
     const { name, description, condition, dateAdded, isAvailable, isForExchange, expectedValue, user, category, photos, tags } = item;
-
-    // Bezpieczne sprawdzanie istnienia zagnieżdżonych obiektów
     const categoryName = category ? category.name : 'Brak';
     const userName = user ? `${user.firstName} ${user.lastName}` : 'Nieznany użytkownik';
     const userAvatar = user ? user.avatarPath : null;

@@ -1,21 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Security.Claims; // Potrzebne dla User.FindFirstValue
 using System.Threading.Tasks;
-using LeafLoop.Models;
-using LeafLoop.Models.API;
-using LeafLoop.Services.DTOs;
+using LeafLoop.Models;          // Dla User, KeyNotFoundException, UnauthorizedAccessException, TransactionStatus, RatedEntityType (jeśli istnieje)
+using LeafLoop.Models.API;      // Dla ApiResponse<T> i ApiResponse
+using LeafLoop.Services.DTOs;   // Dla DTOs
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;      // Dla StatusCodes
+using Microsoft.AspNetCore.Identity;  // Dla UserManager
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using LeafLoop.Api;             // <<<=== DODAJ TEN USING dla ApiControllerExtensions
 
 namespace LeafLoop.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // All transaction endpoints require authentication
+    [Authorize] // Wszystkie endpointy transakcji wymagają autoryzacji
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
@@ -40,346 +42,492 @@ namespace LeafLoop.Api
 
         // GET: api/transactions
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<IEnumerable<TransactionDto>>>> GetUserTransactions(
+        public async Task<IActionResult> GetUserTransactions( // Zmieniono sygnaturę
             [FromQuery] bool asSeller = false)
         {
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                var transactions = await _transactionService.GetTransactionsByUserAsync(user.Id, asSeller);
-                return this.ApiOk(transactions);
+                if (user == null) return this.ApiUnauthorized("User not found.");
+
+                var transactions = await _transactionService.GetTransactionsByUserAsync(user.Id, asSeller); // Zakładam, że zwraca IEnumerable<TransactionDto>
+                return this.ApiOk(transactions); // Użyj ApiOk<T>
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving user transactions");
-                return this.ApiError<IEnumerable<TransactionDto>>(
-                    StatusCodes.Status500InternalServerError, "Error retrieving transactions");
+                _logger.LogError(ex, "Error retrieving user transactions for UserID: {UserId}, asSeller: {AsSeller}", User.FindFirst(ClaimTypes.NameIdentifier)?.Value, asSeller);
+                // Użyj niegenerycznego ApiInternalError
+                return this.ApiInternalError("Error retrieving transactions", ex);
             }
         }
 
-        // GET: api/transactions/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ApiResponse<TransactionWithDetailsDto>>> GetTransaction(int id)
+        // GET: api/transactions/{id:int}
+        [HttpGet("{id:int}")] // Dodano :int
+        public async Task<IActionResult> GetTransaction(int id) // Zmieniono sygnaturę
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
 
-                // Check if user can access this transaction
+                // Sprawdź dostęp do transakcji
                 var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
                 if (!canAccess)
                 {
-                    return Forbid();
+                    // Użyj ApiForbidden
+                    return this.ApiForbidden("You are not authorized to view this transaction.");
                 }
 
-                var transaction = await _transactionService.GetTransactionWithDetailsAsync(id);
+                var transaction = await _transactionService.GetTransactionWithDetailsAsync(id); // Zakładam, że zwraca TransactionWithDetailsDto
 
                 if (transaction == null)
                 {
-                    return this.ApiNotFound<TransactionWithDetailsDto>($"Transaction with ID {id} not found");
+                    // Użyj niegenerycznego ApiNotFound
+                    return this.ApiNotFound($"Transaction with ID {id} not found");
                 }
 
+                // Użyj ApiOk<T>
                 return this.ApiOk(transaction);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving transaction details. TransactionId: {TransactionId}", id);
-                return this.ApiError<TransactionWithDetailsDto>(
-                    StatusCodes.Status500InternalServerError, "Error retrieving transaction details");
+                 // Użyj niegenerycznego ApiInternalError
+                return this.ApiInternalError("Error retrieving transaction details", ex);
             }
         }
 
         // POST: api/transactions
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<int>>> InitiateTransaction(TransactionCreateDto transactionDto)
+        public async Task<IActionResult> InitiateTransaction([FromBody] TransactionCreateDto transactionDto) // Zmieniono sygnaturę, dodano FromBody
         {
+            if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
 
-                // Set the buyer ID to current user
+                // Ustaw kupującego jako bieżącego użytkownika
                 transactionDto.BuyerId = user.Id;
 
                 var transactionId = await _transactionService.InitiateTransactionAsync(transactionDto);
 
-                // Get the created transaction for the response
-                var transaction = await _transactionService.GetTransactionByIdAsync(transactionId);
-                if (transaction == null)
+                // Pobierz DTO utworzonej transakcji do odpowiedzi
+                var createdTransaction = await _transactionService.GetTransactionByIdAsync(transactionId); // Zakładam, że zwraca TransactionDto
+                if (createdTransaction == null)
                 {
-                    return this.ApiError<int>(
-                        StatusCodes.Status500InternalServerError, "Transaction created but could not be retrieved");
+                    _logger.LogError("Transaction created (ID: {TransactionId}) but could not be retrieved.", transactionId);
+                    // Użyj niegenerycznego ApiInternalError
+                    return this.ApiInternalError("Transaction created but could not be retrieved.");
                 }
 
-                return Created($"/api/transactions/{transactionId}", 
-                    ApiResponse<int>.SuccessResponse(transactionId, "Transaction initiated successfully"));
+                // Użyj ApiCreatedAtAction
+                return this.ApiCreatedAtAction(
+                    createdTransaction,
+                    nameof(GetTransaction),
+                    "Transactions",
+                    new { id = transactionId },
+                    "Transaction initiated successfully");
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex) // Np. przedmiot niedostępny, próba kupna własnego
             {
-                _logger.LogError(ex, "Error initiating transaction");
-                return this.ApiError<int>(
-                    StatusCodes.Status500InternalServerError, "Error initiating transaction");
+                _logger.LogWarning(ex, "Business logic error initiating transaction for ItemId: {ItemId}", transactionDto?.ItemId);
+                return this.ApiBadRequest(ex.Message); // Zwróć komunikat błędu biznesowego
+            }
+            catch (Exception ex) // Inne błędy
+            {
+                _logger.LogError(ex, "Error initiating transaction for ItemId: {ItemId}", transactionDto?.ItemId);
+                // Użyj niegenerycznego ApiInternalError
+                return this.ApiInternalError("Error initiating transaction", ex);
             }
         }
 
-        // PUT: api/transactions/5/status
-        [HttpPut("{id}/status")]
-        public async Task<ActionResult<ApiResponse<object>>> UpdateTransactionStatus(
-            int id, [FromBody] TransactionStatusUpdateDto statusUpdateDto)
+        // PUT: api/transactions/{id:int}/status
+        [HttpPut("{id:int}/status")] // Dodano :int
+        public async Task<IActionResult> UpdateTransactionStatus( // Zmieniono sygnaturę
+            int id, [FromBody] TransactionStatusUpdateDto statusUpdateDto) // Dodano FromBody
         {
-            if (id != statusUpdateDto.TransactionId)
-            {
-                return this.ApiBadRequest<object>("Transaction ID mismatch");
-            }
+            // Walidacja zgodności ID (TransactionId w DTO może być zbędne)
+            // if (id != statusUpdateDto.TransactionId)
+            // {
+            //     return this.ApiBadRequest("Transaction ID mismatch");
+            // }
+             if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+             if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
 
+                // Zakładamy, że serwis rzuca KeyNotFound lub UnauthorizedAccess
                 await _transactionService.UpdateTransactionStatusAsync(id, statusUpdateDto.Status, user.Id);
 
-                return this.ApiOk<object>(null, $"Transaction status updated to {statusUpdateDto.Status}");
+                // Użyj niegenerycznego ApiOk z komunikatem
+                return this.ApiOk($"Transaction status updated to {statusUpdateDto.Status}");
             }
             catch (KeyNotFoundException)
             {
-                return this.ApiNotFound<object>($"Transaction with ID {id} not found");
+                 // Użyj niegenerycznego ApiNotFound
+                return this.ApiNotFound($"Transaction with ID {id} not found");
             }
             catch (UnauthorizedAccessException)
             {
-                return Forbid();
+                // Użyj niegenerycznego ApiForbidden
+                return this.ApiForbidden("You are not authorized to update this transaction status.");
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex) // Np. nieprawidłowa zmiana statusu
+            {
+                return this.ApiBadRequest(ex.Message);
+            }
+            catch (Exception ex) // Inne błędy
             {
                 _logger.LogError(ex, "Error updating transaction status. TransactionId: {TransactionId}", id);
-                return this.ApiError<object>(
-                    StatusCodes.Status500InternalServerError, "Error updating transaction status");
+                 // Użyj niegenerycznego ApiInternalError
+                return this.ApiInternalError("Error updating transaction status", ex);
             }
         }
 
-        // POST: api/transactions/5/complete
-        [HttpPost("{id}/complete")]
-        public async Task<ActionResult<ApiResponse<object>>> CompleteTransaction(int id)
+        // POST: api/transactions/{id:int}/complete
+        [HttpPost("{id:int}/complete")] // Dodano :int
+        public async Task<IActionResult> CompleteTransaction(int id) // Zmieniono sygnaturę
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
 
+                // Zakładamy, że serwis rzuca wyjątki
                 await _transactionService.CompleteTransactionAsync(id, user.Id);
 
-                return this.ApiOk<object>(null, "Transaction completed successfully");
+                // Użyj niegenerycznego ApiOk
+                return this.ApiOk("Transaction completed successfully");
             }
             catch (KeyNotFoundException)
             {
-                return this.ApiNotFound<object>($"Transaction with ID {id} not found");
+                return this.ApiNotFound($"Transaction with ID {id} not found");
             }
             catch (UnauthorizedAccessException)
             {
-                return Forbid();
+                return this.ApiForbidden("You are not authorized to complete this transaction.");
+            }
+            catch (InvalidOperationException ex) // Np. transakcja nie jest w stanie do ukończenia
+            {
+                return this.ApiBadRequest(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error completing transaction. TransactionId: {TransactionId}", id);
-                return this.ApiError<object>(
-                    StatusCodes.Status500InternalServerError, "Error completing transaction");
+                return this.ApiInternalError("Error completing transaction", ex);
             }
         }
 
-        // POST: api/transactions/5/cancel
-        [HttpPost("{id}/cancel")]
-        public async Task<ActionResult<ApiResponse<object>>> CancelTransaction(int id)
+        // POST: api/transactions/{id:int}/cancel
+        [HttpPost("{id:int}/cancel")] // Dodano :int
+        public async Task<IActionResult> CancelTransaction(int id) // Zmieniono sygnaturę
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
 
+                 // Zakładamy, że serwis rzuca wyjątki
                 await _transactionService.CancelTransactionAsync(id, user.Id);
 
-                return this.ApiOk<object>(null, "Transaction cancelled successfully");
+                // Użyj niegenerycznego ApiOk
+                return this.ApiOk("Transaction cancelled successfully");
             }
             catch (KeyNotFoundException)
             {
-                return this.ApiNotFound<object>($"Transaction with ID {id} not found");
+                return this.ApiNotFound($"Transaction with ID {id} not found");
             }
             catch (UnauthorizedAccessException)
             {
-                return Forbid();
+                return this.ApiForbidden("You are not authorized to cancel this transaction.");
+            }
+             catch (InvalidOperationException ex) // Np. transakcja nie jest w stanie do anulowania
+            {
+                return this.ApiBadRequest(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error cancelling transaction. TransactionId: {TransactionId}", id);
-                return this.ApiError<object>(
-                    StatusCodes.Status500InternalServerError, "Error cancelling transaction");
+                return this.ApiInternalError("Error cancelling transaction", ex);
             }
         }
 
-        // GET: api/transactions/5/messages
-        [HttpGet("{id}/messages")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<MessageDto>>>> GetTransactionMessages(int id)
+        // GET: api/transactions/{id:int}/messages
+        [HttpGet("{id:int}/messages")] // Dodano :int
+        public async Task<IActionResult> GetTransactionMessages(int id) // Zmieniono sygnaturę
         {
+             if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
 
-                // Check if user can access this transaction
                 var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
                 if (!canAccess)
                 {
-                    return Forbid();
+                     return this.ApiForbidden("You are not authorized to view messages for this transaction.");
                 }
 
-                var messages = await _messageService.GetTransactionMessagesAsync(id);
-                return this.ApiOk(messages);
+                var messages = await _messageService.GetTransactionMessagesAsync(id); // Zakładam, że zwraca IEnumerable<MessageDto>
+                return this.ApiOk(messages); // Użyj ApiOk<T>
+            }
+             catch (KeyNotFoundException) // Jeśli CanUserAccessTransactionAsync lub GetTransactionMessagesAsync rzuci
+            {
+                return this.ApiNotFound($"Transaction with ID {id} not found.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving transaction messages. TransactionId: {TransactionId}", id);
-                return this.ApiError<IEnumerable<MessageDto>>(
-                    StatusCodes.Status500InternalServerError, "Error retrieving transaction messages");
+                // Użyj niegenerycznego ApiInternalError
+                return this.ApiInternalError("Error retrieving transaction messages", ex);
             }
         }
 
-        // POST: api/transactions/5/messages
-        [HttpPost("{id}/messages")]
-        public async Task<ActionResult<ApiResponse<int>>> SendTransactionMessage(
-            int id, [FromBody] TransactionMessageDto messageDto)
+        // POST: api/transactions/{id:int}/messages
+        [HttpPost("{id:int}/messages")] // Dodano :int
+        public async Task<IActionResult> SendTransactionMessage( // Zmieniono sygnaturę
+            int id, [FromBody] TransactionMessageDto messageDto) // Dodano FromBody
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+            if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null) return this.ApiUnauthorized("User not found.");
 
-                // Check if user can access this transaction
                 var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
                 if (!canAccess)
                 {
-                    return Forbid();
+                    return this.ApiForbidden("You are not authorized to send messages for this transaction.");
                 }
 
-                // Get transaction to determine sender and receiver
-                var transaction = await _transactionService.GetTransactionByIdAsync(id);
+                var transaction = await _transactionService.GetTransactionByIdAsync(id); // Potrzebne do określenia odbiorcy
+                 if (transaction == null)
+                {
+                    return this.ApiNotFound($"Transaction with ID {id} not found.");
+                }
 
                 var messageCreateDto = new MessageCreateDto
                 {
                     Content = messageDto.Content,
                     SenderId = user.Id,
-                    // Set receiver to the other party in the transaction
                     ReceiverId = user.Id == transaction.SellerId ? transaction.BuyerId : transaction.SellerId,
                     TransactionId = id
                 };
 
                 var messageId = await _messageService.SendMessageAsync(messageCreateDto);
 
-                return this.ApiOk(messageId, "Message sent successfully");
+                // Pobierz utworzone DTO wiadomości do odpowiedzi
+                var createdMessage = await _messageService.GetMessageByIdAsync(messageId); // Zakładam, że ta metoda istnieje i zwraca MessageDto
+                if (createdMessage == null)
+                {
+                     _logger.LogError("Message sent (ID: {MessageId}) but could not be retrieved for transaction {TransactionId}.", messageId, id);
+                     return this.ApiInternalError("Message sent but could not be retrieved.");
+                }
+
+                // Użyj ApiOk<T> zwracając DTO wiadomości
+                return this.ApiOk(createdMessage, "Message sent successfully");
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException) // Jeśli transakcja nie istnieje
             {
-                return this.ApiNotFound<int>($"Transaction with ID {id} not found");
+                return this.ApiNotFound($"Transaction with ID {id} not found.");
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException) // Jeśli CanUserAccessTransactionAsync rzuci
             {
-                return Forbid();
+                return this.ApiForbidden("You are not authorized for this transaction.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error sending transaction message. TransactionId: {TransactionId}", id);
-                return this.ApiError<int>(
-                    StatusCodes.Status500InternalServerError, "Error sending message");
+                // Użyj niegenerycznego ApiInternalError
+                return this.ApiInternalError("Error sending message", ex);
             }
         }
 
-        // POST: api/transactions/5/ratings
-        [HttpPost("{id}/ratings")]
-        public async Task<ActionResult<ApiResponse<int>>> RateTransaction(
-            int id, [FromBody] TransactionRatingDto ratingDto)
+        // POST: api/transactions/{id:int}/ratings
+        [HttpPost("{id:int}/ratings")] // Dodano :int
+        public async Task<IActionResult> RateTransaction( // Zmieniono sygnaturę
+            int id, [FromBody] TransactionRatingDto ratingDto) // Dodano FromBody
         {
+             if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+             if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                 if (user == null) return this.ApiUnauthorized("User not found.");
 
-                // Check if user can access this transaction
                 var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
-                if (!canAccess)
+                 if (!canAccess)
                 {
-                    return Forbid();
+                    return this.ApiForbidden("You cannot rate this transaction.");
                 }
 
-                // Get transaction to determine who's being rated
-                var transaction = await _transactionService.GetTransactionByIdAsync(id);
+                var transaction = await _transactionService.GetTransactionByIdAsync(id); // Potrzebne do określenia ocenianego
+                if (transaction == null)
+                {
+                     return this.ApiNotFound($"Transaction with ID {id} not found.");
+                }
 
-                // Create rating
+                 // Walidacja, czy użytkownik może ocenić (np. czy transakcja zakończona, czy już ocenił)
+                 // Ta logika powinna być w serwisie _ratingService.AddRatingAsync
+                 // if (!canRate) return this.ApiBadRequest("Cannot rate this transaction at this time or already rated.");
+
                 var ratingCreateDto = new RatingCreateDto
                 {
                     Value = ratingDto.Value,
                     Comment = ratingDto.Comment,
                     RaterId = user.Id,
-                    // Set rated entity to the other party in the transaction
                     RatedEntityId = user.Id == transaction.SellerId ? transaction.BuyerId : transaction.SellerId,
-                    RatedEntityType = RatedEntityType.User,
+                    RatedEntityType = RatedEntityType.User, // Upewnij się, że ten enum istnieje
                     TransactionId = id
                 };
 
-                var ratingId = await _ratingService.AddRatingAsync(ratingCreateDto);
+                var ratingId = await _ratingService.AddRatingAsync(ratingCreateDto); // Zakładam, że AddRatingAsync rzuca wyjątki (np. InvalidOperation dla duplikatu)
 
-                return this.ApiOk(ratingId, "Rating submitted successfully");
+                // Pobierz utworzone DTO oceny do odpowiedzi
+                 var createdRating = await _ratingService.GetRatingByIdAsync(ratingId); // Zakładam, że ta metoda istnieje i zwraca RatingDto
+                 if (createdRating == null)
+                 {
+                     _logger.LogError("Rating submitted (ID: {RatingId}) but could not be retrieved for transaction {TransactionId}.", ratingId, id);
+                     return this.ApiInternalError("Rating submitted but could not be retrieved.");
+                 }
+
+                // Użyj ApiOk<T> zwracając DTO oceny
+                return this.ApiOk(createdRating, "Rating submitted successfully");
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException) // Transakcja nie znaleziona
             {
-                return this.ApiNotFound<int>($"Transaction with ID {id} not found");
+                return this.ApiNotFound($"Transaction with ID {id} not found.");
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException) // Nie może ocenić
             {
-                return Forbid();
+                return this.ApiForbidden("You are not authorized to rate this transaction.");
+            }
+            catch (InvalidOperationException ex) // Np. już oceniono, transakcja nie zakończona
+            {
+                 return this.ApiBadRequest(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error rating transaction. TransactionId: {TransactionId}", id);
-                return this.ApiError<int>(
-                    StatusCodes.Status500InternalServerError, "Error rating transaction");
+                // Użyj niegenerycznego ApiInternalError
+                return this.ApiInternalError("Error rating transaction", ex);
             }
         }
 
-        // GET: api/transactions/5/ratings
-        [HttpGet("{id}/ratings")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<RatingDto>>>> GetTransactionRatings(int id)
+        // GET: api/transactions/{id:int}/ratings
+        [HttpGet("{id:int}/ratings")] // Dodano :int
+        public async Task<IActionResult> GetTransactionRatings(int id) // Zmieniono sygnaturę
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                 if (user == null) return this.ApiUnauthorized("User not found.");
 
-                // Check if user can access this transaction
                 var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
                 if (!canAccess)
                 {
-                    return Forbid();
+                    return this.ApiForbidden("You are not authorized to view ratings for this transaction.");
                 }
 
-                var ratings = await _ratingService.GetRatingsByTransactionAsync(id);
-                return this.ApiOk(ratings);
+                var ratings = await _ratingService.GetRatingsByTransactionAsync(id); // Zakładam, że zwraca IEnumerable<RatingDto>
+                return this.ApiOk(ratings); // Użyj ApiOk<T>
+            }
+             catch (KeyNotFoundException) // Jeśli CanUserAccess... lub GetRatings... rzuci
+            {
+                return this.ApiNotFound($"Transaction with ID {id} not found.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving transaction ratings. TransactionId: {TransactionId}", id);
-                return this.ApiError<IEnumerable<RatingDto>>(
-                    StatusCodes.Status500InternalServerError, "Error retrieving transaction ratings");
+                // Użyj niegenerycznego ApiInternalError
+                return this.ApiInternalError("Error retrieving transaction ratings", ex);
             }
         }
     }
 
-    // Helper class for transaction status update
-    public class TransactionStatusUpdateDto
-    {
-        public int TransactionId { get; set; }
-        public TransactionStatus Status { get; set; }
-    }
+    // Definicje DTO powinny być w plikach DTO
+    /*
+    using System;
+    using LeafLoop.Models; // Dla TransactionStatus
+    using System.ComponentModel.DataAnnotations;
 
-    // Helper class for transaction message
-    public class TransactionMessageDto
+    namespace LeafLoop.Services.DTOs
     {
-        public string Content { get; set; }
-    }
+        public class TransactionStatusUpdateDto
+        {
+            // TransactionId może być niepotrzebne, bo mamy je w URL
+            // public int TransactionId { get; set; }
 
-    // Helper class for transaction rating
-    public class TransactionRatingDto
-    {
-        public int Value { get; set; }
-        public string Comment { get; set; }
+            [Required]
+            public TransactionStatus Status { get; set; } // Upewnij się, że TransactionStatus jest zdefiniowane
+        }
+
+        public class TransactionMessageDto
+        {
+            [Required]
+            [MaxLength(1000)] // Przykładowy limit długości
+            public string Content { get; set; } = null!;
+        }
+
+        public class TransactionRatingDto
+        {
+            [Required]
+            [Range(1, 5)] // Zakładając ocenę 1-5
+            public int Value { get; set; }
+
+            [MaxLength(500)] // Przykładowy limit
+            public string? Comment { get; set; } // Komentarz opcjonalny
+        }
+
+        // Przykładowe definicje DTO dla Message i Rating
+        public class MessageDto
+        {
+            public int Id { get; set; }
+            public string Content { get; set; }
+            public DateTime SentDate { get; set; }
+            public int SenderId { get; set; }
+            public string SenderName { get; set; } // Można dodać dla wygody
+            public int ReceiverId { get; set; }
+            public string ReceiverName { get; set; } // Można dodać
+            public int? TransactionId { get; set; }
+            public bool IsRead { get; set; } // Jeśli śledzisz odczytanie
+        }
+
+        public class RatingDto
+        {
+            public int Id { get; set; }
+            public int Value { get; set; }
+            public string? Comment { get; set; }
+            public DateTime CreatedDate { get; set; }
+            public int RaterId { get; set; }
+            public string RaterName { get; set; } // Można dodać
+            public int RatedEntityId { get; set; } // W tym kontekście ID użytkownika
+            public RatedEntityType RatedEntityType { get; set; } // Upewnij się, że enum istnieje
+            public int? TransactionId { get; set; }
+        }
+
+         public enum RatedEntityType { User, Item, Event } // Przykładowy enum
+
+         // Upewnij się, że TransactionStatus i TransactionType są zdefiniowane w Models
+         // public enum TransactionStatus { Initiated, Accepted, Shipped, Completed, Cancelled, Disputed }
+         // public enum TransactionType { Exchange, Gift, Sale }
     }
+    */
 }

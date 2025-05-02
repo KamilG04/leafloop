@@ -1,361 +1,352 @@
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;    // Dla User.FindFirstValue
 using System.Threading.Tasks;
-using System.Security.Claims;
 using LeafLoop.Models;
+using LeafLoop.Models.API;      // Dla ApiResponse<T> i ApiResponse
 using LeafLoop.Services.DTOs;
+using LeafLoop.Services.DTOs.Auth; // Potrzebne dla PasswordChangeDto
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;      // Dla StatusCodes
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using LeafLoop.Services.DTOs.Auth; 
+using LeafLoop.Api;             // <<<=== USING dla ApiControllerExtensions
+
 namespace LeafLoop.Api
 {
     [Route("api/[controller]")]
     [ApiController]
+    // [Authorize] // Rozważ autoryzację na poziomie kontrolera lub poszczególnych akcji
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        // Usunięto SignInManager - nie jest potrzebny bez logowania
+        // Usunięto IJwtTokenService - nie jest potrzebny bez logowania
         private readonly ILogger<UsersController> _logger;
 
         public UsersController(
             IUserService userService,
             UserManager<User> userManager,
-            SignInManager<User> signInManager,
+            // Usunięto SignInManager
+            // Usunięto IJwtTokenService
             ILogger<UsersController> logger)
         {
-            _userService = userService;
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _logger = logger;
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // GET: api/users/5
-        [HttpGet("{id}")]
-        [Authorize]
-        public async Task<ActionResult<UserWithDetailsDto>> GetUser(int id)
+        // GET: api/users/{id:int}
+        [HttpGet("{id:int}")]
+        [Authorize] // Wymaga autoryzacji
+        public async Task<IActionResult> GetUser(int id)
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid User ID.");
+
             try
             {
-                // Check if current user is requesting their own data or is an admin
                 var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null) return this.ApiUnauthorized("Could not identify current user.");
                 var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
-                
+
                 if (currentUser.Id != id && !isAdmin)
                 {
-                    return Forbid();
+                    return this.ApiForbidden("You are not authorized to view this user's details.");
                 }
 
-                var user = await _userService.GetUserWithDetailsAsync(id);
-                
+                var user = await _userService.GetUserWithDetailsAsync(id); // Zakładam, że zwraca UserWithDetailsDto
+
                 if (user == null)
                 {
-                    return NotFound();
+                    return this.ApiNotFound($"User with ID {id} not found.");
                 }
 
-                return Ok(user);
+                return this.ApiOk(user);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving user data for ID: {UserId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving user data");
+                return this.ApiInternalError("Error retrieving user data", ex);
             }
         }
 
         // GET: api/users/current
         [HttpGet("current")]
-        [Authorize]
-        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        [Authorize] // Wymaga autoryzacji
+        public async Task<IActionResult> GetCurrentUser()
         {
             try
             {
                 var currentUser = await _userManager.GetUserAsync(User);
-                
+
                 if (currentUser == null)
                 {
-                    return NotFound();
+                    return this.ApiUnauthorized("Current user could not be identified.");
                 }
 
-                var userDto = await _userService.GetUserByIdAsync(currentUser.Id);
-                return Ok(userDto);
+                var userDto = await _userService.GetUserByIdAsync(currentUser.Id); // Zakładam, że zwraca UserDto
+                if (userDto == null)
+                {
+                     return this.ApiNotFound("Current user details could not be found.");
+                }
+                return this.ApiOk(userDto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving current user data");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving user data");
+                 return this.ApiInternalError("Error retrieving current user data", ex);
             }
         }
 
-        // POST: api/users/register
-        [HttpPost("register")]
-        [AllowAnonymous]
-        public async Task<ActionResult<UserDto>> Register(UserRegistrationDto registrationDto)
-        {
-            try
-            {
-                // Check if user already exists
-                var existingUser = await _userService.GetUserByEmailAsync(registrationDto.Email);
-                if (existingUser != null)
-                {
-                    return Conflict("User with this email already exists");
-                }
+        // === USUNIĘTO METODĘ Register ===
 
-                // Validate passwords match
-                if (registrationDto.Password != registrationDto.ConfirmPassword)
-                {
-                    return BadRequest("Passwords do not match");
-                }
+        // === USUNIĘTO METODĘ Login ===
 
-                // Register user
-                var userId = await _userService.RegisterUserAsync(registrationDto);
-                
-                // Return the newly created user
-                var userDto = await _userService.GetUserByIdAsync(userId);
-                
-                return CreatedAtAction(nameof(GetUser), new { id = userId }, userDto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error registering user");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error registering user");
-            }
-        }
-
-        // POST: api/users/login
-        [HttpPost("login")]
-        [AllowAnonymous]
-        public async Task<ActionResult<string>> Login([FromBody] LoginDto loginDto)
-        {
-            try
-            {
-                // Find user by email
-                var user = await _userManager.FindByEmailAsync(loginDto.Email);
-                
-                if (user == null)
-                {
-                    return Unauthorized("Invalid email or password");
-                }
-
-                // Check password
-                var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-                
-                if (!result.Succeeded)
-                {
-                    return Unauthorized("Invalid email or password");
-                }
-
-                // Generate JWT token or other authentication token here
-                // For simplicity, we'll return a placeholder
-                // In a real application, you'd implement JWT token generation
-                
-                return Ok(new { Token = "JWT_TOKEN_WOULD_BE_HERE", UserId = user.Id });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during login");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error during login");
-            }
-        }
-
-        // PUT: api/users/5
-        [HttpPut("{id}")]
-        [Authorize]
-        public async Task<IActionResult> UpdateUserProfile(int id, UserUpdateDto userDto)
+        // PUT: api/users/{id:int}
+        [HttpPut("{id:int}")]
+        [Authorize] // Wymaga autoryzacji
+        public async Task<IActionResult> UpdateUserProfile(int id, [FromBody] UserUpdateDto userDto) // Dodano FromBody
         {
             if (id != userDto.Id)
             {
-                return BadRequest("User ID mismatch");
+                return this.ApiBadRequest("User ID mismatch in URL and body.");
             }
-            
+
+            if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
             try
             {
-                // Check if current user is updating their own profile or is an admin
                 var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null) return this.ApiUnauthorized("Could not identify current user.");
                 var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
-                
+
                 if (currentUser.Id != id && !isAdmin)
                 {
-                    return Forbid();
+                    return this.ApiForbidden("You are not authorized to update this profile.");
                 }
 
                 await _userService.UpdateUserProfileAsync(userDto);
-                
-                return NoContent();
+                return this.ApiNoContent();
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"User with ID {id} not found");
+                return this.ApiNotFound($"User with ID {id} not found");
+            }
+             catch (UnauthorizedAccessException)
+            {
+                 return this.ApiForbidden("Authorization error during update.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating user profile. UserId: {UserId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error updating user profile");
+                return this.ApiInternalError("Error updating user profile", ex);
             }
         }
 
-        // PUT: api/users/5/address
-        [HttpPut("{id}/address")]
-        [Authorize]
-        public async Task<IActionResult> UpdateUserAddress(int id, AddressDto addressDto)
+        // PUT: api/users/{id:int}/address
+        [HttpPut("{id:int}/address")]
+        [Authorize] // Wymaga autoryzacji
+        public async Task<IActionResult> UpdateUserAddress(int id, [FromBody] AddressDto addressDto) // Dodano FromBody
         {
+             if (id <= 0) return this.ApiBadRequest("Invalid User ID.");
+             if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
             try
             {
-                // Check if current user is updating their own address or is an admin
                 var currentUser = await _userManager.GetUserAsync(User);
-                var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
-                
+                if (currentUser == null) return this.ApiUnauthorized("Could not identify current user.");
+                 var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
+
                 if (currentUser.Id != id && !isAdmin)
                 {
-                    return Forbid();
+                    return this.ApiForbidden("You are not authorized to update this address.");
                 }
 
                 await _userService.UpdateUserAddressAsync(id, addressDto);
-                
-                return NoContent();
+                return this.ApiNoContent();
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"User with ID {id} not found");
+                return this.ApiNotFound($"User with ID {id} not found");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                 return this.ApiForbidden("Authorization error during address update.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating user address. UserId: {UserId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error updating user address");
+                return this.ApiInternalError("Error updating user address", ex);
             }
         }
 
-        // POST: api/users/5/change-password
-        [HttpPost("{id}/change-password")]
-        [Authorize]
-        public async Task<IActionResult> ChangePassword(int id, [FromBody] PasswordChangeDto passwordDto)
+        // POST: api/users/{id:int}/change-password
+        [HttpPost("{id:int}/change-password")]
+        [Authorize] // Wymaga autoryzacji
+        public async Task<IActionResult> ChangePassword(int id, [FromBody] PasswordChangeDto passwordDto) // Dodano FromBody
         {
+             if (id <= 0) return this.ApiBadRequest("Invalid User ID.");
+             if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
             try
             {
-                // Check if current user is changing their own password
                 var currentUser = await _userManager.GetUserAsync(User);
-                
+                if (currentUser == null) return this.ApiUnauthorized("Could not identify current user.");
+
                 if (currentUser.Id != id)
                 {
-                    return Forbid("You can only change your own password");
+                    return this.ApiForbidden("You can only change your own password.");
                 }
 
                 var success = await _userService.ChangeUserPasswordAsync(id, passwordDto.CurrentPassword, passwordDto.NewPassword);
-                
+
                 if (!success)
                 {
-                    return BadRequest("Current password is incorrect");
+                    return this.ApiBadRequest("Current password might be incorrect or the new password does not meet requirements.");
                 }
-                
-                return NoContent();
+
+                return this.ApiNoContent();
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"User with ID {id} not found");
+                return this.ApiNotFound($"User with ID {id} not found");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error changing user password. UserId: {UserId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error changing password");
+                return this.ApiInternalError("Error changing password", ex);
             }
         }
 
         // GET: api/users/top-eco
         [HttpGet("top-eco")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetTopEcoUsers([FromQuery] int count = 10)
+        [AllowAnonymous] // Prawdopodobnie publiczny endpoint
+        public async Task<IActionResult> GetTopEcoUsers([FromQuery] int count = 10)
         {
+            if (count <= 0 || count > 50) count = 10; // Walidacja + limit
             try
             {
-                var users = await _userService.GetTopUsersByEcoScoreAsync(count);
-                return Ok(users);
+                var users = await _userService.GetTopUsersByEcoScoreAsync(count); // Zakładam, że zwraca IEnumerable<UserDto>
+                return this.ApiOk(users);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving top eco users");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving users");
+                return this.ApiInternalError("Error retrieving users", ex);
             }
         }
 
-        // GET: api/users/5/badges
-        [HttpGet("{id}/badges")]
-        public async Task<ActionResult<IEnumerable<BadgeDto>>> GetUserBadges(int id)
+        // GET: api/users/{id:int}/badges
+        [HttpGet("{id:int}/badges")]
+        [AllowAnonymous] // Prawdopodobnie publiczny endpoint
+        public async Task<IActionResult> GetUserBadges(int id)
         {
+             if (id <= 0) return this.ApiBadRequest("Invalid User ID.");
             try
             {
-                var badges = await _userService.GetUserBadgesAsync(id);
-                return Ok(badges);
+                // Można dodać sprawdzenie, czy użytkownik istnieje, jeśli GetUserBadgesAsync tego nie robi
+                var badges = await _userService.GetUserBadgesAsync(id); // Zakładam, że zwraca IEnumerable<BadgeDto>
+                return this.ApiOk(badges);
+            }
+            catch (KeyNotFoundException) // Jeśli serwis rzuci, gdy user nie istnieje
+            {
+                 return this.ApiNotFound($"User with ID {id} not found.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving user badges. UserId: {UserId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving badges");
+                return this.ApiInternalError("Error retrieving badges", ex);
             }
         }
 
-        // GET: api/users/5/items
-        [HttpGet("{id}/items")]
-        public async Task<ActionResult<IEnumerable<ItemDto>>> GetUserItems(int id)
+        // GET: api/users/{id:int}/items
+        [HttpGet("{id:int}/items")]
+        [AllowAnonymous] // Prawdopodobnie publiczny endpoint
+        public async Task<IActionResult> GetUserItems(int id)
         {
+             if (id <= 0) return this.ApiBadRequest("Invalid User ID.");
             try
             {
-                var items = await _userService.GetUserItemsAsync(id);
-                return Ok(items);
+                 // Można dodać sprawdzenie, czy użytkownik istnieje
+                var items = await _userService.GetUserItemsAsync(id); // Zakładam, że zwraca IEnumerable<ItemDto>
+                return this.ApiOk(items);
+            }
+            catch (KeyNotFoundException) // Jeśli serwis rzuci
+            {
+                 return this.ApiNotFound($"User with ID {id} not found.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving user items. UserId: {UserId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving items");
+                return this.ApiInternalError("Error retrieving items", ex);
             }
         }
 
-        // POST: api/users/5/deactivate
-        [HttpPost("{id}/deactivate")]
-        [Authorize]
+        // POST: api/users/{id:int}/deactivate
+        [HttpPost("{id:int}/deactivate")]
+        [Authorize] // Wymaga autoryzacji
         public async Task<IActionResult> DeactivateUser(int id)
         {
+            if (id <= 0) return this.ApiBadRequest("Invalid User ID.");
+
             try
             {
-                // Check if current user is deactivating their own account or is an admin
                 var currentUser = await _userManager.GetUserAsync(User);
+                 if (currentUser == null) return this.ApiUnauthorized("Could not identify current user.");
                 var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
-                
+
+                // Tylko admin lub sam użytkownik może dezaktywować
                 if (currentUser.Id != id && !isAdmin)
                 {
-                    return Forbid();
+                    return this.ApiForbidden("You are not authorized to deactivate this user.");
                 }
 
+                // DeactivateUserAsync zwraca bool
                 var success = await _userService.DeactivateUserAsync(id);
-                
+
                 if (!success)
                 {
-                    return BadRequest("Failed to deactivate user");
+                    // Może już być nieaktywny lub inny problem
+                    return this.ApiBadRequest("Failed to deactivate user. User might already be inactive or another issue occurred.");
                 }
-                
-                return NoContent();
+
+                // Pomyślna dezaktywacja - często używa się NoContent
+                return this.ApiNoContent();
+                // Lub jeśli chcesz potwierdzenie: return this.ApiOk("User deactivated successfully.");
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"User with ID {id} not found");
+                return this.ApiNotFound($"User with ID {id} not found");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deactivating user. UserId: {UserId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error deactivating user");
+                return this.ApiInternalError("Error deactivating user", ex);
             }
         }
     }
 
-    // Helper class for login
-
-
-    // Helper class for password change
-    public class PasswordChangeDto
+    // Definicja PasswordChangeDto powinna być w pliku DTO
+    /*
+    using System.ComponentModel.DataAnnotations;
+    namespace LeafLoop.Services.DTOs.Auth // Lub LeafLoop.Services.DTOs.Users
     {
-        public string CurrentPassword { get; set; }
-        public string NewPassword { get; set; }
-        public string ConfirmNewPassword { get; set; }
+         public class PasswordChangeDto
+         {
+             [Required]
+             public string CurrentPassword { get; set; }
+
+             [Required]
+             [MinLength(8)] // Przykładowe wymaganie
+             public string NewPassword { get; set; }
+
+             [Required]
+             [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
+             public string ConfirmNewPassword { get; set; }
+         }
     }
+    */
 }
