@@ -1,27 +1,38 @@
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using LeafLoop.Data;
-using LeafLoop.Middleware; // Add this
+using LeafLoop.Middleware;
 using LeafLoop.Models;
+using LeafLoop.Models.API;
 using LeafLoop.Repositories;
 using LeafLoop.Repositories.Interfaces;
 using LeafLoop.Services;
 using LeafLoop.Services.Interfaces;
 using LeafLoop.Services.Mappings;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models; // Add this
+using Microsoft.OpenApi.Models;
 using NWebsec.AspNetCore.Middleware;
+using System.Linq;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews()
-    .AddJsonOptions(options => // Add JSON options for consistency
+    .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
 // Configure DbContext
@@ -30,8 +41,6 @@ builder.Services.AddDbContext<LeafLoopDbContext>(options =>
 
 // Register Unit of Work and Repositories
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-// Register specific repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
@@ -50,50 +59,37 @@ builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<ISavedSearchRepository, SavedSearchRepository>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
-builder.Services.AddScoped<IItemService, ItemService>();
 
-// Add memory cache for better performance
+// Add memory cache
 builder.Services.AddMemoryCache();
 
-// Add AutoMapper with our MappingProfile
+// Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-// --- POCZĄTEK POPRAWNEJ KONFIGURACJI ---
 
-// 1. Skonfiguruj Identity (TYLKO RAZ!)
-// To rejestruje usługi Identity ORAZ domyślne schematy uwierzytelniania (w tym ciasteczko)
+// --- Authentication & Authorization Configuration ---
+
+// 1. Configure Identity
 builder.Services.AddIdentity<User, IdentityRole<int>>(options => {
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
-
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
     options.Lockout.MaxFailedAccessAttempts = 5;
-
     options.User.RequireUniqueEmail = true;
-
     options.SignIn.RequireConfirmedAccount = false;
-    options.SignIn.RequireConfirmedEmail = false;
-    options.SignIn.RequireConfirmedPhoneNumber = false;
 })
 .AddEntityFrameworkStores<LeafLoopDbContext>()
 .AddDefaultTokenProviders();
 
-// 2. Skonfiguruj Uwierzytelnianie - ustaw domyślny schemat i dodaj obsługę JWT
+// 2. Configure Authentication Schemes (Cookie for MVC, JWT for API)
 builder.Services.AddAuthentication(options =>
 {
-    // Ustaw domyślne schematy na ciasteczko zarejestrowane przez AddIdentity
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
     options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-     // DefaultSignInScheme często jest potrzebny dla operacji Identity jak ExternalLogin
-    options.DefaultSignInScheme = IdentityConstants.ExternalScheme; // Może być potrzebne przy logowaniu zewn.
 })
-// Dodaj obsługę JWT jako DODATKOWY schemat (nie domyślny)
-.AddJwtBearer(options =>
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -104,51 +100,43 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
         ValidAudience = builder.Configuration["JwtSettings:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT Key not configured")))
     };
 });
-// UWAGA: NIE wywołujemy tutaj .AddCookie(IdentityConstants.ApplicationScheme, ...)
-// AddIdentity już to zrobiło.
 
-// 3. Skonfiguruj OPCJE dla ciasteczek zarejestrowanych przez AddIdentity
+// 3. Configure Application Cookie Options
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied";
-    options.Cookie.HttpOnly = true; // Zabezpieczenie przed XSS
-    // Upewnij się, że polityka Secure jest zgodna z Twoim środowiskiem (HTTPS)
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Zalecane dla HTTPS
-    options.Cookie.SameSite = SameSiteMode.Lax; // Dobra równowaga między bezpieczeństwem a wygodą
-    // options.ExpireTimeSpan = TimeSpan.FromDays(14); // Opcjonalnie: czas życia ciasteczka
-});
-
-// Skonfiguruj też ciasteczko zewnętrzne (jeśli planujesz np. logowanie Google/Facebook)
-builder.Services.ConfigureExternalCookie(options =>
-{
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Zalecane dla HTTPS
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax;
+
+    // --- Corrected API Redirect Handling ---
+    options.Events = new CookieAuthenticationEvents
+    {
+        OnRedirectToLogin = context => HandleApiRedirect(context, StatusCodes.Status401Unauthorized, "Authentication required."),
+        OnRedirectToAccessDenied = context => HandleApiRedirect(context, StatusCodes.Status403Forbidden, "Access denied. You do not have permission.")
+    };
 });
 
-// --- KONIEC POPRAWNEJ KONFIGURACJI ---
+// --- Koniec konfiguracji Authentication & Authorization ---
+
+
 // Add Swagger/OpenAPI support
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "LeafLoop API", Version = "v1" });
-    
-    // Add JWT authentication to Swagger
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme.",
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.Http,
         Scheme = "Bearer"
-    });
-    
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+     });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
         {
             new OpenApiSecurityScheme
             {
@@ -156,11 +144,12 @@ builder.Services.AddSwaggerGen(c =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
-                }
+                },
+                Scheme = "oauth2", Name = "Bearer", In = ParameterLocation.Header,
             },
-            Array.Empty<string>()
+            new List<string>()
         }
-    });
+     });
 });
 
 // Register application services
@@ -185,8 +174,6 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    
-    // Enable Swagger in development
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LeafLoop API v1"));
 }
@@ -196,151 +183,126 @@ else
     app.UseHsts();
 }
 
-// Add API exception handling middleware
 app.UseEnhancedErrorHandling();
-
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
-// Security middleware
-app.UseHsts(options => options.MaxAge(days: 365).IncludeSubdomains());
+// Konfiguracja plików statycznych
+var provider = new FileExtensionContentTypeProvider();
+if (!provider.Mappings.ContainsKey(".css")) provider.Mappings.Add(".css", "text/css");
+if (!provider.Mappings.ContainsKey(".webp")) provider.Mappings.Add(".webp", "image/webp");
+if (!provider.Mappings.ContainsKey(".woff2")) provider.Mappings.Add(".woff2", "font/woff2");
+app.UseStaticFiles(new StaticFileOptions {
+    ContentTypeProvider = provider,
+    OnPrepareResponse = ctx => {
+        var maxAge = TimeSpan.FromDays(7);
+        if (ctx.File.Name.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ||
+            ctx.File.Name.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
+        {
+            maxAge = TimeSpan.FromHours(1);
+        }
+        ctx.Context.Response.Headers.Append("Cache-Control", $"public, max-age={maxAge.TotalSeconds}");
+        ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+     }
+});
+
+// Security middleware NWebsec
 app.UseXContentTypeOptions();
 app.UseReferrerPolicy(options => options.NoReferrer());
 app.UseXXssProtection(options => options.EnabledWithBlockMode());
 app.UseXfo(options => options.Deny());
-// In Program.cs, update the CSP configuration
-app.UseCsp(options => options
+app.UseCsp(options => options /* ... konfiguracja CSP ... */
     .DefaultSources(s => s.Self())
     .ScriptSources(s => s.Self()
-        .CustomSources(
-            "https://cdn.jsdelivr.net",
-            "https://cdnjs.cloudflare.com",
-            "https://unpkg.com"
-        )
-        .UnsafeInline()
-    )
+        .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://unpkg.com")
+        .UnsafeInline())
     .StyleSources(s => s.Self()
         .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com")
-        .UnsafeInline()
-    )
-    .ImageSources(s => s.Self()
-        .CustomSources("data:", "blob:")
-    )
-    .FontSources(s => s.Self()
-        .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com")
-    )
+        .UnsafeInline())
+    .ImageSources(s => s.Self().CustomSources("data:", "blob:"))
+    .FontSources(s => s.Self().CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"))
     .FormActions(s => s.Self())
     .FrameAncestors(s => s.None())
     .ObjectSources(s => s.None())
-    .ConnectSources(s => s.Self()
-        // Add your API domain here
-        .CustomSources("https://zak7be8sse.execute-api.eu-central-1.amazonaws.com")
-    )
+    .ConnectSources(s => s.Self())
     .UpgradeInsecureRequests()
 );
 
+// Poprawna kolejność middleware
 app.UseRouting();
 app.UseAuthentication();
-app.UseCookiePolicy();
 app.UseAuthorization();
 
-// Map routes
+// Mapowanie endpointów
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapControllerRoute(
-    name: "login",
-    pattern: "Account/Login",
-    defaults: new { controller = "Account", action = "Login" });
-
-app.MapControllerRoute(
-    name: "register",
-    pattern: "Account/Register",
-    defaults: new { controller = "Account", action = "Register" });
-
-app.MapControllerRoute(
-    name: "logout",
-    pattern: "Account/Logout",
-    defaults: new { controller = "Account", action = "Logout" });
-
-// Add seed data
+// Seed data
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
+    // ... (kod seed data bez zmian, zakładając, że używa UserManager.CreateAsync) ...
+     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
     try
     {
         var unitOfWork = services.GetRequiredService<IUnitOfWork>();
-        // Check if database is empty
+        var userManager = services.GetRequiredService<UserManager<User>>();
+
+        // Sprawdź i dodaj kategorie
         if (!await unitOfWork.Categories.ExistsAsync(c => true))
         {
-            // Add some categories
-            await unitOfWork.Categories.AddAsync(new Category 
-            { 
-                Name = "Elektronika", 
-                Description = "Urządzenia elektroniczne",
-                IconPath = "/img/categories/electronics.png"
-            });
-            
-            await unitOfWork.Categories.AddAsync(new Category 
-            { 
-                Name = "Ubrania", 
-                Description = "Odzież i dodatki",
-                IconPath = "/img/categories/clothes.png"
-            });
-            
-            // Add test user
-            await unitOfWork.Users.AddAsync(new User
-            {
-                Email = "test@example.com",
-                PasswordHash = "hash123", // In production use proper hashing
-                FirstName = "Jan",
-                LastName = "Testowy",
-                CreatedDate = DateTime.UtcNow,
-                LastActivity = DateTime.UtcNow,
-                IsActive = true,
-                EcoScore = 100
-            });
-            
+            logger.LogInformation("Seeding initial categories...");
+            await unitOfWork.Categories.AddAsync(new Category { Name = "Elektronika", Description = "Urządzenia elektroniczne", IconPath = "/img/categories/electronics.png" });
+            await unitOfWork.Categories.AddAsync(new Category { Name = "Ubrania", Description = "Odzież i dodatki", IconPath = "/img/categories/clothes.png" });
             await unitOfWork.CompleteAsync();
-            
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogInformation("Added initial data to database");
+            logger.LogInformation("Initial categories seeded.");
+        }
+
+        // Sprawdź i dodaj użytkownika testowego
+        var testUserEmail = "test@example.com";
+        if (await userManager.FindByEmailAsync(testUserEmail) == null)
+        {
+             logger.LogInformation("Seeding test user...");
+             var testUser = new User
+             {
+                 UserName = testUserEmail, Email = testUserEmail, FirstName = "Jan", LastName = "Testowy",
+                 CreatedDate = DateTime.UtcNow, LastActivity = DateTime.UtcNow, IsActive = true, EcoScore = 100,
+                 EmailConfirmed = true
+             };
+             var result = await userManager.CreateAsync(testUser, "Password123!");
+             if (result.Succeeded) logger.LogInformation("Test user seeded successfully.");
+             else logger.LogError("Failed to seed test user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
         }
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Error during database initialization");
+        logger.LogError(ex, "An error occurred during database seeding.");
     }
 }
 
-var provider = new FileExtensionContentTypeProvider();
-// Ensure CSS files have the correct MIME type
-if (!provider.Mappings.ContainsKey(".css"))
-    provider.Mappings.Add(".css", "text/css");
-// Add any other MIME types that might be missing
-if (!provider.Mappings.ContainsKey(".webp"))
-    provider.Mappings.Add(".webp", "image/webp");
-if (!provider.Mappings.ContainsKey(".woff2"))
-    provider.Mappings.Add(".woff2", "font/woff2");
-
-// Configure static file middleware with proper MIME types
-app.UseStaticFiles(new StaticFileOptions
-{
-    ContentTypeProvider = provider,
-    OnPrepareResponse = ctx =>
-    {
-        // Set cache control headers for better performance
-        var maxAge = ctx.File.Name.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ? 
-            TimeSpan.FromHours(1) : TimeSpan.FromDays(7);
-            
-        ctx.Context.Response.Headers.Append(
-            "Cache-Control", $"public, max-age={maxAge.TotalSeconds}");
-            
-        // Add security headers
-        ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
-    }
-});
-
 app.Run();
+
+// --- Funkcja pomocnicza do obsługi przekierowań dla API ---
+static Task HandleApiRedirect(RedirectContext<CookieAuthenticationOptions> context, int statusCode, string message)
+{
+    // Sprawdzaj TYLKO ścieżkę żądania
+    if (context.Request.Path.StartsWithSegments("/api"))
+    {
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/json";
+        var response = ApiResponse.ErrorResponse(message);
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
+        // === ZMIANA: Zamiast HandleResponse(), po prostu piszemy do odpowiedzi ===
+        // Zapisz odpowiedź JSON
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+        // Nie wywołujemy context.Response.Redirect() ani context.HandleResponse()
+        // Ustawienie StatusCode i zapisanie odpowiedzi powinno wystarczyć, aby middleware
+        // nie wykonało domyślnego przekierowania.
+    }
+
+    // Dla żądań innych niż /api, pozwól na domyślne przekierowanie
+    // Nie robimy nic, middleware wykona domyślną logikę (context.Response.Redirect)
+    return Task.CompletedTask;
+}

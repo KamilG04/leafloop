@@ -4,7 +4,7 @@
   "description": "LeafLoop sustainable item exchange platform",
   "scripts": {
     "build": "webpack --mode production",
-    "dev": "webpack --mode development --watch",
+    "dev": "webpack --mode development",
     "watch": "webpack --mode development --watch",
     "clean": "rm -rf ./wwwroot/js/dist"
   },
