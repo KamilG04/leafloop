@@ -31,10 +31,14 @@ namespace LeafLoop.Repositories
             return await _context.Items
                 .Include(i => i.Photos)       // <-- LOAD THE PHOTOS!
                 .Include(i => i.Category)     // Load related Category
-                .Include(i => i.User)         // Load related User
+                .Include(i => i.User)  
+                .Include(i => i.Transactions)
+                .ThenInclude(t => t.Buyer)
+                // Load related User
                 // .Include(i => i.Tags)      // Uncomment if ItemWithDetailsDto needs tags
                 // .AsNoTracking()            // Optional: Good for read-only queries
                 .FirstOrDefaultAsync(i => i.Id == itemId); // Find the specific item
+                
         }
 
         /// <summary>

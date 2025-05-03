@@ -33,5 +33,7 @@ namespace LeafLoop.Models
         public virtual ICollection<Photo> Photos { get; set; }
         public virtual ICollection<ItemTag> Tags { get; set; }
         public virtual ICollection<Transaction> Transactions { get; set; }
+        
+        
     }
 }

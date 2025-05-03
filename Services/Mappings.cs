@@ -73,19 +73,24 @@ namespace LeafLoop.Services.Mappings // Upewnij się, że namespace jest poprawn
                     opt => opt.MapFrom(src => src.User != null 
                         ? string.Concat(src.User.FirstName, " ", src.User.LastName)
                         : null));
-
+            CreateMap<Transaction, TransactionBasicDto>()
+                .ForMember(dest => dest.BuyerName, opt => opt.MapFrom(src => 
+                    src.Buyer != null ? $"{src.Buyer.FirstName} {src.Buyer.LastName}" : null));
             // Mapowanie ItemWithDetailsDto dziedziczy z ItemDto
              CreateMap<Item, ItemWithDetailsDto>()
                  .IncludeBase<Item, ItemDto>()
-                 // Upewnij się, że zapytanie ładujące Item do tego DTO zawiera User, Category, Photos, Tags
-                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User)) // Wymaga User->UserDto
-                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category)) // Wymaga Category->CategoryDto
-                 .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos)) // Wymaga Photo->PhotoDto
-                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? src.Tags.Select(it => it.Tag) : new List<Tag>())); // Wymaga Tag->TagDto
-
+                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
+                 .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos))
+                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? src.Tags.Select(it => it.Tag) : new List<Tag>()))
+                 // NOWE: Mapowanie oczekujących transakcji
+                 .ForMember(dest => dest.PendingTransactions, opt => opt.MapFrom(src => 
+                     src.Transactions != null 
+                         ? src.Transactions.Where(t => t.Status == TransactionStatus.Pending || t.Status == TransactionStatus.InProgress)
+                         : new List<Transaction>()));
             CreateMap<ItemCreateDto, Item>(); // Mapowanie przy tworzeniu
             CreateMap<ItemUpdateDto, Item>(); // Mapowanie przy aktualizacji
-
+            
             // --- Category mappings ---
             CreateMap<Category, CategoryDto>()
                 // Zakładamy, że Items jest ładowane, gdy potrzebujemy ItemsCount

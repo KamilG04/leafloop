@@ -12,7 +12,7 @@ namespace LeafLoop.Services.Interfaces
         Task<IEnumerable<TransactionDto>> GetTransactionsByUserAsync(int userId, bool asSeller = false);
         Task<IEnumerable<TransactionDto>> GetTransactionsByItemAsync(int itemId);
         Task<IEnumerable<TransactionDto>> GetTransactionsByStatusAsync(TransactionStatus status);
-        Task<int> InitiateTransactionAsync(TransactionCreateDto transactionDto);
+        Task<int> InitiateTransactionAsync(TransactionCreateDto transactionDto, int buyerUserId); // Dodaj buyerUserId
         Task UpdateTransactionStatusAsync(int id, TransactionStatus status, int userId);
         Task CompleteTransactionAsync(int id, int userId);
         Task CancelTransactionAsync(int id, int userId);

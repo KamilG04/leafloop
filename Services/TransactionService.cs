@@ -26,7 +26,7 @@ namespace LeafLoop.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-
+        
         public async Task<TransactionDto> GetTransactionByIdAsync(int id)
         {
             try

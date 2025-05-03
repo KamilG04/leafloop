@@ -33,7 +33,6 @@ namespace LeafLoop.Services.DTOs
     public class TransactionCreateDto
     {
         public int ItemId { get; set; }
-        public int BuyerId { get; set; }
         public TransactionType Type { get; set; }
         public string InitialMessage { get; set; }
     }

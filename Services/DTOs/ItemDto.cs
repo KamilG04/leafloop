@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LeafLoop.Models;
 
 namespace LeafLoop.Services.DTOs
 {
@@ -65,5 +66,15 @@ namespace LeafLoop.Services.DTOs
         public int? PageSize { get; set; }
         public string SortBy { get; set; }
         public bool SortDescending { get; set; }
+        
+        public List<TransactionBasicDto> PendingTransactions { get; set; }
+    }
+    public class TransactionBasicDto
+    {
+        public int Id { get; set; }
+        public DateTime StartDate { get; set; }
+        public TransactionStatus Status { get; set; }
+        public int BuyerId { get; set; }
+        public string BuyerName { get; set; }
     }
 }
