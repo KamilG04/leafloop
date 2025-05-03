@@ -133,6 +133,10 @@
       "PackagePath": "staticwebassets/js/site.js"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/token-test.js",
+      "PackagePath": "staticwebassets/js/token-test.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/auth.js",
       "PackagePath": "staticwebassets/js/utils/auth.js"
     },

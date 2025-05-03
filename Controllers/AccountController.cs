@@ -169,11 +169,24 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
                 token,
                 new CookieOptions
                 {
-                    HttpOnly = false, // Make accessible to JavaScript
-                    Secure = Request.IsHttps, // Use true in production only
+                    HttpOnly = false, // Must be false to allow JS access
+                    Secure = Request.IsHttps,
                     SameSite = SameSiteMode.Lax,
-                    Expires = DateTime.Now.AddDays(7)
+                    Expires = DateTime.Now.AddDays(7),
+                    Path = "/" // Ensure available across all paths
                 });
+            await Response.WriteAsync($@"
+<script>
+    try {{
+        localStorage.setItem('jwt_token', '{token}');
+        console.log('Token stored in localStorage');
+    }} catch(e) {{
+        console.error('Failed to store token in localStorage:', e);
+    }}
+    window.location.href = '{returnUrl ?? "/"}';
+</script>");
+            return new EmptyResult();
+
             
             // Add explicit logging to track cookie setting
             _logger.LogInformation("JWT token cookie set for user: {Email}", model.Email);

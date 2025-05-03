@@ -102,8 +102,24 @@ builder.Services.AddAuthentication(options =>
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT Key not configured")))
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"] ??
+                                       throw new InvalidOperationException("JWT Key not configured")))
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                // Try to get token from cookie for API requests
+                var cookieToken = context.Request.Cookies["jwt_token"];
+                if (!string.IsNullOrEmpty(cookieToken))
+                {
+                    context.Token = cookieToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
+
     });
 
 // Then add this AUTHORIZATION policy after authentication setup
@@ -161,7 +177,16 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IUserPreferencesService, UserPreferencesService>();
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials(); // If using credentials across origins
+    });
+});
 // Build the app
 var app = builder.Build();
 
@@ -224,6 +249,7 @@ app.UseCsp(options => options /* ... konfiguracja CSP ... */
 
 // Poprawna kolejność middleware
 app.UseRouting();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -6,35 +6,41 @@
  * @returns {string|null} JWT token or null if not found.
  */
 export const getJwtToken = () => {
-    console.log("getJwtToken: Attempting to read cookies...");
+    console.log("getJwtToken: Checking multiple sources for token...");
+
+    // Try localStorage first (more reliable across browsers)
+    try {
+        const localToken = localStorage.getItem('jwt_token');
+        if (localToken) {
+            console.log("getJwtToken: Found token in localStorage");
+            return localToken;
+        }
+    } catch (err) {
+        console.warn("getJwtToken: Error accessing localStorage:", err);
+    }
+
+    // Try cookies next
     try {
         const cookieValue = document.cookie;
-        console.log("getJwtToken: Raw document.cookie:", cookieValue); // Loguj całe ciasteczka
+        console.log("getJwtToken: Raw cookies:", cookieValue);
 
         const cookie = cookieValue
             .split('; ')
             .find(row => row.startsWith('jwt_token='));
 
-        if (!cookie) {
-            console.warn("getJwtToken: Cookie 'jwt_token' NOT FOUND.");
-            // Spróbuj localStorage jako fallback (jeśli go używasz)
-            const localToken = localStorage.getItem('jwt_token');
-            if(localToken) {
-                console.log("getJwtToken: Token found in localStorage (fallback).");
-                return localToken;
-            }
-            return null;
+        if (cookie) {
+            const token = cookie.split('=')[1];
+            console.log("getJwtToken: Found token in cookies");
+            return token;
         }
-
-        const token = cookie.split('=')[1];
-        console.log("getJwtToken: Cookie 'jwt_token' FOUND. Token:", token ? "[TOKEN PRESENT]" : "[TOKEN EMPTY/INVALID]");
-        return token;
     } catch (err) {
-        console.error('getJwtToken: Error reading cookie:', err);
-        return null;
+        console.warn("getJwtToken: Error accessing cookies:", err);
     }
-};
 
+    // No token found
+    console.warn("getJwtToken: No token found in any storage source");
+    return null;
+};
 /**
  * Creates HTTP headers object including Authorization (Bearer token) if available.
  * @param {boolean} [includeContentType=true] Whether to include 'Content-Type: application/json'.

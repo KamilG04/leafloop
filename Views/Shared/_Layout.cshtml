@@ -128,6 +128,10 @@ else
         }
     });
 </script>
+@if (Context.Request.Cookies["jwt_token"] != null || User.Identity.IsAuthenticated)
+{
+    <script src="~/js/token-test.js" asp-append-version="true"></script>
+}
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
