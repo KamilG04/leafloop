@@ -1,16 +1,17 @@
-// webpack.config.js
 const path = require('path');
 
 module.exports = {
     entry: {
-        // React components
-        userProfile: './wwwroot/js/react/userProfile.js',
+        // Services
+        api: './wwwroot/js/services/api.js',
+
+        // Components
         itemList: './wwwroot/js/components/itemList.js',
+        myItemList: './wwwroot/js/components/MyItemList.js',
         itemDetails: './wwwroot/js/components/itemDetails.js',
         itemCreateForm: './wwwroot/js/components/itemCreateForm.js',
         itemEditForm: './wwwroot/js/components/itemEditForm.js',
-        myItemList: './wwwroot/js/components/MyItemList.js',
-        darkModeToggle: './wwwroot/js/components/darkModeToggle.js',
+        userProfile: './wwwroot/js/react/userProfile.js',
     },
     output: {
         path: path.resolve(__dirname, 'wwwroot/js/dist'),
@@ -35,29 +36,6 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: ['.js', '.jsx'],
-        alias: {
-            '@utils': path.resolve(__dirname, 'wwwroot/js/utils'),
-            '@components': path.resolve(__dirname, 'wwwroot/js/components')
-        }
-    },
-    optimization: {
-        splitChunks: {
-            chunks: 'all',
-            cacheGroups: {
-                vendors: {
-                    test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-                    name: 'react-vendors',
-                    chunks: 'all',
-                    priority: 10
-                },
-                commons: {
-                    name: 'commons',
-                    minChunks: 2,
-                    priority: 5
-                }
-            }
-        }
-    },
-    devtool: process.env.NODE_ENV === 'development' ? 'source-map' : false
+        extensions: ['.js', '.jsx']
+    }
 };

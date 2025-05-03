@@ -31,7 +31,6 @@
 
   <ItemGroup>
     <Folder Include="Services\DTOs\Auth\" />
-    <Folder Include="wwwroot\js\services\" />
   </ItemGroup>
 
   <ItemGroup>
