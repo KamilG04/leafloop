@@ -264,8 +264,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>cgsfclw0ho</Fingerprint>
-      <Integrity>zD2hy9vfckJaPwK+85wJOST8RHybphkzYWlXYZS0/4o=</Integrity>
+      <Fingerprint>zqujiit793</Fingerprint>
+      <Integrity>a4woxDhOgURScwh5jmAJp/UASUQQNdmSIBTePdDudwg=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\components\ProfileEditForm.js'))</OriginalItemSpec>
@@ -282,8 +282,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>9ltxmdccnx</Fingerprint>
-      <Integrity>8wEPQeLbTy70v3wkDEur+MtWaroQlxl3k0BTOeyTzrE=</Integrity>
+      <Fingerprint>yz11xopmde</Fingerprint>
+      <Integrity>XvEEJonCU5MUcV2/38VTR0KIP8d9XfCg1o3nGPr6IwE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\components\TransactionDetails.js'))</OriginalItemSpec>
@@ -570,8 +570,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>5t70eudru4</Fingerprint>
-      <Integrity>d0L3VHZxob6eiuPcJ1/H+Z3Karz7Ker/XcWIqLQXbVk=</Integrity>
+      <Fingerprint>5wirgy93t9</Fingerprint>
+      <Integrity>ZcAK/Lk1bSZAzVKmNP1fEm6EuKMfoHqJYoRvCIEiJFo=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\profileEditForm.bundle.js'))</OriginalItemSpec>
@@ -606,8 +606,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>5wmjy0pyom</Fingerprint>
-      <Integrity>pWwSEmLWkcMQ8drjtn2cGMS7T3uWeiRRgkRB0zWS8Qw=</Integrity>
+      <Fingerprint>5s3j5p7sow</Fingerprint>
+      <Integrity>G80n/+saWhn83uvkq//yV1agjhdZY5WL+hgN3K8XlHE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\transactionDetails.bundle.js'))</OriginalItemSpec>
@@ -1854,6 +1854,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\lib\jquery\LICENSE.txt'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\avatars\b44ceb67-4935-432f-a80e-54f05d218793.png'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>vzc99ifjdg</Fingerprint>
+      <Integrity>9XRlo24+eJX16psqCpII6AwHUfKCJzr13btQ1TNfPvQ=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\avatars\b44ceb67-4935-432f-a80e-54f05d218793.png'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\0208243f-a0cb-47eb-a9b8-148ccce17f83_Zrzut ekranu 2025-05-2 o 14.35.21.png'))">
       <SourceType>Package</SourceType>
       <SourceId>LeafLoop</SourceId>
@@ -1890,6 +1908,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\1e6ee7c2-8d47-45fc-af18-bfb163011a67_Zrzut ekranu 2025-04-30 o 18.42.27.png'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\394125dc-f570-42ba-9be2-d732e860b31e.png'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>c1ndx2rpuf</Fingerprint>
+      <Integrity>4K5BMlOAhssiZp+9drM963WtJzmksJNhKzcgDHKz0V0=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\394125dc-f570-42ba-9be2-d732e860b31e.png'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png'))">
       <SourceType>Package</SourceType>
       <SourceId>LeafLoop</SourceId>
@@ -1925,6 +1961,24 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\5aae4af3-cb7e-419c-a5a3-0e394351a768_Zrzut ekranu 2024-12-3 o 23.34.39.png'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\69837384-e359-4422-b62e-19254eba98cb.png'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>uploads/items/69837384-e359-4422-b62e-19254eba98cb.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>bk93kx2ht5</Fingerprint>
+      <Integrity>K2sjUchY/rx3WokYbAlJIjvhjg8WwGDExtmd5PqoLBs=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\69837384-e359-4422-b62e-19254eba98cb.png'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\81cf02dc-192f-4f78-bba6-966fa939da37_Zrzut ekranu 2025-04-27 o 18.57.48.png'))">
       <SourceType>Package</SourceType>
