@@ -12,6 +12,8 @@ namespace LeafLoop.Services.Interfaces
         Task<IEnumerable<PhotoDto>> GetPhotosByItemAsync(int itemId);
         Task<int> AddPhotoAsync(PhotoCreateDto photoDto, int userId);
         Task DeletePhotoAsync(int id, int userId);
-        Task<string> UploadPhotoAsync(Stream fileStream, string fileName, string contentType);
+        Task<string> UploadPhotoAsync(Stream fileStream, string fileName, string contentType, string subfolder = "items");
+        
+        Task<bool> DeletePhotoByPathAsync(string relativePath);
     }
 }

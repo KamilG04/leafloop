@@ -25,16 +25,22 @@ namespace LeafLoop.Repositories
         /// Gets an item with its details (User, Category, Photos, Tags).
         /// Uses AsNoTracking for read-only query optimization.
         /// </summary>
+        // Repositories/ItemRepository.cs (update existing method)
         public async Task<Item> GetItemWithDetailsAsync(int itemId)
         {
-            // THE KEY FIX IS HERE: Use .Include()
             return await _context.Items
-                .Include(i => i.Photos)       // <-- LOAD THE PHOTOS!
-                .Include(i => i.Category)     // Load related Category
-                .Include(i => i.User)         // Load related User
-                // .Include(i => i.Tags)      // Uncomment if ItemWithDetailsDto needs tags
-                // .AsNoTracking()            // Optional: Good for read-only queries
-                .FirstOrDefaultAsync(i => i.Id == itemId); // Find the specific item
+                .Include(i => i.Photos)
+                .Include(i => i.Category)
+                .Include(i => i.User)  
+                .Include(i => i.Transactions)
+                .ThenInclude(t => t.Buyer)
+                .Include(i => i.Tags)
+                .ThenInclude(it => it.Tag)
+                .AsNoTracking()
+                .Include(i => i.Transactions)  // DODAJ TĘ LINIĘ
+                .ThenInclude(t => t.Buyer) // DODAJ TĘ LINIĘ
+                .FirstOrDefaultAsync(i => i.Id == itemId);
+                
         }
 
         /// <summary>

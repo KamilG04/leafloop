@@ -41,6 +41,14 @@
       "PackagePath": "staticwebassets/js/components/MyItemList.js"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/ProfileEditForm.js",
+      "PackagePath": "staticwebassets/js/components/ProfileEditForm.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/TransactionDetails.js",
+      "PackagePath": "staticwebassets/js/components/TransactionDetails.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/TransactionForm.js",
       "PackagePath": "staticwebassets/js/components/TransactionForm.js"
     },
@@ -59,6 +67,10 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemList.js",
       "PackagePath": "staticwebassets/js/components/itemList.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/myTransactionsList.js",
+      "PackagePath": "staticwebassets/js/components/myTransactionsList.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/userProfile.js",
@@ -107,6 +119,30 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myItemList.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/myItemList.bundle.js.LICENSE.txt"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myTransactionsList.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/myTransactionsList.bundle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myTransactionsList.bundle.js.LICENSE.txt",
+      "PackagePath": "staticwebassets/js/dist/myTransactionsList.bundle.js.LICENSE.txt"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/profileEditForm.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/profileEditForm.bundle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/profileEditForm.bundle.js.LICENSE.txt",
+      "PackagePath": "staticwebassets/js/dist/profileEditForm.bundle.js.LICENSE.txt"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/transactionDetails.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/transactionDetails.bundle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/transactionDetails.bundle.js.LICENSE.txt",
+      "PackagePath": "staticwebassets/js/dist/transactionDetails.bundle.js.LICENSE.txt"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",
@@ -395,6 +431,10 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/81cf02dc-192f-4f78-bba6-966fa939da37_Zrzut ekranu 2025-04-27 o 18.57.48.png",
       "PackagePath": "staticwebassets/uploads/items/81cf02dc-192f-4f78-bba6-966fa939da37_Zrzut ekranu 2025-04-27 o 18.57.48.png"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/ade1d15e-f3e1-404d-a9fc-23e778c15529_Zrzut ekranu 2025-04-27 o 17.55.30.png",
+      "PackagePath": "staticwebassets/uploads/items/ade1d15e-f3e1-404d-a9fc-23e778c15529_Zrzut ekranu 2025-04-27 o 17.55.30.png"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/b01fff25-39ec-4b3c-89d5-34ce0f89c92e_Zrzut ekranu 2025-05-1 o 14.59.17.png",

@@ -11,6 +11,7 @@ namespace LeafLoop.Models
         [Required]
         public string Name { get; set; }
         
+        
         public string Description { get; set; }
         
         public string Condition { get; set; }
@@ -27,11 +28,16 @@ namespace LeafLoop.Models
         
         public int CategoryId { get; set; }
         
+        
+        
         // Relacje
         public virtual User User { get; set; }
         public virtual Category Category { get; set; }
         public virtual ICollection<Photo> Photos { get; set; }
         public virtual ICollection<ItemTag> Tags { get; set; }
         public virtual ICollection<Transaction> Transactions { get; set; }
+        
+        
     }
+    
 }

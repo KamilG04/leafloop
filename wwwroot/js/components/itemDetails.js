@@ -1,12 +1,13 @@
 // Ścieżka: wwwroot/js/components/itemDetails.js
-// (Wersja z ApiService, ale BEZ zintegrowanego TransactionForm)
+// (Wersja z przyciskiem "Chcę to!" i informacją o transakcjach dla właściciela)
 
 import React, { useState, useEffect, useCallback, StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import ApiService from '../services/api.js'; // Użyj ApiService
-import { getCurrentUserId } from '../utils/auth.js'; // Do sprawdzania właściciela
+import ApiService from '../services/api.js';
+import { getCurrentUserId } from '../utils/auth.js';
+// Import TransactionForm NIE jest już potrzebny
 
-// Komponent do wyświetlania zdjęć (z poprawkami dla ApiService.getImageUrl)
+// Komponent do wyświetlania zdjęć (bez zmian od ostatniej działającej wersji)
 const ItemPhotoDisplay = ({ photos, itemName }) => {
     if (!photos || photos.length === 0) {
         return (
@@ -15,15 +16,13 @@ const ItemPhotoDisplay = ({ photos, itemName }) => {
             </div>
         );
     }
-    // Użyj helpera dla spójności i obsługi placeholdera
     const defaultPlaceholder = ApiService.getImageUrl(null);
 
     if (photos.length === 1) {
-        const photoPath = ApiService.getImageUrl(photos[0]?.path); // Użyj helpera
+        const photoPath = ApiService.getImageUrl(photos[0]?.path);
         return <img src={photoPath} className="img-fluid rounded mb-3" alt={photos[0]?.fileName || itemName || 'Item image'} style={{ maxHeight: '500px', objectFit: 'contain', display: 'block', margin: '0 auto' }} onError={(e) => { if (e.target.src !== defaultPlaceholder) e.target.src = defaultPlaceholder; }}/>;
     }
 
-    // Karuzela
     const carouselId = `itemPhotosCarousel-${Date.now()}`;
     return (
         <div id={carouselId} className="carousel slide mb-3" data-bs-ride="carousel">
@@ -34,8 +33,7 @@ const ItemPhotoDisplay = ({ photos, itemName }) => {
             </div>
             <div className="carousel-inner rounded" style={{ maxHeight: '500px', backgroundColor: '#f8f9fa' }}>
                 {photos.map((photo, index) => {
-                    const photoPath = ApiService.getImageUrl(photo?.path); // Użyj helpera
-                    // Dodaj fallback na ID, jeśli photo.id jest puste/null
+                    const photoPath = ApiService.getImageUrl(photo?.path);
                     const key = photo?.id ? `photo-${photo.id}` : `item-${index}`;
                     return (
                         <div key={key} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
@@ -55,18 +53,23 @@ const ItemPhotoDisplay = ({ photos, itemName }) => {
         </div>
     );
 };
-ItemPhotoDisplay.displayName = 'ItemPhotoDisplay'; // Nazwa dla DevTools
+ItemPhotoDisplay.displayName = 'ItemPhotoDisplay';
 
 
 // Główny komponent ItemDetails
 const ItemDetails = ({ itemId }) => {
+    // Istniejące stany
     const [item, setItem] = useState(null);
-    const [loading, setLoading] = useState(true); // Ładowanie danych przedmiotu
-    const [deleting, setDeleting] = useState(false); // Stan dla procesu usuwania
-    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [deleting, setDeleting] = useState(false); // Stan usuwania
+    const [error, setError] = useState(null); // Błędy ładowania LUB operacji
     const [isOwner, setIsOwner] = useState(false);
 
-    // Funkcja do pobierania danych przedmiotu
+    // Nowe stany dla inicjacji transakcji
+    const [initiatingTransaction, setInitiatingTransaction] = useState(false);
+    const [transactionInitiated, setTransactionInitiated] = useState(false); // Czy już zainicjowano?
+
+    // Funkcja do pobierania danych przedmiotu (zakładamy, że API zwraca teraz 'pendingTransactions')
     const fetchItemData = useCallback(async () => {
         if (!itemId || itemId <= 0) {
             setError('Nieprawidłowe ID przedmiotu.');
@@ -75,7 +78,9 @@ const ItemDetails = ({ itemId }) => {
         }
         setLoading(true);
         setError(null);
-        setDeleting(false); // Resetuj stan usuwania przy nowym ładowaniu
+        setDeleting(false);
+        setInitiatingTransaction(false); // Resetuj stany akcji
+        setTransactionInitiated(false);
         console.log(`ItemDetails: Fetching data for item ID: ${itemId}`);
 
         try {
@@ -85,10 +90,15 @@ const ItemDetails = ({ itemId }) => {
             console.log("ItemDetails: Received item data:", data);
             setItem(data);
 
-            // Sprawdź właściciela
             const currentUserId = getCurrentUserId();
             const ownerId = data.user?.id;
             setIsOwner(!!(currentUserId && ownerId && currentUserId === ownerId));
+
+            // TODO: Sprawdź, czy bieżący użytkownik (jeśli nie jest właścicielem)
+            // już zainicjował transakcję dla tego przedmiotu. Wymaga to informacji
+            // z API w odpowiedzi /api/items/{id} lub osobnego zapytania.
+            // Jeśli tak, ustaw setTransactionInitiated(true);
+            // Przykład: if (!isOwner && data.currentUserTransactionStatus === 'Initiated') setTransactionInitiated(true);
 
         } catch (err) {
             console.error("ItemDetails: Error fetching item data:", err);
@@ -99,37 +109,80 @@ const ItemDetails = ({ itemId }) => {
         }
     }, [itemId]);
 
-    // Efekt do pobrania danych
     useEffect(() => {
         fetchItemData();
     }, [fetchItemData]);
 
-    // Funkcja do usuwania przedmiotu
+    // Funkcja do usuwania przedmiotu (bez zmian)
     const handleDelete = useCallback(async () => {
         if (!isOwner || !item?.id) return;
         if (!window.confirm(`Czy na pewno chcesz usunąć przedmiot "${item.name || 'Bez nazwy'}"? Tej operacji nie można cofnąć.`)) {
             return;
         }
-
         setDeleting(true);
-        setError(null); // Wyczyść poprzednie błędy przed próbą usunięcia
-
+        setError(null);
         try {
             await ApiService.delete(`/api/items/${item.id}`);
             alert(`Przedmiot "${item.name || 'Bez nazwy'}" został usunięty.`);
-            window.location.href = '/Items/MyItems'; // Przekieruj
+            window.location.href = '/Items/MyItems';
         } catch (err) {
             console.error("ItemDetails: Error deleting item:", err);
             setError(`Nie udało się usunąć przedmiotu: ${err.message || "Nieznany błąd"}`);
-            setDeleting(false); // Wyłącz stan usuwania TYLKO w razie błędu
+            setDeleting(false);
         }
-        // Przy sukcesie następuje przekierowanie, więc nie resetujemy deleting
     }, [item, isOwner]);
+
+    // Funkcja inicjowania transakcji przez kupującego
+    const handleInitiateTransaction = useCallback(async () => {
+        // Podstawowe zabezpieczenia
+        if (!item?.id || isOwner || !item?.isAvailable || transactionInitiated) return;
+
+        if (!window.confirm('Czy na pewno chcesz rozpocząć transakcję dla tego przedmiotu? Skontaktuj się z właścicielem przez widok transakcji.')) {
+            return;
+        }
+
+        setInitiatingTransaction(true);
+        setError(null); // Wyczyść błędy z innych akcji
+
+        try {
+            // === POCZĄTEK POPRAWKI ===
+            // Ustal typ transakcji na podstawie danych przedmiotu
+            // Upewnij się, że wartości liczbowe (0, 1, 2) odpowiadają Twojemu enumowi C#
+            // (Exchange=0, Donation=1, Sale=2)
+            let transactionTypeValue;
+            if (item.isForExchange) {
+                transactionTypeValue = 0; // Exchange
+            } else if (item.expectedValue > 0) {
+                transactionTypeValue = 2; // Sale (Upewnij się, że Sale istnieje w enumie C#!)
+            } else {
+                transactionTypeValue = 1; // Donation (lub Gift)
+            }
+
+            const transactionData = {
+                itemId: item.id,
+                type: transactionTypeValue // <<< DODANO WYMAGANE POLE 'type'
+                // offer: null // Możesz pominąć, jeśli DTO ma nullable 'offer'
+            };
+            // === KONIEC POPRAWKI ===
+
+            console.log("ItemDetails: Initiating transaction with data:", transactionData);
+            const result = await ApiService.post('/api/transactions', transactionData);
+            console.log("ItemDetails: Transaction initiated response:", result);
+            setTransactionInitiated(true);
+
+        } catch (err) {
+            console.error('ItemDetails: Error initiating transaction:', err);
+            setError(`Nie udało się zainicjować transakcji: ${err.message}`);
+            setTransactionInitiated(false);
+        } finally {
+            setInitiatingTransaction(false);
+        }
+    }, [item, isOwner, isAvailable, transactionInitiated]); // Dodano isAvailable i transactionInitiated do zależności dla bezpieczeństwa
+
 
     // --- Renderowanie ---
 
-    // Stan ładowania początkowego
-    if (loading) { // Uproszczone - pokazuj spinner, dopóki item nie zostanie załadowany
+    if (loading) {
         return (
             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
                 <div className="spinner-border text-success" role="status" style={{ width: '3rem', height: '3rem' }}>
@@ -139,8 +192,7 @@ const ItemDetails = ({ itemId }) => {
         );
     }
 
-    // Stan błędu ładowania (jeśli po załadowaniu item jest nadal null)
-    if (error && !item) {
+    if (error && !item) { // Błąd krytyczny - nie załadowano itemu
         return (
             <div className="alert alert-danger d-flex flex-column align-items-center" role="alert">
                 <span>Błąd: {error}</span>
@@ -151,23 +203,18 @@ const ItemDetails = ({ itemId }) => {
         );
     }
 
-    // Stan nieznalezionego przedmiotu (jeśli nie ma błędu, ale item jest null)
     if (!item) {
         return <div className="alert alert-warning" role="alert">Nie znaleziono przedmiotu o podanym ID.</div>;
     }
 
-    // Destrukturyzacja danych przedmiotu (po sprawdzeniu, że item nie jest null)
-    const { id, name, description, condition, dateAdded, isAvailable, isForExchange, expectedValue, user, category, photos, tags } = item;
+    // Destrukturyzacja danych przedmiotu
+    // Zakładamy, że API zwraca teraz pole 'pendingTransactions' (może być null lub pusta tablica)
+    const { id, name, description, condition, dateAdded, isAvailable, isForExchange, expectedValue, user, category, photos, tags, pendingTransactions } = item;
     const categoryName = category?.name || 'Brak';
     const userName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Nieznany użytkownik';
     const userAvatar = user?.avatarPath || null;
-    const userFirstName = user?.firstName || '?';
-    const userLastName = user?.lastName || '?';
-    const userEcoScore = user?.ecoScore ?? 0;
-    const userId = user?.id || null; // ID właściciela przedmiotu
-
-    // Domyślny awatar
-    const defaultAvatar = ApiService.getImageUrl(null);
+    const ownerUserId = user?.id || null; // ID właściciela przedmiotu
+    const defaultAvatar = ApiService.getImageUrl(null); // Ścieżka do placeholdera
 
     return (
         <div className="row">
@@ -179,6 +226,7 @@ const ItemDetails = ({ itemId }) => {
             {/* Kolumna Informacje */}
             <div className="col-lg-5">
                 <div className="card shadow-sm">
+                    {/* Nagłówek Karty */}
                     <div className="card-header bg-light d-flex justify-content-between align-items-center flex-wrap">
                         <h3 className="mb-0 me-2">{name}</h3>
                         <span className={`badge fs-6 ${isAvailable ? 'bg-success' : 'bg-secondary'}`}>
@@ -186,9 +234,10 @@ const ItemDetails = ({ itemId }) => {
                         </span>
                     </div>
                     <div className="card-body">
-                        {/* Wyświetlaj błąd usuwania, jeśli wystąpił */}
-                        {error && deleting && <div className="alert alert-danger mt-2">{error}</div>}
+                        {/* Wyświetlaj błąd operacji (usuwania LUB inicjacji transakcji) */}
+                        {error && <div className="alert alert-danger">{error}</div>}
 
+                        {/* Dane Przedmiotu */}
                         <p className="lead" style={{ whiteSpace: 'pre-wrap' }}>{description || 'Brak opisu.'}</p>
                         <hr/>
                         <p><strong>Stan:</strong> {condition || 'Nieokreślony'}</p>
@@ -206,74 +255,91 @@ const ItemDetails = ({ itemId }) => {
                             </div>
                         )}
 
-                        {/* Informacje o użytkowniku */}
-                        {user && userId && (
+                        {/* Informacje o właścicielu */}
+                        {user && ownerUserId && (
                             <div className="mt-3 pt-3 border-top">
                                 <h6>Wystawione przez:</h6>
                                 <div className="d-flex align-items-center">
                                     <img
-                                        src={ApiService.getImageUrl(userAvatar)} // Użyj helpera
+                                        src={ApiService.getImageUrl(userAvatar)}
                                         alt={userName}
                                         className="rounded-circle me-2"
                                         style={{ width: '40px', height: '40px', objectFit: 'cover' }}
-                                        onError={(e) => { if (e.target.src !== defaultAvatar) e.target.src = defaultAvatar; }} // Fallback
+                                        onError={(e) => { if (e.target.src !== defaultAvatar) e.target.src = defaultAvatar; }}
                                     />
                                     <div>
-                                        {/* Link do profilu właściciela */}
-                                        <a href={`/Profile/Index/${userId}`} className="fw-bold text-decoration-none">{userName}</a>
+                                        <a href={`/Profile/Index/${ownerUserId}`} className="fw-bold text-decoration-none">{userName}</a>
                                         <br/>
-                                        <small className="text-muted">EcoScore: {userEcoScore}</small>
+                                        <small className="text-muted">EcoScore: {user.ecoScore ?? 0}</small>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Przyciski Akcji */}
-                        <div className="mt-4 pt-3 border-top d-flex flex-wrap gap-2">
-                            {/* Przycisk "Zapytaj" dla nie-właścicieli */}
-                            {!isOwner && isAvailable && (
-                                <button className="btn btn-primary" onClick={() => alert('Funkcjonalność "Zapytaj / Zaproponuj" zostanie zastąpiona przez formularz transakcji poniżej (lub zintegrowana).')}>
-                                    <i className="bi bi-envelope me-1"></i> Zapytaj / Zaproponuj
-                                </button>
-                                // Tutaj normalnie byłby TransactionForm, ale na razie go pomijamy
-                            )}
-
-                            {/* Przyciski Edytuj/Usuń dla właściciela */}
-                            {isOwner && (
+                        {/* Przyciski Akcji i Informacje o Transakcjach */}
+                        <div className="mt-4 pt-3 border-top">
+                            {isOwner ? (
+                                // --- Widok Właściciela ---
                                 <>
-                                    <a href={`/Items/Edit/${id}`} className="btn btn-warning">
-                                        <i className="bi bi-pencil-square me-1"></i> Edytuj
-                                    </a>
-                                    <button onClick={handleDelete} className="btn btn-danger" disabled={deleting}>
-                                        {deleting ? (
-                                            <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Usuwanie...</>
-                                        ) : (
-                                            <><i className="bi bi-trash me-1"></i> Usuń</>
-                                        )}
-                                    </button>
+                                    {/* Info o oczekujących transakcjach */}
+                                    {pendingTransactions && pendingTransactions.length > 0 && (
+                                        <div className="alert alert-info mb-3 small">
+                                            <i className="bi bi-info-circle-fill me-2"></i>
+                                            Masz {pendingTransactions.length} oczekującą(e) propozycję(e) transakcji dla tego przedmiotu.
+                                            <a href="/Transactions" className="alert-link ms-1">Sprawdź Moje Transakcje</a>.
+                                            {/* Można by tu wyświetlić imiona kupujących, jeśli DTO je zawiera */}
+                                        </div>
+                                    )}
+                                    {/* Przyciski Edytuj/Usuń */}
+                                    <div className="d-flex flex-wrap gap-2">
+                                        <a href={`/Items/Edit/${id}`} className="btn btn-warning">
+                                            <i className="bi bi-pencil-square me-1"></i> Edytuj
+                                        </a>
+                                        <button onClick={handleDelete} className="btn btn-danger" disabled={deleting}>
+                                            {deleting ? (
+                                                <><span className="spinner-border spinner-border-sm me-1"></span>Usuwanie...</>
+                                            ) : (
+                                                <><i className="bi bi-trash me-1"></i> Usuń</>
+                                            )}
+                                        </button>
+                                    </div>
                                 </>
+                            ) : (
+                                // --- Widok Kupującego ---
+                                isAvailable ? (
+                                    transactionInitiated ? (
+                                        // Komunikat po udanej inicjacji
+                                        <div className="alert alert-success">
+                                            <i className="bi bi-check-circle-fill me-1"></i>
+                                            Transakcja rozpoczęta! Sprawdź <a href="/Transactions" className="alert-link">Moje Transakcje</a>, aby wysłać wiadomość i kontynuować.
+                                        </div>
+                                    ) : (
+                                        // Przycisk inicjacji transakcji
+                                        <button
+                                            className="btn btn-primary w-100" // Zmieniono kolor na primary
+                                            onClick={handleInitiateTransaction}
+                                            disabled={initiatingTransaction}
+                                        >
+                                            {initiatingTransaction ? (
+                                                <><span className="spinner-border spinner-border-sm me-2"></span>Inicjowanie...</>
+                                            ) : (
+                                                <><i className="bi bi-send-plus-fill me-1"></i> Chcę to! (Rozpocznij transakcję)</> // Zmieniono ikonę/tekst
+                                            )}
+                                        </button>
+                                    )
+                                ) : (
+                                    // Przedmiot niedostępny
+                                    <div className="alert alert-secondary">Przedmiot jest aktualnie niedostępny.</div>
+                                )
                             )}
                         </div>
-                    </div>{/* Koniec card-body */}
-                </div>{/* Koniec card */}
-
-                {/* -------------------------------------------------------------
-                    Miejsce, gdzie normalnie dodalibyśmy TransactionForm:
-
-                    {!isOwner && isAvailable && (
-                        <div className="mt-4"> 
-                            <TransactionForm itemId={id} itemName={name} />
-                        </div>
-                    )}
-                    -------------------------------------------------------------
-                */}
-
+                    </div> {/* Koniec card-body */}
+                </div> {/* Koniec card */}
             </div> {/* Koniec col-lg-5 */}
         </div> // Koniec row
     );
 };
-ItemDetails.displayName = 'ItemDetails'; // Nazwa dla DevTools
-
+ItemDetails.displayName = 'ItemDetails';
 
 // --- Inicjalizacja Komponentu (bez zmian) ---
 document.addEventListener('DOMContentLoaded', () => {
