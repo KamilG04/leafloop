@@ -103,7 +103,8 @@ namespace LeafLoop.Services
             }
         }
 
-        public async Task<int> InitiateTransactionAsync(TransactionCreateDto transactionDto)
+        public async Task<int> InitiateTransactionAsync(TransactionCreateDto transactionDto, int buyerUserId)
+        
         {
             try
             {
@@ -152,6 +153,14 @@ namespace LeafLoop.Services
             {
                 _logger.LogError(ex, "Error occurred while initiating transaction");
                 throw;
+            }
+            var existingTransaction = await _unitOfWork.Transactions.SingleOrDefaultAsync(t => 
+                t.ItemId == transactionDto.ItemId && 
+                t.BuyerId == buyerUserId && 
+                (t.Status == TransactionStatus.Pending || t.Status == TransactionStatus.InProgress));
+            if (existingTransaction != null)
+            {
+                throw new InvalidOperationException("You already have a pending transaction for this item");
             }
         }
 

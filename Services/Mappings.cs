@@ -77,17 +77,19 @@ namespace LeafLoop.Services.Mappings // Upewnij się, że namespace jest poprawn
                 .ForMember(dest => dest.BuyerName, opt => opt.MapFrom(src => 
                     src.Buyer != null ? $"{src.Buyer.FirstName} {src.Buyer.LastName}" : null));
             // Mapowanie ItemWithDetailsDto dziedziczy z ItemDto
-             CreateMap<Item, ItemWithDetailsDto>()
-                 .IncludeBase<Item, ItemDto>()
-                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
-                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
-                 .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos))
-                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? src.Tags.Select(it => it.Tag) : new List<Tag>()))
-                 // NOWE: Mapowanie oczekujących transakcji
-                 .ForMember(dest => dest.PendingTransactions, opt => opt.MapFrom(src => 
-                     src.Transactions != null 
-                         ? src.Transactions.Where(t => t.Status == TransactionStatus.Pending || t.Status == TransactionStatus.InProgress)
-                         : new List<Transaction>()));
+            // Services/Mappings/MappingProfile.cs - zaktualizuj mapowanie ItemWithDetailsDto
+            // Services/Mappings/MappingProfile.cs
+            CreateMap<Item, ItemWithDetailsDto>()
+                .IncludeBase<Item, ItemDto>()
+                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category))
+                .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? src.Tags.Select(it => it.Tag) : new List<Tag>()))
+                // DODAJ TO MAPOWANIE:
+                .ForMember(dest => dest.PendingTransactions, opt => opt.MapFrom(src => 
+                    src.Transactions != null 
+                        ? src.Transactions.Where(t => t.Status == TransactionStatus.Pending || t.Status == TransactionStatus.InProgress)
+                        : new List<Transaction>()));
             CreateMap<ItemCreateDto, Item>(); // Mapowanie przy tworzeniu
             CreateMap<ItemUpdateDto, Item>(); // Mapowanie przy aktualizacji
             

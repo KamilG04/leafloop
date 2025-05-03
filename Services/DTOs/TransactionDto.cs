@@ -20,7 +20,7 @@ namespace LeafLoop.Services.DTOs
         public string ItemName { get; set; }
         public string ItemPhotoPath { get; set; }
     }
-
+    
     public class TransactionWithDetailsDto : TransactionDto
     {
         public UserDto Seller { get; set; }
@@ -60,4 +60,5 @@ namespace LeafLoop.Services.DTOs
         [MaxLength(500)] // Przykładowy limit
         public string? Comment { get; set; } // Komentarz opcjonalny
     }
+    
 }

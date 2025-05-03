@@ -27,6 +27,7 @@ namespace LeafLoop.Services.DTOs
         public CategoryDto Category { get; set; }
         public List<PhotoDto> Photos { get; set; }
         public List<TagDto> Tags { get; set; }
+        public List<TransactionBasicDto> PendingTransactions { get; set; }
     }
 
     public class ItemCreateDto

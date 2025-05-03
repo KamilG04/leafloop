@@ -1,0 +1,14 @@
+@* Views/Transactions/Index.cshtml *@
+@{
+    ViewData["Title"] = "Moje Transakcje";
+}
+
+<div class="container mt-4">
+    <h1>@ViewData["Title"]</h1>
+    
+    <div id="react-transactions-list-container"></div>
+</div>
+
+@section Scripts {
+    <script src="~/js/dist/myTransactionsList.bundle.js" asp-append-version="true"></script>
+}

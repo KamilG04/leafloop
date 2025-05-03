@@ -61,6 +61,10 @@
       "PackagePath": "staticwebassets/js/components/itemList.js"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/myTransactionsList.js",
+      "PackagePath": "staticwebassets/js/components/myTransactionsList.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/userProfile.js",
       "PackagePath": "staticwebassets/js/components/userProfile.js"
     },
@@ -107,6 +111,14 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myItemList.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/myItemList.bundle.js.LICENSE.txt"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myTransactionsList.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/myTransactionsList.bundle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myTransactionsList.bundle.js.LICENSE.txt",
+      "PackagePath": "staticwebassets/js/dist/myTransactionsList.bundle.js.LICENSE.txt"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",

@@ -44,7 +44,47 @@ namespace LeafLoop.Api
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+        [HttpPost]
+        public async Task<IActionResult> InitiateTransaction([FromBody] TransactionCreateDto transactionDto)
+        {
+            if (!ModelState.IsValid)
+                return this.ApiBadRequest(ModelState);
+    
+            try
+            {
+                // Pobierz ID zalogowanego użytkownika z tokenu JWT
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
+                {
+                    return this.ApiUnauthorized("Unable to identify user.");
+                }
 
+                // Wywołaj serwis z ID użytkownika
+                var transactionId = await _transactionService.InitiateTransactionAsync(transactionDto, userId);
+        
+                var transaction = await _transactionService.GetTransactionByIdAsync(transactionId);
+        
+                return this.ApiCreatedAtAction(
+                    transaction,
+                    nameof(GetTransaction),
+                    "Transactions",
+                    new { id = transactionId }
+                );
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return this.ApiNotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return this.ApiBadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error initiating transaction");
+                return this.ApiInternalError("Error initiating transaction", ex);
+            }
+        }
         // GET: api/transactions
         [HttpGet]
         // Nie potrzebujesz już [Authorize] tutaj, bo jest na kontrolerze
@@ -106,4 +146,5 @@ namespace LeafLoop.Api
         // Nie potrzebują indywidualnych atrybutów [Authorize], jeśli jest on na poziomie kontrolera.
 
     }
+    
 }

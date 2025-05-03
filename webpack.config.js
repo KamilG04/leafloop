@@ -12,6 +12,7 @@ module.exports = {
         itemCreateForm: './wwwroot/js/components/itemCreateForm.js',
         itemEditForm: './wwwroot/js/components/itemEditForm.js',
         userProfile: './wwwroot/js/components/userProfile.js',
+        myTransactionsList: './wwwroot/js/components/MyTransactionsList.js',
     },
     output: {
         path: path.resolve(__dirname, 'wwwroot/js/dist'),
