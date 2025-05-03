@@ -1,538 +1,347 @@
+// Api/ItemApiController.cs
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Security.Claims; // User.FindFirstValue
-using LeafLoop.Models;       
-using LeafLoop.Services.DTOs; // DTO
-using LeafLoop.Services.Interfaces; // Service interfaces
-using Microsoft.AspNetCore.Authorization; // [Authorize]
-using Microsoft.AspNetCore.Http;         // IFormFile i StatusCodes
-using Microsoft.AspNetCore.Identity;     // UserManager<User>
-using Microsoft.AspNetCore.Mvc;          // Route], [ApiController], ActionResult itp.
-using Microsoft.Extensions.Logging;      // ILogger
+using System.Security.Claims;
+using System.IO;
+using LeafLoop.Models;
+using LeafLoop.Models.API;
+using LeafLoop.Services.DTOs;
+using LeafLoop.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using LeafLoop.Api;
 
 namespace LeafLoop.Api
 {
-    [Route("api/[controller]")] // /api/items
+    [Route("api/[controller]")]
     [ApiController]
-    public class ItemsController : ControllerBase 
+    public class ItemsController : ControllerBase
     {
-       
         private readonly IItemService _itemService;
-        private readonly IPhotoService _photoService; // Check, add injections in the future
+        private readonly IPhotoService _photoService;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<ItemsController> _logger;
 
-        // --- Dependency injections ---
         public ItemsController(
             IItemService itemService,
-            IPhotoService photoService, 
+            IPhotoService photoService,
             UserManager<User> userManager,
             ILogger<ItemsController> logger)
         {
             _itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
-            _photoService = photoService ?? throw new ArgumentNullException(nameof(photoService)); // Check for null ??
+            _photoService = photoService ?? throw new ArgumentNullException(nameof(photoService));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // --- Endpoints API ---
-
-        // In API/ItemsController.cs
+        // GET: api/items
         [HttpGet]
-        public async Task<ActionResult<ItemListResponseDto>> GetItems([FromQuery] ItemSearchDto searchDto)
+        public async Task<IActionResult> GetItems([FromQuery] ItemSearchDto searchDto)
         {
             try
             {
-                // Set defaults if not provided
                 searchDto.Page ??= 1;
                 searchDto.PageSize ??= 8;
-        
-                // Get items based on search criteria
+
+                // Walidacja Page/PageSize
+                if (searchDto.Page <= 0) searchDto.Page = 1;
+                if (searchDto.PageSize <= 0 || searchDto.PageSize > 100) searchDto.PageSize = 8;
+
                 var items = await _itemService.SearchItemsAsync(searchDto);
-        
-                // Get total count for pagination
                 var totalItems = await _itemService.GetItemsCountAsync(searchDto);
                 var totalPages = (int)Math.Ceiling((double)totalItems / searchDto.PageSize.Value);
-        
-                // Return both items and pagination info
-                return Ok(new ItemListResponseDto
-                {
-                    Items = items,
-                    TotalItems = totalItems,
-                    TotalPages = totalPages,
-                    CurrentPage = searchDto.Page.Value
-                });
+
+                return this.ApiOkWithPagination(items, totalItems, totalPages, searchDto.Page.Value);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving items");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving items");
+                _logger.LogError(ex, "Error retrieving items with search: {@SearchDto}", searchDto);
+                return this.ApiInternalError("Error retrieving items", ex);
             }
         }
 
-// Response DTO for the items list
-        public class ItemListResponseDto
+        // GET: api/items/{id:int}
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetItem(int id)
         {
-            public IEnumerable<ItemDto> Items { get; set; }
-            public int TotalItems { get; set; }
-            public int TotalPages { get; set; }
-            public int CurrentPage { get; set; }
-        }
+            if (id <= 0)
+            {
+                return this.ApiBadRequest("Invalid item ID.");
+            }
 
-        // GET: api/items/{id} 
-        // --- AI FIX TODO CHECK if thats not fup---
-        [HttpGet("{id:int}")] // thats a fix proposed by ai, its working but i think it sucks 
-        public async Task<ActionResult<ItemWithDetailsDto>> GetItem(int id)
-        {
-            if (id <= 0) {
-                 return BadRequest("Nieprawidłowe ID przedmiotu.");
-             }
             try
             {
-                var item = await _itemService.GetItemWithDetailsAsync(id); // Using method returning DTO 
+                var item = await _itemService.GetItemWithDetailsAsync(id);
+
                 if (item == null)
                 {
-                    return NotFound($"Przedmiot o ID {id} nie został znaleziony.");
+                    return this.ApiNotFound($"Item with ID {id} not found.");
                 }
-                return Ok(item);
+
+                return this.ApiOk(item);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Błąd podczas pobierania szczegółów przedmiotu. ItemId: {ItemId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas pobierania danych.");
+                _logger.LogError(ex, "Error retrieving item details. ItemId: {ItemId}", id);
+                return this.ApiInternalError("Error retrieving item details", ex);
             }
         }
-        
-        // GET: api/items/my (Items for logged user )
+
+        // GET: api/items/my
         [HttpGet("my")]
-        [Authorize] // should work always 
-        public async Task<ActionResult<IEnumerable<ItemDto>>> GetCurrentUserItems()
+        [Authorize(Policy = "ApiAuthPolicy")]
+        public async Task<IActionResult> GetCurrentUserItems()
         {
             try
             {
-                //Secure getting id of an user from claims, but better to check for better options
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
                 {
-                    _logger.LogWarning("GetCurrentUserItems wywołane bez poprawnego identyfikatora użytkownika.");
-                    // 401 Unauthorized rather than [Authorize], for wrong tokens
-                    return Unauthorized("Nie można zidentyfikować użytkownika.");
+                    return this.ApiUnauthorized("Unable to identify user.");
                 }
 
-                // Service 
                 var items = await _itemService.GetItemsByUserAsync(userId);
-                return Ok(items); // LIST ItemDto
+                return this.ApiOk(items);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Błąd podczas pobierania przedmiotów dla bieżącego użytkownika (ID z claim: {UserIdClaim})", User.FindFirstValue(ClaimTypes.NameIdentifier));
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas pobierania przedmiotów użytkownika.");
+                _logger.LogError(ex, "Error retrieving current user items");
+                return this.ApiInternalError("Error retrieving your items", ex);
             }
         }
 
-        // GET: api/items/user/{userId} (ANY user items from ID)
-        [HttpGet("user/{userId:int}")] // the same fix dont even thinking about it anymore just accepted it, dont touch it :int
-        public async Task<ActionResult<IEnumerable<ItemDto>>> GetUserItems(int userId)
-        {
-             if (userId <= 0) {
-                 return BadRequest("Nieprawidłowe ID użytkownika.");
-             }
-            try
-            {
-                // TODO: Check if user exists with that ID
-                var items = await _itemService.GetItemsByUserAsync(userId);
-                return Ok(items);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Błąd podczas pobierania przedmiotów dla użytkownika. UserId: {UserId}", userId);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas pobierania danych.");
-            }
-        }
-
-        // GET: api/items/category/{categoryId} (Category items)
-        [HttpGet("category/{categoryId:int}")] // :int
-        public async Task<ActionResult<IEnumerable<ItemDto>>> GetCategoryItems(int categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
-        {
-             if (categoryId <= 0) {
-                 return BadRequest("Nieprawidłowe ID kategorii.");
-             }
-             if (page <= 0) page = 1;
-             if (pageSize <= 0) pageSize = 10;
-
-            try
-            {
-                // TODO: Fajnie byloby to zmienic bo troche niszczymy nasza koncepcje bo to filtrowanie w kontrolerze no chujowo po prostu 
-                // Zakładamy, że ItemService obsługuje paginację lub zwraca wszystko, a my filtrujemy (?)
-                // Lepsze byłoby przekazanie paginacji do serwisu/repozytorium
-                var items = await _itemService.GetItemsByCategoryAsync(categoryId, page, pageSize);
-                return Ok(items);
-            }
-            catch (KeyNotFoundException ex) // Łap konkretny wyjątek, jeśli serwis go rzuca
-            {
-                 _logger.LogWarning("Próba pobrania przedmiotów dla nieistniejącej kategorii: {CategoryId}", categoryId);
-                 return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Błąd podczas pobierania przedmiotów z kategorii. CategoryId: {CategoryId}", categoryId);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas pobierania danych.");
-            }
-        }
-
-        // GET: api/items/{id}/photos (Photos for item)
-        [HttpGet("{id:int}/photos")] // Dodano ograniczenie :int
-        public async Task<ActionResult<IEnumerable<PhotoDto>>> GetItemPhotos(int id)
-        {
-             if (id <= 0) {
-                 return BadRequest("Nieprawidłowe ID przedmiotu.");
-             }
-            try
-            {
-                 // If item exists
-                 var itemExists = await _itemService.GetItemByIdAsync(id); // Użyj prostej metody
-                 if (itemExists == null)
-                 {
-                     return NotFound($"Przedmiot o ID {id} nie został znaleziony.");
-                 }
-
-                var photos = await _itemService.GetItemPhotosAsync(id);
-                return Ok(photos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Błąd podczas pobierania zdjęć przedmiotu. ItemId: {ItemId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas pobierania danych.");
-            }
-        }
-
-        // POST: api/items (New item create )
+        // POST: api/items
         [HttpPost]
-        [Authorize]
-        public async Task<ActionResult<ItemDto>> CreateItem([FromBody] ItemCreateDto itemDto) // Zmieniono zwracany typ na ItemDto dla spójności
+        [Authorize(Policy = "ApiAuthPolicy")]
+        public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto itemDto)
         {
-             if (!ModelState.IsValid) //  DTO if he dies he dies 
-             {
-                 return BadRequest(ModelState);
-             }
+            if (!ModelState.IsValid)
+            {
+                return this.ApiBadRequest(ModelState);
+            }
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                 if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika."); // Dodatkowe sprawdzenie
 
-                // Service returns ID
+                if (user == null)
+                {
+                    return this.ApiUnauthorized("Unable to identify user.");
+                }
+
                 var itemId = await _itemService.AddItemAsync(itemDto, user.Id);
+                var createdItemDto = await _itemService.GetItemByIdAsync(itemId);
 
-                // Get new item as dto to return it  
-                 var createdItemDto = await _itemService.GetItemByIdAsync(itemId);
-                 if (createdItemDto == null) {
-                      // Coś poszło bardzo nie tak, jeśli nie możemy pobrać właśnie dodanego itemu
-                      _logger.LogError("Nie można było pobrać przedmiotu (ID: {ItemId}) zaraz po jego utworzeniu.", itemId);
-                      return StatusCode(StatusCodes.Status500InternalServerError, "Błąd podczas pobierania utworzonego przedmiotu.");
-                 }
+                if (createdItemDto == null)
+                {
+                    _logger.LogError("Could not retrieve the item (ID: {ItemId}) right after creation", itemId);
+                    return this.ApiInternalError("Error retrieving created item.");
+                }
 
-                // 201 Created localization and dto
-                return CreatedAtAction(nameof(GetItem), new { id = itemId }, createdItemDto);
+                return this.ApiCreatedAtAction(
+                    createdItemDto,
+                    nameof(GetItem),
+                    "Items",
+                    new { id = itemId },
+                    "Item created successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Błąd podczas tworzenia przedmiotu. DTO: {@ItemDto}", itemDto);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas tworzenia przedmiotu.");
+                _logger.LogError(ex, "Error creating item. DTO: {@ItemDto}", itemDto);
+                return this.ApiInternalError("Error creating item", ex);
             }
         }
 
-        // PUT: api/items/{id} (Aktualizacja przedmiotu)
-        [HttpPut("{id:int}")] //:int
-        [Authorize]
+        // PUT: api/items/{id:int}
+        [HttpPut("{id:int}")]
+        [Authorize(Policy = "ApiAuthPolicy")]
         public async Task<IActionResult> UpdateItem(int id, [FromBody] ItemUpdateDto itemDto)
         {
             if (id != itemDto.Id)
             {
-                return BadRequest("Niezgodność ID przedmiotu w ścieżce i ciele żądania.");
+                return this.ApiBadRequest("Item ID mismatch in URL and body.");
             }
-             if (!ModelState.IsValid)
-             {
-                 return BadRequest(ModelState);
-             }
+
+            if (!ModelState.IsValid)
+            {
+                return this.ApiBadRequest(ModelState);
+            }
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika.");
 
-                // Either it ll return status or throw exception
-                await _itemService.UpdateItemAsync(itemDto, user.Id);
-
-                return NoContent(); // PUT  Succesfull 
-            }
-            catch (KeyNotFoundException ex)
-            {
-                 _logger.LogWarning("Próba aktualizacji nieistniejącego przedmiotu. ItemId: {ItemId}", id);
-                return NotFound(ex.Message);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                 _logger.LogWarning("Nieautoryzowana próba aktualizacji przedmiotu. ItemId: {ItemId}, UserId: {UserId}", id, User.FindFirstValue(ClaimTypes.NameIdentifier));
-                // Forbid() zamiast 401, users logged but not authorized
-                return Forbid(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Błąd podczas aktualizacji przedmiotu. ItemId: {ItemId}, DTO: {@ItemDto}", id, itemDto);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas aktualizacji przedmiotu.");
-            }
-        }
-
-        // DELETE: api/items/{id} 
-        [HttpDelete("{id:int}")] // fix :int
-        [Authorize]
-        public async Task<IActionResult> DeleteItem(int id)
-        {
-             if (id <= 0) {
-                 return BadRequest("Nieprawidłowe ID przedmiotu.");
-             }
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika.");
-
-                //As in other
-                await _itemService.DeleteItemAsync(id, user.Id);
-
-                return NoContent(); // worked
-            }
-            catch (KeyNotFoundException ex)
-            {
-                _logger.LogWarning("Próba usunięcia nieistniejącego przedmiotu. ItemId: {ItemId}", id);
-                return NotFound(ex.Message);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                 _logger.LogWarning("Nieautoryzowana próba usunięcia przedmiotu. ItemId: {ItemId}, UserId: {UserId}", id, User.FindFirstValue(ClaimTypes.NameIdentifier));
-                return Forbid(ex.Message);
-            }
-             // TODO: Rozważ obsługę błędów związanych z istniejącymi transakcjami dla tego przedmiotu?
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Błąd podczas usuwania przedmiotu. ItemId: {ItemId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas usuwania przedmiotu.");
-            }
-        }
-
-        // --- Operacje na Zdjęciach ---
-
-        // POST: api/items/{id}/photos (Dodawanie zdjęcia do przedmiotu)
-       [HttpPost("{id:int}/photos")]
-[Authorize]
-public async Task<ActionResult<PhotoDto>> UploadPhoto(int id, IFormFile photo) // Zwraca PhotoDto
-{
-    if (id <= 0) return BadRequest("Nieprawidłowe ID przedmiotu.");
-    // Podstawowa walidacja pliku (rozmiar, typ itp.)
-    if (photo == null || photo.Length == 0) return BadRequest("Nie przesłano pliku zdjęcia.");
-    if (photo.Length > 5 * 1024 * 1024) return BadRequest("Plik zdjęcia jest zbyt duży (maksymalnie 5MB).");
-    var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/webp" };
-    if (!allowedContentTypes.Contains(photo.ContentType.ToLowerInvariant())) return BadRequest("Niedozwolony typ pliku zdjęcia (dozwolone: JPG, PNG, WEBP).");
-
-    try
-    {
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika.");
-
-        // Sprawdź, czy użytkownik jest właścicielem przedmiotu
-        if (!await _itemService.IsItemOwnerAsync(id, user.Id))
-        {
-            return Forbid("Nie jesteś właścicielem tego przedmiotu.");
-        }
-
-        int photoId; // Zmienna na ID zwrócone przez AddPhotoAsync
-        using (var stream = photo.OpenReadStream())
-        {
-            // 1. Upload fizyczny pliku
-            var photoPath = await _photoService.UploadPhotoAsync(stream, photo.FileName, photo.ContentType);
-
-            // 2. Przygotuj DTO do zapisu metadanych
-            var photoCreateDto = new PhotoCreateDto
-            {
-                Path = photoPath,
-                FileName = Path.GetFileName(photo.FileName), // Użyj bezpiecznej nazwy pliku
-                FileSize = photo.Length,
-                ItemId = id
-            };
-            // 3. Zapisz metadane i pobierz ID (serwis zwraca int)
-            photoId = await _photoService.AddPhotoAsync(photoCreateDto, user.Id);
-        } // Koniec using dla stream
-
-        // --- WAŻNA CZĘŚĆ ---
-        // 4. Pobierz pełne DTO nowo dodanego zdjęcia używając jego ID
-        var createdPhotoDto = await _photoService.GetPhotoByIdAsync(photoId);
-        if (createdPhotoDto == null)
-        {
-            // To nie powinno się zdarzyć, ale lepiej obsłużyć
-            _logger.LogError("Nie można było pobrać PhotoDto (ID: {PhotoId}) zaraz po jego dodaniu do przedmiotu {ItemId}", photoId, id);
-            return StatusCode(StatusCodes.Status500InternalServerError, "Błąd podczas pobierania informacji o dodanym zdjęciu.");
-        }
-        // 5. Zwróć kod 201 Created wraz z obiektem PhotoDto
-        return StatusCode(StatusCodes.Status201Created, createdPhotoDto);
-        // Alternatywnie, jeśli masz akcję GetPhoto(int itemId, int photoId):
-        // return CreatedAtAction(nameof(GetPhoto), new { itemId = id, photoId = createdPhotoDto.Id }, createdPhotoDto);
-
-    }
-    catch (UnauthorizedAccessException ex) { return Forbid(ex.Message); }
-    catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Błąd podczas przesyłania zdjęcia dla przedmiotu. ItemId: {ItemId}", id);
-        return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas przesyłania zdjęcia.");
-    }
-}
-        // DELETE: api/items/{itemId}/photos/{photoId} (Usuwanie zdjęcia)
-        [HttpDelete("{itemId:int}/photos/{photoId:int}")] // Dodano ograniczenia :int
-        [Authorize]
-        public async Task<IActionResult> DeletePhoto(int itemId, int photoId)
-        {
-            if (itemId <= 0 || photoId <= 0) return BadRequest("Nieprawidłowe ID.");
-
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika.");
-
-                // Sprawdź, czy użytkownik jest właścicielem przedmiotu
-                // (Alternatywnie, IPhotoService.DeletePhotoAsync mógłby to sprawdzać wewnętrznie)
-                if (!await _itemService.IsItemOwnerAsync(itemId, user.Id))
+                if (user == null)
                 {
-                     _logger.LogWarning("Nieautoryzowana próba usunięcia zdjęcia z przedmiotu. ItemId: {ItemId}, PhotoId: {PhotoId}, UserId: {UserId}", itemId, photoId, user.Id);
-                    return Forbid("Nie jesteś właścicielem tego przedmiotu.");
+                    return this.ApiUnauthorized("Unable to identify user.");
                 }
 
-                // Użyj serwisu do usunięcia zdjęcia (z dysku i z bazy)
-                // Zakładamy, że rzuci KeyNotFoundException jeśli zdjęcie nie istnieje
-                await _photoService.DeletePhotoAsync(photoId, user.Id); // Przekazujemy userId do weryfikacji w serwisie? Lub nie, jeśli sprawdziliśmy wyżej.
-
-                return NoContent(); // Sukces
+                await _itemService.UpdateItemAsync(itemDto, user.Id);
+                return this.ApiOk("Item updated successfully");
             }
             catch (KeyNotFoundException ex)
             {
-                 _logger.LogWarning("Próba usunięcia nieistniejącego zdjęcia. PhotoId: {PhotoId}", photoId);
-                return NotFound(ex.Message);
+                return this.ApiNotFound(ex.Message);
             }
-             catch (UnauthorizedAccessException ex) // Jeśli serwis zdjęć by to rzucał
-             {
-                 return Forbid(ex.Message);
-             }
+            catch (UnauthorizedAccessException)
+            {
+                return this.ApiForbidden("You are not authorized to update this item.");
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Błąd podczas usuwania zdjęcia. PhotoId: {PhotoId}, ItemId: {ItemId}", photoId, itemId);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas usuwania zdjęcia.");
+                _logger.LogError(ex, "Error updating item. ItemId: {ItemId}, DTO: {@ItemDto}", id, itemDto);
+                return this.ApiInternalError("Error updating item", ex);
             }
         }
 
-        // --- Operacje na Statusie i Tagach ---
-
-        // POST: api/items/{id}/mark-sold (Oznaczanie jako niedostępny/sprzedany)
-        [HttpPost("{id:int}/mark-sold")] // Zmieniono na mark-unavailable? Lub dodano alias
-        [Route("{id:int}/mark-unavailable")] // Można dodać alias trasy
-        [Authorize]
-        public async Task<IActionResult> MarkItemAsUnavailable(int id) // Zmieniono nazwę dla jasności
+        // DELETE: api/items/{id:int}
+        [HttpDelete("{id:int}")]
+        [Authorize(Policy = "ApiAuthPolicy")]
+        public async Task<IActionResult> DeleteItem(int id)
         {
-            if (id <= 0) return BadRequest("Nieprawidłowe ID przedmiotu.");
+            if (id <= 0)
+            {
+                return this.ApiBadRequest("Invalid item ID.");
+            }
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika.");
 
-                // Użyj serwisu do oznaczenia jako niedostępny
-                // Serwis powinien sprawdzić własność
-                await _itemService.MarkItemAsSoldAsync(id, user.Id); // Używamy metody z serwisu
+                if (user == null)
+                {
+                    return this.ApiUnauthorized("Unable to identify user.");
+                }
 
-                return NoContent();
+                await _itemService.DeleteItemAsync(id, user.Id);
+                return this.ApiOk("Item deleted successfully");
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return this.ApiNotFound(ex.Message);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException)
             {
-                return Forbid(ex.Message);
+                return this.ApiForbidden("You are not authorized to delete this item.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Błąd podczas oznaczania przedmiotu jako niedostępny. ItemId: {ItemId}", id);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas aktualizacji statusu przedmiotu.");
+                _logger.LogError(ex, "Error deleting item. ItemId: {ItemId}", id);
+                return this.ApiInternalError("Error deleting item", ex);
             }
         }
 
-        // POST: api/items/{itemId}/tags/{tagId} (Dodawanie tagu do przedmiotu)
-        [HttpPost("{itemId:int}/tags/{tagId:int}")]
-        [Authorize]
-        public async Task<IActionResult> AddTagToItem(int itemId, int tagId)
+        // POST: api/items/{id:int}/photos
+        [HttpPost("{id:int}/photos")]
+        [Authorize(Policy = "ApiAuthPolicy")]
+        public async Task<IActionResult> UploadPhoto(int id, IFormFile photo)
         {
-             if (itemId <= 0 || tagId <= 0) return BadRequest("Nieprawidłowe ID.");
+            if (id <= 0)
+                return this.ApiBadRequest("Invalid item ID.");
+            if (photo == null || photo.Length == 0)
+                return this.ApiBadRequest("No photo file was uploaded.");
+            if (photo.Length > 5 * 1024 * 1024)
+                return this.ApiBadRequest("File size exceeds maximum of 5MB.");
+            var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+            if (!allowedContentTypes.Contains(photo.ContentType.ToLowerInvariant()))
+                return this.ApiBadRequest("Invalid file type (allowed: JPG, PNG, WEBP).");
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika.");
+                if (user == null)
+                    return this.ApiUnauthorized("Unable to identify user.");
 
-                // Serwis powinien sprawdzać własność przedmiotu
-                await _itemService.AddTagToItemAsync(itemId, tagId, user.Id);
+                if (!await _itemService.IsItemOwnerAsync(id, user.Id))
+                {
+                    return this.ApiForbidden("You are not authorized to upload photos for this item.");
+                }
 
-                return NoContent(); // Lub Ok() jeśli chcesz coś zwrócić
+                string photoPath;
+                using (var stream = photo.OpenReadStream())
+                {
+                    photoPath = await _photoService.UploadPhotoAsync(stream, photo.FileName, photo.ContentType);
+                }
+
+                var photoCreateDto = new PhotoCreateDto
+                {
+                    Path = photoPath,
+                    FileName = Path.GetFileName(photo.FileName),
+                    FileSize = photo.Length,
+                    ItemId = id
+                };
+
+                var photoId = await _photoService.AddPhotoAsync(photoCreateDto, user.Id);
+                var createdPhotoDto = await _photoService.GetPhotoByIdAsync(photoId);
+
+                if (createdPhotoDto == null)
+                {
+                    _logger.LogError("Could not retrieve photo info (ID: {PhotoId}) after upload for item {ItemId}", photoId, id);
+                    return this.ApiInternalError("Error retrieving uploaded photo information.");
+                }
+
+                return this.ApiOk(createdPhotoDto, "Photo uploaded successfully");
             }
-            catch (KeyNotFoundException ex) // Jeśli przedmiot lub tag nie istnieje
+            catch (UnauthorizedAccessException)
             {
-                 return NotFound(ex.Message);
+                return this.ApiForbidden("You are not authorized to upload photos for this item.");
             }
-            catch (UnauthorizedAccessException ex) // Jeśli użytkownik nie jest właścicielem
+            catch (KeyNotFoundException ex)
             {
-                return Forbid(ex.Message);
+                return this.ApiNotFound(ex.Message);
             }
-             catch (InvalidOperationException ex) // Np. jeśli tag jest już dodany
-             {
-                 return Conflict(ex.Message); // Zwróć 409 Conflict
-             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Błąd podczas dodawania tagu do przedmiotu. ItemId: {ItemId}, TagId: {TagId}", itemId, tagId);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas dodawania tagu.");
+                _logger.LogError(ex, "Error uploading photo for item. ItemId: {ItemId}", id);
+                return this.ApiInternalError("Error uploading photo", ex);
             }
         }
 
-        // DELETE: api/items/{itemId}/tags/{tagId} (Usuwanie tagu z przedmiotu)
-        [HttpDelete("{itemId:int}/tags/{tagId:int}")]
-        [Authorize]
-        public async Task<IActionResult> RemoveTagFromItem(int itemId, int tagId)
+        // DELETE: api/items/{itemId:int}/photos/{photoId:int}
+        [HttpDelete("{itemId:int}/photos/{photoId:int}")]
+        [Authorize(Policy = "ApiAuthPolicy")]
+        public async Task<IActionResult> DeletePhoto(int itemId, int photoId)
         {
-            if (itemId <= 0 || tagId <= 0) return BadRequest("Nieprawidłowe ID.");
+            if (itemId <= 0 || photoId <= 0)
+            {
+                return this.ApiBadRequest("Invalid item or photo ID.");
+            }
+
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return Unauthorized("Nie można zidentyfikować użytkownika.");
 
-                // Serwis powinien sprawdzać własność przedmiotu
-                await _itemService.RemoveTagFromItemAsync(itemId, tagId, user.Id);
+                if (user == null)
+                {
+                    return this.ApiUnauthorized("Unable to identify user.");
+                }
 
-                return NoContent();
+                if (!await _itemService.IsItemOwnerAsync(itemId, user.Id))
+                {
+                    return this.ApiForbidden("You are not authorized to delete photos for this item.");
+                }
+
+                await _photoService.DeletePhotoAsync(photoId, user.Id);
+                return this.ApiOk("Photo deleted successfully");
             }
-            catch (KeyNotFoundException ex) // Jeśli przedmiot, tag lub powiązanie nie istnieje
+            catch (KeyNotFoundException ex)
             {
-                 return NotFound(ex.Message);
+                return this.ApiNotFound(ex.Message);
             }
-            catch (UnauthorizedAccessException ex) // Jeśli użytkownik nie jest właścicielem
+            catch (UnauthorizedAccessException)
             {
-                return Forbid(ex.Message);
+                return this.ApiForbidden("You are not authorized to delete this photo.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Błąd podczas usuwania tagu z przedmiotu. ItemId: {ItemId}, TagId: {TagId}", itemId, tagId);
-                return StatusCode(StatusCodes.Status500InternalServerError, "Wystąpił błąd podczas usuwania tagu.");
+                _logger.LogError(ex, "Error deleting photo. PhotoId: {PhotoId}, ItemId: {ItemId}", photoId, itemId);
+                return this.ApiInternalError("Error deleting photo", ex);
             }
         }
-
-        // --- Prywatna metoda pomocnicza (jeśli potrzebna) ---
-        // private async Task<bool> CheckItemOwnership(int itemId) { ... }
-        // takze jak widac sporo to do komentarze typowo dla siebie kamilg zostawiam po polsku 
     }
 }

@@ -50,5 +50,6 @@ namespace LeafLoop.Repositories.Interfaces
         // Execute with transaction
         Task ExecuteInTransactionAsync(Func<Task> action);
         Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> action);
+        
     }
 }

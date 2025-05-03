@@ -1,21 +1,39 @@
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using LeafLoop.Data;
+using LeafLoop.Middleware;
 using LeafLoop.Models;
+using LeafLoop.Models.API;
 using LeafLoop.Repositories;
 using LeafLoop.Repositories.Interfaces;
 using LeafLoop.Services;
 using LeafLoop.Services.Interfaces;
 using LeafLoop.Services.Mappings;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using NWebsec.AspNetCore.Middleware;
+using System.Linq;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 
 // Configure DbContext
 builder.Services.AddDbContext<LeafLoopDbContext>(options =>
@@ -23,8 +41,6 @@ builder.Services.AddDbContext<LeafLoopDbContext>(options =>
 
 // Register Unit of Work and Repositories
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-// Register specific repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
@@ -43,39 +59,147 @@ builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<ISavedSearchRepository, SavedSearchRepository>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
-builder.Services.AddScoped<IItemService, ItemService>();
-// In Program.cs
-builder.Services.AddScoped<IItemService, ItemService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-// Add memory cache for better performance
+
+// Add memory cache
 builder.Services.AddMemoryCache();
 
-// Add AutoMapper with our MappingProfile
+// Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-builder.Services.AddIdentity<User, IdentityRole<int>>(options => {
-        options.Password.RequireDigit = true;
-        options.Password.RequiredLength = 8;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireUppercase = true;
-        options.Password.RequireLowercase = true;
-    
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-        options.Lockout.MaxFailedAccessAttempts = 5;
-    
-        options.User.RequireUniqueEmail = true;
-    
-        // Dodaj to, aby zezwolić na przekierowania podczas logowania/wylogowania
-        options.SignIn.RequireConfirmedAccount = false;
-        options.SignIn.RequireConfirmedEmail = false;
-        options.SignIn.RequireConfirmedPhoneNumber = false;
-    })
-    .AddEntityFrameworkStores<LeafLoopDbContext>()
-    .AddDefaultTokenProviders();
+// --- Authentication & Authorization Configuration ---
 
-// Register application services - THESE MUST BE BEFORE app.Build()
+// 1. Configure Identity
+builder.Services.AddIdentity<User, IdentityRole<int>>(options => {
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<LeafLoopDbContext>()
+.AddDefaultTokenProviders();
+
+// 2. Configure Authentication Schemes (Cookie for MVC, JWT for API)
+builder.Services.AddAuthentication(options =>
+    {
+        // For web pages - use cookie auth by default
+        options.DefaultScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+        // DO NOT set DefaultAuthenticateScheme here
+    })
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+        };
+    
+        // Add token extraction from cookies
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                // Check Authorization header first
+                var authHeader = context.Request.Headers["Authorization"].ToString();
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+                {
+                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                    return Task.CompletedTask;
+                }
+
+                // If no Authorization header, check cookies
+                var token = context.Request.Cookies["jwt_token"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Token = token;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
+    });
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // Twoje standardowe ścieżki dla MVC
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromDays(7); // Dopasuj do swoich potrzeb
+    options.SlidingExpiration = true;
+    // Opcje bezpieczeństwa ciasteczek
+    options.Cookie.HttpOnly = true; // Ciasteczko sesji powinno być HttpOnly
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Wymagaj HTTPS
+    options.Cookie.SameSite = SameSiteMode.Lax;
+
+    // --- WAŻNE: Podpięcie obsługi przekierowań dla API ---
+    options.Events.OnRedirectToLogin = context =>
+    {
+        // Używamy funkcji statycznej zdefiniowanej na dole Program.cs
+        // Przekazujemy odpowiedni status i komunikat
+        return HandleApiRedirect(context, StatusCodes.Status401Unauthorized, "Authentication required.");
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        // Używamy funkcji statycznej zdefiniowanej na dole Program.cs
+        // Przekazujemy odpowiedni status i komunikat
+        return HandleApiRedirect(context, StatusCodes.Status403Forbidden, "Access denied.");
+    };
+    // --- KONIEC WAŻNEJ SEKCJI ---
+});
+
+// Then add this AUTHORIZATION policy after authentication setup
+builder.Services.AddAuthorization(options =>
+{
+    // Add a specific policy for API endpoints
+    options.AddPolicy("ApiAuthPolicy", policy =>
+    {
+        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
+});
+
+// --- Koniec konfiguracji Authentication & Authorization ---
+
+
+// Add Swagger/OpenAPI support
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "LeafLoop API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer"
+     });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2", Name = "Bearer", In = ParameterLocation.Header,
+            },
+            new List<string>()
+        }
+     });
+});
+
+// Register application services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -89,128 +213,159 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IUserPreferencesService, UserPreferencesService>();
-
-// NOW build the app (no more service registrations after this line)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        // Option 1: If you don't need credentials
+        builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        
+        // OR Option 2: If you need to allow credentials (cookies, auth headers)
+        // builder.WithOrigins("http://localhost:5185", "https://localhost:7181")
+        //        .AllowAnyMethod()
+        //        .AllowAnyHeader()
+        //        .AllowCredentials();
+    });
+});
+// Build the app
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LeafLoop API v1"));
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
+app.UseEnhancedErrorHandling();
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
-// Security middleware
-app.UseHsts(options => options.MaxAge(days: 365).IncludeSubdomains());
+// Konfiguracja plików statycznych
+var provider = new FileExtensionContentTypeProvider();
+if (!provider.Mappings.ContainsKey(".css")) provider.Mappings.Add(".css", "text/css");
+if (!provider.Mappings.ContainsKey(".webp")) provider.Mappings.Add(".webp", "image/webp");
+if (!provider.Mappings.ContainsKey(".woff2")) provider.Mappings.Add(".woff2", "font/woff2");
+app.UseStaticFiles(new StaticFileOptions {
+    ContentTypeProvider = provider,
+    OnPrepareResponse = ctx => {
+        var maxAge = TimeSpan.FromDays(7);
+        if (ctx.File.Name.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ||
+            ctx.File.Name.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
+        {
+            maxAge = TimeSpan.FromHours(1);
+        }
+        ctx.Context.Response.Headers.Append("Cache-Control", $"public, max-age={maxAge.TotalSeconds}");
+        ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+     }
+});
+
+// Security middleware NWebsec
 app.UseXContentTypeOptions();
 app.UseReferrerPolicy(options => options.NoReferrer());
 app.UseXXssProtection(options => options.EnabledWithBlockMode());
 app.UseXfo(options => options.Deny());
-app.UseCsp(options => options
-    .DefaultSources(s => s.Self()) // Ogólne źródło
-    .ScriptSources(s => s.Self()   // Skrypty
-            .CustomSources(
-                "https://cdn.jsdelivr.net",
-                "https://cdnjs.cloudflare.com",
-                "https://unpkg.com" // Jeśli nadal używasz CDN
-            )
-            .UnsafeInline() // Uważaj z tym
-    )
-    .StyleSources(s => s.Self().CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com").UnsafeInline())
-    // --- ZMODYFIKOWANA DYREKTYWA ImageSources ---
-    .ImageSources(s => s.Self()           // Pozwól na obrazki z własnej domeny
-            .CustomSources("data:", // Pozwól na dane base64 (np. inline SVG)
-                "blob:")  // <<<--- DODAJ TO dla podglądu zdjęć
-        // Możesz tu dodać inne zaufane domeny, skąd pochodzą obrazki, np. CDN
-        // "https://twoj-cdn.com"
-    )
-    // --- KONIEC MODYFIKACJI ImageSources ---
+app.UseCsp(options => options /* ... konfiguracja CSP ... */
+    .DefaultSources(s => s.Self())
+    .ScriptSources(s => s.Self()
+        .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://unpkg.com")
+        .UnsafeInline())
+    .StyleSources(s => s.Self()
+        .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com")
+        .UnsafeInline())
+    .ImageSources(s => s.Self().CustomSources("data:", "blob:"))
     .FontSources(s => s.Self().CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"))
     .FormActions(s => s.Self())
     .FrameAncestors(s => s.None())
     .ObjectSources(s => s.None())
-    // Dodaj ConnectSources, jeśli API Reacta będzie się łączyć z innymi źródłami niż 'self'
-    .ConnectSources(s => s.Self()) // Pozwala Reactowi łączyć się z Twoim API (/api/...)
+    .ConnectSources(s => s.Self())
     .UpgradeInsecureRequests()
 );
-// Ensure UseAuthentication is called before UseAuthorization
+
+// Poprawna kolejność middleware
 app.UseRouting();
+app.UseCors("AllowAll");
 app.UseAuthentication();
-app.UseCookiePolicy();
 app.UseAuthorization();
 
+// Mapowanie endpointów
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapControllerRoute(
-    name: "login",
-    pattern: "Account/Login",
-    defaults: new { controller = "Account", action = "Login" });
-
-app.MapControllerRoute(
-    name: "register",
-    pattern: "Account/Register",
-    defaults: new { controller = "Account", action = "Register" });
-
-app.MapControllerRoute(
-    name: "logout",
-    pattern: "Account/Logout",
-    defaults: new { controller = "Account", action = "Logout" });
-
-// Add seed data
+// Seed data
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
+    // ... (kod seed data bez zmian, zakładając, że używa UserManager.CreateAsync) ...
+     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
     try
     {
         var unitOfWork = services.GetRequiredService<IUnitOfWork>();
-        // Sprawdź, czy baza danych jest pusta
+        var userManager = services.GetRequiredService<UserManager<User>>();
+
+        // Sprawdź i dodaj kategorie
         if (!await unitOfWork.Categories.ExistsAsync(c => true))
         {
-            // Dodaj kilka kategorii
-            await unitOfWork.Categories.AddAsync(new LeafLoop.Models.Category 
-            { 
-                Name = "Elektronika", 
-                Description = "Urządzenia elektroniczne",
-                IconPath = "/img/categories/electronics.png"
-            });
-            
-            await unitOfWork.Categories.AddAsync(new LeafLoop.Models.Category 
-            { 
-                Name = "Ubrania", 
-                Description = "Odzież i dodatki",
-                IconPath = "/img/categories/clothes.png"
-            });
-            
-            // Dodaj testowego użytkownika
-            await unitOfWork.Users.AddAsync(new LeafLoop.Models.User
-            {
-                Email = "test@example.com",
-                PasswordHash = "hash123", // W produkcji użyj prawdziwego hashowania
-                FirstName = "Jan",
-                LastName = "Testowy",
-                CreatedDate = DateTime.UtcNow,
-                LastActivity = DateTime.UtcNow,
-                IsActive = true,
-                EcoScore = 100
-            });
-            
+            logger.LogInformation("Seeding initial categories...");
+            await unitOfWork.Categories.AddAsync(new Category { Name = "Elektronika", Description = "Urządzenia elektroniczne", IconPath = "/img/categories/electronics.png" });
+            await unitOfWork.Categories.AddAsync(new Category { Name = "Ubrania", Description = "Odzież i dodatki", IconPath = "/img/categories/clothes.png" });
             await unitOfWork.CompleteAsync();
-            
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogInformation("Dodano początkowe dane do bazy danych.");
+            logger.LogInformation("Initial categories seeded.");
+        }
+
+        // Sprawdź i dodaj użytkownika testowego
+        var testUserEmail = "test@example.com";
+        if (await userManager.FindByEmailAsync(testUserEmail) == null)
+        {
+             logger.LogInformation("Seeding test user...");
+             var testUser = new User
+             {
+                 UserName = testUserEmail, Email = testUserEmail, FirstName = "Jan", LastName = "Testowy",
+                 CreatedDate = DateTime.UtcNow, LastActivity = DateTime.UtcNow, IsActive = true, EcoScore = 100,
+                 EmailConfirmed = true
+             };
+             var result = await userManager.CreateAsync(testUser, "Password123!");
+             if (result.Succeeded) logger.LogInformation("Test user seeded successfully.");
+             else logger.LogError("Failed to seed test user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
         }
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Wystąpił błąd podczas inicjalizacji bazy danych.");
+        logger.LogError(ex, "An error occurred during database seeding.");
     }
 }
 
 app.Run();
+
+// --- Funkcja pomocnicza do obsługi przekierowań dla API ---
+static Task HandleApiRedirect(RedirectContext<CookieAuthenticationOptions> context, int statusCode, string message)
+{
+    // Sprawdzaj TYLKO ścieżkę żądania
+    if (context.Request.Path.StartsWithSegments("/api"))
+    {
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/json";
+        var response = ApiResponse.ErrorResponse(message);
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
+        // === ZMIANA: Zamiast HandleResponse(), po prostu piszemy do odpowiedzi ===
+        // Zapisz odpowiedź JSON
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+        // Nie wywołujemy context.Response.Redirect() ani context.HandleResponse()
+        // Ustawienie StatusCode i zapisanie odpowiedzi powinno wystarczyć, aby middleware
+        // nie wykonało domyślnego przekierowania.
+    }
+
+    // Dla żądań innych niż /api, pozwól na domyślne przekierowanie
+    // Nie robimy nic, middleware wykona domyślną logikę (context.Response.Redirect)
+    return Task.CompletedTask;
+}

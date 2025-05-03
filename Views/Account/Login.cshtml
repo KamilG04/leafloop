@@ -12,8 +12,12 @@
                 </div>
                 <div class="card-body">
                     <form asp-controller="Account" asp-action="Login" method="post">
-                        <div asp-validation-summary="All" class="text-danger"></div>
-                        <input type="hidden" name="ReturnUrl" value="@ViewData["ReturnUrl"]" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        @if (ViewData["ReturnUrl"] != null)
+                        {
+                            <input type="hidden" name="ReturnUrl" value="@ViewData["ReturnUrl"]" />
+                        }
                         
                         <div class="form-group mb-3">
                             <label asp-for="Email" class="form-label">Email</label>
@@ -23,7 +27,7 @@
 
                         <div class="form-group mb-3">
                             <label asp-for="Password" class="form-label">Hasło</label>
-                            <input asp-for="Password" class="form-control" />
+                            <input asp-for="Password" class="form-control" type="password" />
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
 
@@ -49,5 +53,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using LeafLoop.Models;
 
 namespace LeafLoop.Services.DTOs
@@ -45,4 +46,15 @@ namespace LeafLoop.Services.DTOs
         public DateTime EndDate { get; set; }
         public int ParticipantsLimit { get; set; }
     }
+  
+
+    // === DEFINICJA DTO ===
+    public class ParticipationStatusUpdateDto
+    {
+        [Required(ErrorMessage = "Participation status is required.")] // Walidacja
+        public ParticipationStatus Status { get; set; }
+    }
+
+    // Przykład definicji enum OrganizerType (jeśli nie masz go gdzie indziej)
+ 
 }

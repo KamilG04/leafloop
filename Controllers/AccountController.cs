@@ -77,14 +77,15 @@ namespace LeafLoop.Controllers
                         
                         // Store token in a cookie for JavaScript access
                         Response.Cookies.Append(
-                            "jwt_token",
+                            "jwt_token", 
                             token,
                             new CookieOptions
                             {
-                                HttpOnly = false,
-                                Secure = true,
+                                HttpOnly = false, // Ensure JavaScript can access
+                                Secure = Request.IsHttps, 
                                 SameSite = SameSiteMode.Lax,
-                                Expires = DateTime.Now.AddDays(7)
+                                Expires = DateTime.Now.AddDays(7),
+                                Path = "/"
                             });
 
                         await _signInManager.SignInAsync(user, isPersistent: false);
@@ -116,99 +117,98 @@ namespace LeafLoop.Controllers
             return View();
         }
        
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+      
+        // In Controllers/AccountController.cs
+
+// In AccountController.cs - Fix the login flow
+// In AccountController.cs - Update the Login method
+// In Controllers/AccountController.cs - Update the Login method
+
+[HttpPost]
+[AllowAnonymous]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+{
+    ViewData["ReturnUrl"] = returnUrl;
+    
+    if (!ModelState.IsValid)
+    {
+        return View(model);
+    }
+    
+    try
+    {
+        var result = await _signInManager.PasswordSignInAsync(
+            model.Email, 
+            model.Password, 
+            model.RememberMe, 
+            lockoutOnFailure: true);
+
+        if (result.Succeeded)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
+            _logger.LogInformation("User logged in successfully: {Email}", model.Email);
+    
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
             {
-                try
-                {
-                    // Perform the sign-in operation
-                    var result = await _signInManager.PasswordSignInAsync(
-                        model.Email, 
-                        model.Password, 
-                        model.RememberMe, 
-                        lockoutOnFailure: true);
-
-                    if (result.Succeeded)
-                    {
-                        _logger.LogInformation("User logged in successfully: {Email}", model.Email);
-                
-                        // Get the user entity for token creation
-                        var user = await _userManager.FindByEmailAsync(model.Email);
-                        if (user == null)
-                        {
-                            _logger.LogError("Unable to find user after successful login: {Email}", model.Email);
-                            ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
-                            return View(model);
-                        }
-
-                        // Generate JWT token for API access
-                        var token = await _jwtTokenService.GenerateTokenAsync(user);
-                        if (string.IsNullOrEmpty(token))
-                        {
-                            _logger.LogError("Failed to generate JWT token for user: {Email}", model.Email);
-                            ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
-                            return View(model);
-                        }
-                
-                        // Create user session with token
-                        try
-                        {
-                            await _sessionService.CreateSessionAsync(user, token, null, HttpContext);
-                            _logger.LogInformation("Created session for user: {Email}", model.Email);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Error creating session for user: {Email}", model.Email);
-                            // Continue even if session creation fails - not critical for authentication
-                        }
-                
-                        // Store token in a cookie for JavaScript access
-                        Response.Cookies.Append(
-                            "jwt_token",
-                            token,
-                            new CookieOptions
-                            {
-                                HttpOnly = false, // Make accessible to JavaScript
-                                Secure = true,
-                                SameSite = SameSiteMode.Lax, // Changed from Strict to Lax
-                                Expires = DateTime.Now.AddDays(7)
-                            });
-                        
-                        _logger.LogInformation("JWT token cookie set for user: {Email}", model.Email);
-                
-                        // Redirect to the return URL or home page
-                        return RedirectToLocal(returnUrl);
-                    }
-                    
-                    if (result.IsLockedOut)
-                    {
-                        _logger.LogWarning("User account locked out: {Email}", model.Email);
-                        return RedirectToAction(nameof(Lockout));
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Invalid login attempt for user: {Email}", model.Email);
-                        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                        return View(model);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Exception during login for email: {Email}", model.Email);
-                    ModelState.AddModelError(string.Empty, "An error occurred during login. Please try again.");
-                    return View(model);
-                }
+                _logger.LogError("Unable to find user after successful login: {Email}", model.Email);
+                ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
+                return View(model);
             }
 
-            // If we got this far, something failed, redisplay form
-            return View(model);
+            // Generate JWT token
+            var token = await _jwtTokenService.GenerateTokenAsync(user);
+            if (string.IsNullOrEmpty(token))
+            {
+                _logger.LogError("Failed to generate JWT token for user: {Email}", model.Email);
+                ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
+                return View(model);
+            }
+    
+            // Store token in a cookie
+            Response.Cookies.Append(
+                "jwt_token",
+                token,
+                new CookieOptions
+                {
+                    HttpOnly = false,
+                    Secure = Request.IsHttps,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTime.Now.AddDays(7),
+                    Path = "/"
+                });
+            
+            _logger.LogInformation("JWT token cookie set for user: {Email}", model.Email);
+    
+            // Update user's LastActivity
+            user.LastActivity = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+            
+            // Create user session
+            await _sessionService.CreateSessionAsync(user, token, null, HttpContext);
+            
+            // Return the SetTokenAndRedirect view with token data
+            TempData["JwtToken"] = token;
+            TempData["ReturnUrl"] = returnUrl ?? "/";
+            return View("SetTokenAndRedirect");
         }
-
+        
+        if (result.IsLockedOut)
+        {
+            _logger.LogWarning("User account locked out: {Email}", model.Email);
+            return RedirectToAction(nameof(Lockout));
+        }
+        
+        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+        return View(model);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Exception during login for email: {Email}", model.Email);
+        ModelState.AddModelError(string.Empty, "An error occurred during login. Please try again.");
+        return View(model);
+    }
+}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()

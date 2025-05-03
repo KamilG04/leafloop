@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using LeafLoop.Models;
 
 namespace LeafLoop.Services.DTOs
@@ -35,5 +36,29 @@ namespace LeafLoop.Services.DTOs
         public int BuyerId { get; set; }
         public TransactionType Type { get; set; }
         public string InitialMessage { get; set; }
+    }
+    public class TransactionStatusUpdateDto
+    {
+        // TransactionId może być niepotrzebne, bo mamy je w URL
+        // public int TransactionId { get; set; }
+
+        [Required]
+        public TransactionStatus Status { get; set; } // Upewnij się, że TransactionStatus jest zdefiniowane
+    }
+    public class TransactionMessageDto
+    {
+        [Required]
+        [MaxLength(1000)] // Przykładowy limit długości
+        public string Content { get; set; } = null!;
+    }
+
+    public class TransactionRatingDto
+    {
+        [Required]
+        [Range(1, 5)] // Zakładając ocenę 1-5
+        public int Value { get; set; }
+
+        [MaxLength(500)] // Przykładowy limit
+        public string? Comment { get; set; } // Komentarz opcjonalny
     }
 }

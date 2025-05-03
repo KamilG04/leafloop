@@ -23,5 +23,7 @@ namespace LeafLoop.Services.Interfaces
         Task AddTagToItemAsync(int itemId, int tagId, int userId);
         Task RemoveTagFromItemAsync(int itemId, int tagId, int userId);
         Task MarkItemAsSoldAsync(int itemId, int userId);
+        
+        Task<IEnumerable<ItemDto>> GetRecentItemsByUserAsync(int userId, int count);
     }
 }

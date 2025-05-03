@@ -5,6 +5,10 @@
       "PackagePath": "staticwebassets/LeafLoop.5wxvdamobd.bundle.scp.css"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/dark-mode.css",
+      "PackagePath": "staticwebassets/css/dark-mode.css"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/site.css",
       "PackagePath": "staticwebassets/css/site.css"
     },
@@ -13,8 +17,32 @@
       "PackagePath": "staticwebassets/favicon.ico"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/img/placeholder-item.png",
+      "PackagePath": "staticwebassets/img/placeholder-item.png"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/auth-test.js",
+      "PackagePath": "staticwebassets/js/auth-test.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/DarkModeToggle.js",
+      "PackagePath": "staticwebassets/js/components/DarkModeToggle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/DarkModeToggleComponent.js",
+      "PackagePath": "staticwebassets/js/components/DarkModeToggleComponent.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/ErrorFeedback.js",
+      "PackagePath": "staticwebassets/js/components/ErrorFeedback.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/MyItemList.js",
       "PackagePath": "staticwebassets/js/components/MyItemList.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/TransactionForm.js",
+      "PackagePath": "staticwebassets/js/components/TransactionForm.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemCreateForm.js",
@@ -25,8 +53,20 @@
       "PackagePath": "staticwebassets/js/components/itemDetails.js"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemEditForm.js",
+      "PackagePath": "staticwebassets/js/components/itemEditForm.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemList.js",
       "PackagePath": "staticwebassets/js/components/itemList.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/userProfile.js",
+      "PackagePath": "staticwebassets/js/components/userProfile.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/api.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/api.bundle.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemCreateForm.bundle.js",
@@ -43,6 +83,14 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemDetails.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/itemDetails.bundle.js.LICENSE.txt"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemEditForm.bundle.js",
+      "PackagePath": "staticwebassets/js/dist/itemEditForm.bundle.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemEditForm.bundle.js.LICENSE.txt",
+      "PackagePath": "staticwebassets/js/dist/itemEditForm.bundle.js.LICENSE.txt"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemList.bundle.js",
@@ -69,16 +117,24 @@
       "PackagePath": "staticwebassets/js/dist/userProfile.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.jsx",
-      "PackagePath": "staticwebassets/js/react/userProfile.jsx"
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/services/api.js",
+      "PackagePath": "staticwebassets/js/services/api.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/site.js",
       "PackagePath": "staticwebassets/js/site.js"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/token-test.js",
+      "PackagePath": "staticwebassets/js/token-test.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/auth.js",
       "PackagePath": "staticwebassets/js/utils/auth.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/reactHelpers.js",
+      "PackagePath": "staticwebassets/js/utils/reactHelpers.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/LICENSE",
@@ -321,8 +377,16 @@
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.slim.min.map"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/0208243f-a0cb-47eb-a9b8-148ccce17f83_Zrzut ekranu 2025-05-2 o 14.35.21.png",
+      "PackagePath": "staticwebassets/uploads/items/0208243f-a0cb-47eb-a9b8-148ccce17f83_Zrzut ekranu 2025-05-2 o 14.35.21.png"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/1e6ee7c2-8d47-45fc-af18-bfb163011a67_Zrzut ekranu 2025-04-30 o 18.42.27.png",
       "PackagePath": "staticwebassets/uploads/items/1e6ee7c2-8d47-45fc-af18-bfb163011a67_Zrzut ekranu 2025-04-30 o 18.42.27.png"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png",
+      "PackagePath": "staticwebassets/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/5aae4af3-cb7e-419c-a5a3-0e394351a768_Zrzut ekranu 2024-12-3 o 23.34.39.png",

@@ -31,6 +31,8 @@
 
   <ItemGroup>
     <Folder Include="Services\DTOs\Auth\" />
+    <Folder Include="Views\Transaction\" />
+    <Folder Include="wwwroot\js\react\" />
   </ItemGroup>
 
   <ItemGroup>

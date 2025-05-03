@@ -1,124 +1,102 @@
-import React, { useState, useEffect, StrictMode } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
+import ApiService from '../services/api.js';
 
-// Item Card Component
-const ItemCard = ({ item }) => {
-    const photoPath = item.mainPhotoPath || null;
-
-    return (
-        <div className="col mb-4">
-            <div className="card h-100 shadow-sm">
-                <div style={{ height: '200px', overflow: 'hidden' }}>
-                    {photoPath ? (
-                        <img src={photoPath} className="card-img-top" alt={item.name}
-                             style={{ objectFit: 'cover', height: '100%', width: '100%' }} />
-                    ) : (
-                        <div className="bg-light d-flex align-items-center justify-content-center h-100">
-                            <i className="bi bi-image text-secondary" style={{ fontSize: '3rem' }}></i>
-                        </div>
-                    )}
-                </div>
-                <div className="card-body d-flex flex-column">
-                    <h5 className="card-title text-truncate">{item.name}</h5>
-                    <p className="card-text small text-muted flex-grow-1">
-                        {item.description?.length > 70 ? item.description.substring(0, 70) + "..." : item.description}
-                    </p>
-                    <div className="d-flex gap-1 mb-2">
-                        {item.isAvailable ? (
-                            <span className="badge bg-success">Dostępny</span>
-                        ) : (
-                            <span className="badge bg-secondary">Niedostępny</span>
-                        )}
-
-                        {item.condition === "Used" && (
-                            <span className="badge bg-info">Używany</span>
-                        )}
-                        {item.condition === "New" && (
-                            <span className="badge bg-primary">Nowy</span>
-                        )}
-                        {item.condition === "Damaged" && (
-                            <span className="badge bg-warning">Uszkodzony</span>
-                        )}
+const ItemCard = ({ item }) => (
+    <div className="col mb-4">
+        <div className="card h-100 shadow-sm">
+            <div style={{ height: '200px', overflow: 'hidden' }}>
+                {item.mainPhotoPath ? (
+                    <img
+                        src={item.mainPhotoPath}
+                        className="card-img-top"
+                        alt={item.name}
+                        style={{ objectFit: 'cover', height: '100%', width: '100%' }}
+                    />
+                ) : (
+                    <div className="bg-light d-flex align-items-center justify-content-center h-100">
+                        <i className="bi bi-image text-secondary" style={{ fontSize: '3rem' }}></i>
                     </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                        <small className="text-muted">Kategoria: {item.categoryName || 'Brak'}</small>
-                    </div>
-                    <a href={`/Items/Details/${item.id}`} className="btn btn-outline-success mt-2">
-                        Zobacz szczegóły
-                    </a>
+                )}
+            </div>
+            <div className="card-body d-flex flex-column">
+                <h5 className="card-title text-truncate">{item.name}</h5>
+                <p className="card-text small text-muted flex-grow-1">
+                    {item.description?.substring(0, 70)}...
+                </p>
+                <div className="d-flex gap-1 mb-2">
+                    <span className={`badge bg-${item.isAvailable ? 'success' : 'secondary'}`}>
+                        {item.isAvailable ? 'Dostępny' : 'Niedostępny'}
+                    </span>
+                    <span className="badge bg-info">{item.condition}</span>
                 </div>
-                <div className="card-footer bg-white">
-                    <small className="text-muted">
-                        Dodano: {new Date(item.dateAdded).toLocaleDateString()}
-                    </small>
-                </div>
+                <a href={`/Items/Details/${item.id}`} className="btn btn-outline-success mt-auto">
+                    Zobacz szczegóły
+                </a>
             </div>
         </div>
-    );
-};
+    </div>
+);
 
-// Main Item List Component
 const ItemList = () => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Pagination state
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(8);
+    // Search and filter states
+    const [searchTerm, setSearchTerm] = useState('');
+    const [categoryId, setCategoryId] = useState('');
+    const [categories, setCategories] = useState([]);
+    const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    // Fetch items
-    const fetchItems = async () => {
-        setLoading(true);
-        try {
-            // Use the existing controller endpoint instead of an API
-            const response = await fetch(`/Items/GetItems?page=${currentPage}&pageSize=${itemsPerPage}`);
-
-            if (!response.ok) {
-                throw new Error(`Server error (status: ${response.status})`);
-            }
-
-            const data = await response.json();
-
-            // Check if data is in the expected format
-            if (!data.items || !Array.isArray(data.items)) {
-                console.warn("Unexpected data format:", data);
-                // Fallback: If data itself is an array, use it directly
-                if (Array.isArray(data)) {
-                    setItems(data);
-                    // Estimate total pages if not provided
-                    setTotalPages(Math.ceil(data.length / itemsPerPage) || 1);
-                } else {
-                    setItems([]);
-                    setTotalPages(1);
-                }
-            } else {
-                // Use the data as expected
-                setItems(data.items);
-                setTotalPages(data.totalPages || 1);
-            }
-        } catch (err) {
-            console.error("Error fetching items:", err);
-            setError(err.message || "Failed to load items");
-            setItems([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Initial data loading
+    // Load categories
     useEffect(() => {
-        fetchItems();
-    }, [currentPage]);
+        ApiService.get('/api/categories')
+            .then(data => setCategories(data || []))
+            .catch(err => console.error('Failed to load categories:', err));
+    }, []);
 
-    // Handle page change
-    const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-            // Page change will trigger a new fetchItems via the useEffect
-        }
+    // Load items
+    useEffect(() => {
+        const loadItems = async () => {
+            setLoading(true);
+            try {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    pageSize: '8',
+                    ...(searchTerm && { searchTerm }),
+                    ...(categoryId && { categoryId })
+                });
+
+                const data = await ApiService.get(`/api/items?${params}`);
+                setItems(Array.isArray(data) ? data : []);
+                setError(null);
+            } catch (err) {
+                setError(err.message);
+                setItems([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadItems();
+    }, [page, searchTerm, categoryId]);
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        setPage(1);
     };
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center my-5">
+                <div className="spinner-border text-success" role="status">
+                    <span className="visually-hidden">Ładowanie...</span>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mt-4">
@@ -129,100 +107,66 @@ const ItemList = () => {
                 </a>
             </div>
 
-            {/* Loading indicator */}
-            {loading && (
-                <div className="d-flex justify-content-center my-5">
-                    <div className="spinner-border text-success" role="status">
-                        <span className="visually-hidden">Ładowanie...</span>
-                    </div>
+            {/* Search form */}
+            <div className="card mb-4">
+                <div className="card-body">
+                    <form onSubmit={handleSearch}>
+                        <div className="row g-3">
+                            <div className="col-md-6">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Szukaj przedmiotów..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <div className="col-md-4">
+                                <select
+                                    className="form-select"
+                                    value={categoryId}
+                                    onChange={(e) => setCategoryId(e.target.value)}
+                                >
+                                    <option value="">Wszystkie kategorie</option>
+                                    {categories.map(cat => (
+                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="col-md-2">
+                                <button type="submit" className="btn btn-primary w-100">
+                                    <i className="bi bi-search"></i> Szukaj
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            )}
+            </div>
 
-            {/* Error message */}
-            {error && !loading && (
-                <div className="alert alert-danger" role="alert">
-                    <i className="bi bi-exclamation-triangle me-2"></i>
+            {error && (
+                <div className="alert alert-danger">
                     {error}
                 </div>
             )}
 
-            {/* Empty state */}
-            {!loading && !error && items.length === 0 && (
-                <div className="alert alert-info" role="alert">
-                    <i className="bi bi-info-circle me-2"></i>
+            {!error && items.length === 0 && (
+                <div className="alert alert-info">
                     Brak przedmiotów do wyświetlenia.
                 </div>
             )}
 
-            {/* Items grid */}
-            {!loading && !error && items.length > 0 && (
-                <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-4">
-                    {items.map(item => (
-                        <ItemCard key={item.id} item={item} />
-                    ))}
-                </div>
-            )}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <nav aria-label="Page navigation">
-                    <ul className="pagination justify-content-center">
-                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button
-                                className="page-link"
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                            >
-                                <span aria-hidden="true">&laquo;</span>
-                            </button>
-                        </li>
-
-                        {[...Array(totalPages).keys()].map(i => (
-                            <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                <button
-                                    className="page-link"
-                                    onClick={() => handlePageChange(i + 1)}
-                                >
-                                    {i + 1}
-                                </button>
-                            </li>
-                        ))}
-
-                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button
-                                className="page-link"
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                            >
-                                <span aria-hidden="true">&raquo;</span>
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
-            )}
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4">
+                {items.map(item => (
+                    <ItemCard key={item.id} item={item} />
+                ))}
+            </div>
         </div>
     );
 };
 
-// Render the component
+// Initialize component
 const container = document.getElementById('react-item-list-container');
 if (container) {
-    try {
-        const root = ReactDOM.createRoot(container);
-        root.render(
-            <StrictMode>
-                <ItemList />
-            </StrictMode>
-        );
-    } catch (error) {
-        console.error("Error rendering React component:", error);
-        container.innerHTML = `
-            <div class="alert alert-danger">
-                <p><strong>Error rendering the component:</strong> ${error.message}</p>
-                <p>Please check the console for more details.</p>
-            </div>
-        `;
-    }
-} else {
-    console.error("Container 'react-item-list-container' not found");
+    const root = ReactDOM.createRoot(container);
+    root.render(<ItemList />);
 }

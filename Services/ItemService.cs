@@ -4,16 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using LeafLoop.Models;
-using LeafLoop.Repositories.Interfaces;
+using LeafLoop.Repositories.Interfaces; // Zawiera IUnitOfWork, IItemRepository
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace LeafLoop.Services
 {
     public class ItemService : IItemService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork; // Typ IUnitOfWork, .Items jest typu IItemRepository
         private readonly IMapper _mapper;
         private readonly ILogger<ItemService> _logger;
 
@@ -41,6 +42,70 @@ namespace LeafLoop.Services
             }
         }
 
+        public async Task<IEnumerable<ItemDto>> GetItemsByUserAsync(int userId)
+        {
+            try
+            {
+                // Opcja 1: Użyj metody z repozytorium (musisz ją dodać)
+                var items = await _unitOfWork.Items.GetItemsByUserWithRelationsAsync(userId);
+            
+                // Opcja 2: Jeśli nie chcesz dodawać nowej metody, użyj FindAsync ale pamiętaj o include
+                // var items = await _unitOfWork.Items.FindAsync(i => i.UserId == userId);
+            
+                return _mapper.Map<IEnumerable<ItemDto>>(items);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting items by user: {UserId}", userId);
+                throw;
+            }
+        }
+        public async Task<IEnumerable<ItemDto>> GetRecentItemsByUserAsync(int userId, int count)
+        {
+            try
+            {
+                var items = await _unitOfWork.Items.GetRecentItemsByUserWithCategoryAsync(userId, count);
+                return _mapper.Map<IEnumerable<ItemDto>>(items);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting recent items for user: {UserId}", userId);
+                throw;
+            }
+        }
+
+
+        public async Task<IEnumerable<ItemDto>> SearchItemsAsync(ItemSearchDto searchDto)
+        {
+             try
+            {
+                // === WYWOŁANIE BEZ RZUTOWANIA ===
+                // Kompilator powinien teraz znaleźć metodę w IItemRepository
+                var items = await _unitOfWork.Items.SearchItemsAsync(searchDto);
+                return _mapper.Map<IEnumerable<ItemDto>>(items);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while searching items with criteria: {@SearchDto}", searchDto);
+                throw;
+            }
+        }
+
+         public async Task<int> GetItemsCountAsync(ItemSearchDto searchDto)
+        {
+            try
+            {
+                 // === WYWOŁANIE BEZ RZUTOWANIA ===
+                 // Kompilator powinien teraz znaleźć metodę w IItemRepository
+                 return await _unitOfWork.Items.CountAsync(searchDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error counting items with criteria: {@SearchDto}", searchDto);
+                throw;
+            }
+        }
+
         public async Task<ItemWithDetailsDto> GetItemWithDetailsAsync(int id)
         {
             try
@@ -57,6 +122,7 @@ namespace LeafLoop.Services
 
         public async Task<IEnumerable<ItemDto>> GetRecentItemsAsync(int count)
         {
+             if (count <= 0) count = 12;
             try
             {
                 var items = await _unitOfWork.Items.GetAvailableItemsAsync(count);
@@ -68,16 +134,14 @@ namespace LeafLoop.Services
                 throw;
             }
         }
-
-        public async Task<IEnumerable<ItemDto>> GetItemsByCategoryAsync(int categoryId, int page = 1, int pageSize = 10)
+         public async Task<IEnumerable<ItemDto>> GetItemsByCategoryAsync(int categoryId, int page = 1, int pageSize = 10)
         {
+             if (page <= 0) page = 1;
+             if (pageSize <= 0 || pageSize > 100) pageSize = 10;
             try
             {
                 var items = await _unitOfWork.Items.GetItemsByCategoryAsync(categoryId);
-                
-                // Apply pagination
-                items = items.Skip((page - 1) * pageSize).Take(pageSize);
-                
+                // Paginacja powinna być w repozytorium
                 return _mapper.Map<IEnumerable<ItemDto>>(items);
             }
             catch (Exception ex)
@@ -86,69 +150,7 @@ namespace LeafLoop.Services
                 throw;
             }
         }
-
-        public async Task<IEnumerable<ItemDto>> GetItemsByUserAsync(int userId)
-        {
-            try
-            {
-                var items = await _unitOfWork.Items.GetItemsByUserAsync(userId);
-                return _mapper.Map<IEnumerable<ItemDto>>(items);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while getting items by user: {UserId}", userId);
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<ItemDto>> SearchItemsAsync(ItemSearchDto searchDto)
-        {
-            try
-            {
-                var items = await _unitOfWork.Items.SearchItemsAsync(searchDto.SearchTerm, searchDto.CategoryId);
-                
-                // Apply additional filters if needed
-                if (searchDto.TagIds != null && searchDto.TagIds.Any())
-                {
-                    // This is a simplistic implementation for demonstration
-                    // In a real app, you'd want to do this in the database query
-                    var filteredItems = new List<Item>();
-                    foreach (var item in items)
-                    {
-                        bool hasAllTags = true;
-                        foreach (var tagId in searchDto.TagIds)
-                        {
-                            if (!item.Tags.Any(t => t.TagId == tagId))
-                            {
-                                hasAllTags = false;
-                                break;
-                            }
-                        }
-                        if (hasAllTags)
-                        {
-                            filteredItems.Add(item);
-                        }
-                    }
-                    items = filteredItems;
-                }
-                
-                // Apply pagination if specified
-                if (searchDto.Page.HasValue && searchDto.PageSize.HasValue)
-                {
-                    items = items.Skip((searchDto.Page.Value - 1) * searchDto.PageSize.Value)
-                                .Take(searchDto.PageSize.Value);
-                }
-                
-                return _mapper.Map<IEnumerable<ItemDto>>(items);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while searching items");
-                throw;
-            }
-        }
-
-        public async Task<int> AddItemAsync(ItemCreateDto itemDto, int userId)
+         public async Task<int> AddItemAsync(ItemCreateDto itemDto, int userId)
         {
             try
             {
@@ -156,10 +158,10 @@ namespace LeafLoop.Services
                 item.UserId = userId;
                 item.DateAdded = DateTime.UtcNow;
                 item.IsAvailable = true;
-                
+
                 await _unitOfWork.Items.AddAsync(item);
                 await _unitOfWork.CompleteAsync();
-                
+
                 return item.Id;
             }
             catch (Exception ex)
@@ -174,20 +176,18 @@ namespace LeafLoop.Services
             try
             {
                 var item = await _unitOfWork.Items.GetByIdAsync(itemDto.Id);
-                
+
                 if (item == null)
                 {
                     throw new KeyNotFoundException($"Item with ID {itemDto.Id} not found");
                 }
-                
+
                 if (item.UserId != userId)
                 {
                     throw new UnauthorizedAccessException("User is not authorized to update this item");
                 }
-                
+
                 _mapper.Map(itemDto, item);
-                
-                _unitOfWork.Items.Update(item);
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception ex)
@@ -202,17 +202,17 @@ namespace LeafLoop.Services
             try
             {
                 var item = await _unitOfWork.Items.GetByIdAsync(id);
-                
+
                 if (item == null)
                 {
                     throw new KeyNotFoundException($"Item with ID {id} not found");
                 }
-                
+
                 if (item.UserId != userId)
                 {
                     throw new UnauthorizedAccessException("User is not authorized to delete this item");
                 }
-                
+
                 _unitOfWork.Items.Remove(item);
                 await _unitOfWork.CompleteAsync();
             }
@@ -228,22 +228,15 @@ namespace LeafLoop.Services
             try
             {
                 var item = await _unitOfWork.Items.GetByIdAsync(itemId);
-                
-                if (item == null)
-                {
-                    throw new KeyNotFoundException($"Item with ID {itemId} not found");
-                }
-                
-                return item.UserId == userId;
+                return item != null && item.UserId == userId;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking item ownership. ItemId: {ItemId}, UserId: {UserId}", itemId, userId);
-                throw;
+                return false;
             }
         }
-
-        public async Task<IEnumerable<PhotoDto>> GetItemPhotosAsync(int itemId)
+         public async Task<IEnumerable<PhotoDto>> GetItemPhotosAsync(int itemId)
         {
             try
             {
@@ -257,16 +250,14 @@ namespace LeafLoop.Services
             }
         }
 
-        public async Task AddTagToItemAsync(int itemId, int tagId, int userId)
+         public async Task AddTagToItemAsync(int itemId, int tagId, int userId)
         {
             try
             {
-                // Verify item exists and user owns it
                 if (!await IsItemOwnerAsync(itemId, userId))
                 {
                     throw new UnauthorizedAccessException("User is not authorized to modify this item's tags");
                 }
-                
                 await _unitOfWork.Tags.AddTagToItemAsync(itemId, tagId);
                 await _unitOfWork.CompleteAsync();
             }
@@ -281,12 +272,10 @@ namespace LeafLoop.Services
         {
             try
             {
-                // Verify item exists and user owns it
                 if (!await IsItemOwnerAsync(itemId, userId))
                 {
                     throw new UnauthorizedAccessException("User is not authorized to modify this item's tags");
                 }
-                
                 await _unitOfWork.Tags.RemoveTagFromItemAsync(itemId, tagId);
                 await _unitOfWork.CompleteAsync();
             }
@@ -297,25 +286,23 @@ namespace LeafLoop.Services
             }
         }
 
-        public async Task MarkItemAsSoldAsync(int itemId, int userId)
+         public async Task MarkItemAsSoldAsync(int itemId, int userId)
         {
             try
             {
                 var item = await _unitOfWork.Items.GetByIdAsync(itemId);
-                
+
                 if (item == null)
                 {
                     throw new KeyNotFoundException($"Item with ID {itemId} not found");
                 }
-                
+
                 if (item.UserId != userId)
                 {
                     throw new UnauthorizedAccessException("User is not authorized to mark this item as sold");
                 }
-                
+
                 item.IsAvailable = false;
-                
-                _unitOfWork.Items.Update(item);
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception ex)
@@ -323,25 +310,6 @@ namespace LeafLoop.Services
                 _logger.LogError(ex, "Error marking item as sold. ItemId: {ItemId}", itemId);
                 throw;
             }
-            
         }
-        public async Task<int> GetItemsCountAsync(ItemSearchDto searchDto)
-        {
-            try
-            {
-                return await _unitOfWork.Items.CountAsync(i => 
-                    (string.IsNullOrEmpty(searchDto.SearchTerm) || 
-                     i.Name.Contains(searchDto.SearchTerm) || 
-                     i.Description.Contains(searchDto.SearchTerm)) &&
-                    (!searchDto.CategoryId.HasValue || i.CategoryId == searchDto.CategoryId) &&
-                    (string.IsNullOrEmpty(searchDto.Condition) || i.Condition == searchDto.Condition));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error counting items");
-                throw;
-            }
-        }
-        
     }
 }

@@ -5,7 +5,8 @@ using System.Linq;
 using AutoMapper;
 using LeafLoop.Models; // Upewnij się, że using jest poprawny dla Modeli
 using LeafLoop.Services.DTOs; // Upewnij się, że using jest poprawny dla DTO
-using System.Collections.Generic; // Potrzebne dla List<> itp.
+using System.Collections.Generic;
+using LeafLoop.ViewModels.Profile; // Potrzebne dla List<> itp.
 
 // Jeśli używasz DTO z podfolderów, dodaj odpowiednie usingi:
 // using LeafLoop.Services.DTOs.Auth;
@@ -47,19 +48,31 @@ namespace LeafLoop.Services.Mappings // Upewnij się, że namespace jest poprawn
                  .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ignoruj ID, żeby nie nadpisać istniejącego
                  .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); // Aktualizuj tylko jeśli wartość w DTO nie jest null? (Opcjonalne)
 
-
+            CreateMap<UserWithDetailsDto, ProfileViewModel>()
+                // AutoMapper powinien automatycznie zmapować pasujące nazwy właściwości:
+                // UserId, FirstName, LastName, Email, AvatarPath, EcoScore, CreatedDate, LastActivity,
+                // Address, AverageRating, Badges
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id)) // <--- DODAJ TO JAWNIE
+                // Ignorujemy pola ViewModelu, które wypełniamy ręcznie w kontrolerze:
+                .ForMember(dest => dest.RecentItems, opt => opt.Ignore())
+                .ForMember(dest => dest.TotalItemsCount, opt => opt.Ignore())
+                .ForMember(dest => dest.TotalTransactionsCount, opt => opt.Ignore());
             // --- Address mappings ---
             CreateMap<Address, AddressDto>();
             CreateMap<AddressDto, Address>();
 
             // --- Item mappings ---
             CreateMap<Item, ItemDto>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : null))
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
-                // Poprawione mapowanie dla MainPhotoPath
-                .ForMember(dest => dest.MainPhotoPath, opt => opt.MapFrom(src =>
-                    formatImagePath(src.Photos != null && src.Photos.Any() ? src.Photos.OrderBy(p => p.Id).FirstOrDefault().Path : null) // Dodano ?. dla bezpieczeństwa
-                ));
+                .ForMember(dest => dest.MainPhotoPath, 
+                    opt => opt.MapFrom(src => src.Photos != null && src.Photos.Any() 
+                        ? src.Photos.OrderBy(p => p.Id).Select(p => p.Path).FirstOrDefault()
+                        : null))
+                .ForMember(dest => dest.CategoryName, 
+                    opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
+                .ForMember(dest => dest.UserName, 
+                    opt => opt.MapFrom(src => src.User != null 
+                        ? string.Concat(src.User.FirstName, " ", src.User.LastName)
+                        : null));
 
             // Mapowanie ItemWithDetailsDto dziedziczy z ItemDto
              CreateMap<Item, ItemWithDetailsDto>()
