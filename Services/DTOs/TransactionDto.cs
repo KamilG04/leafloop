@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using LeafLoop.Models;
+using LeafLoop.Models; // Dla TransactionStatus, TransactionType
 
 namespace LeafLoop.Services.DTOs
 {
-    public class TransactionDto
-    {
-        public int Id { get; set; }
+    // TransactionDto (bez zmian)
+    public class TransactionDto { /* ... jak poprzednio ... */
+         public int Id { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public TransactionStatus Status { get; set; }
@@ -19,46 +19,50 @@ namespace LeafLoop.Services.DTOs
         public int ItemId { get; set; }
         public string ItemName { get; set; }
         public string ItemPhotoPath { get; set; }
-    }
-    
-    public class TransactionWithDetailsDto : TransactionDto
-    {
+     }
+
+    // TransactionWithDetailsDto (bez zmian)
+    public class TransactionWithDetailsDto : TransactionDto { /* ... jak poprzednio ... */
         public UserDto Seller { get; set; }
         public UserDto Buyer { get; set; }
         public ItemDto Item { get; set; }
         public List<MessageDto> Messages { get; set; }
         public List<RatingDto> Ratings { get; set; }
-    }
+     }
 
+    // TransactionCreateDto (POPRAWIONE)
     public class TransactionCreateDto
     {
+        [Required]
         public int ItemId { get; set; }
-        public TransactionType Type { get; set; }
-        public string InitialMessage { get; set; }
-    }
-    public class TransactionStatusUpdateDto
-    {
-        // TransactionId może być niepotrzebne, bo mamy je w URL
-        // public int TransactionId { get; set; }
 
         [Required]
-        public TransactionStatus Status { get; set; } // Upewnij się, że TransactionStatus jest zdefiniowane
+        public TransactionType Type { get; set; } // Typ jest wymagany
+
+        // Usunięto: public string InitialMessage { get; set; }
+        // Opcjonalnie dodaj Offer, jeśli dodałeś do modelu Transaction
+        // public string? Offer { get; set; }
     }
-    public class TransactionMessageDto
-    {
-        [Required]
-        [MaxLength(1000)] // Przykładowy limit długości
+
+    // TransactionStatusUpdateDto (bez zmian)
+    public class TransactionStatusUpdateDto { /* ... jak poprzednio ... */
+          [Required]
+        public TransactionStatus Status { get; set; }
+     }
+
+    // TransactionMessageDto (bez zmian)
+    public class TransactionMessageDto { /* ... jak poprzednio ... */
+         [Required]
+        [MaxLength(1000)]
         public string Content { get; set; } = null!;
     }
 
-    public class TransactionRatingDto
-    {
-        [Required]
-        [Range(1, 5)] // Zakładając ocenę 1-5
+    // TransactionRatingDto (bez zmian)
+    public class TransactionRatingDto { /* ... jak poprzednio ... */
+         [Required]
+        [Range(1, 5)]
         public int Value { get; set; }
-
-        [MaxLength(500)] // Przykładowy limit
-        public string? Comment { get; set; } // Komentarz opcjonalny
+        [MaxLength(500)]
+        public string? Comment { get; set; }
     }
-    
 }

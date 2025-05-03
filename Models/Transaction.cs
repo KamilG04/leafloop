@@ -14,8 +14,9 @@ namespace LeafLoop.Models
     
     public enum TransactionType
     {
-        Exchange,
-        Donation
+        Exchange, // 0
+        Donation, // 1
+        Sale      // 2
     }
     
     public class Transaction
@@ -28,6 +29,7 @@ namespace LeafLoop.Models
         
         public TransactionStatus Status { get; set; }
         
+        public DateTime LastUpdateDate { get; set; } // <-- DODAJ TĘ LINIĘ
         public TransactionType Type { get; set; }
         
         public int SellerId { get; set; }

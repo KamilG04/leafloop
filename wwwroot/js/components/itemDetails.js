@@ -145,32 +145,40 @@ const ItemDetails = ({ itemId }) => {
         setError(null); // Wyczyść błędy z innych akcji
 
         try {
-            // Przygotuj dane dla DTO (dostosuj 'type' jeśli potrzeba)
+            // === POCZĄTEK POPRAWKI ===
+            // Ustal typ transakcji na podstawie danych przedmiotu
+            // Upewnij się, że wartości liczbowe (0, 1, 2) odpowiadają Twojemu enumowi C#
+            // (Exchange=0, Donation=1, Sale=2)
+            let transactionTypeValue;
+            if (item.isForExchange) {
+                transactionTypeValue = 0; // Exchange
+            } else if (item.expectedValue > 0) {
+                transactionTypeValue = 2; // Sale (Upewnij się, że Sale istnieje w enumie C#!)
+            } else {
+                transactionTypeValue = 1; // Donation (lub Gift)
+            }
+
             const transactionData = {
                 itemId: item.id,
-                // Zakładamy, że backend ustali typ na podstawie item.isForExchange lub ma domyślny
-                // type: item.isForExchange ? TransactionType.Exchange : TransactionType.Sale // Przykładowa logika (wymaga TransactionType enum/const)
-                offer: null // Na razie nie wysyłamy oferty/wiadomości
+                type: transactionTypeValue // <<< DODANO WYMAGANE POLE 'type'
+                // offer: null // Możesz pominąć, jeśli DTO ma nullable 'offer'
             };
+            // === KONIEC POPRAWKI ===
+
             console.log("ItemDetails: Initiating transaction with data:", transactionData);
-
-            // Wywołaj API (zakładamy, że ApiService.post zwraca 'data' z odpowiedzi)
             const result = await ApiService.post('/api/transactions', transactionData);
-
             console.log("ItemDetails: Transaction initiated response:", result);
-            setTransactionInitiated(true); // Ustaw flagę sukcesu
-            // Zamiast alertu, stan `transactionInitiated` zmieni widok przycisku na komunikat sukcesu
-            // alert('Transakcja została zainicjowana! Sprawdź zakładkę "Moje Transakcje" aby zobaczyć szczegóły i wysłać wiadomość.');
+            setTransactionInitiated(true);
 
         } catch (err) {
             console.error('ItemDetails: Error initiating transaction:', err);
-            // Ustaw błąd, który zostanie wyświetlony w komponencie
             setError(`Nie udało się zainicjować transakcji: ${err.message}`);
-            setTransactionInitiated(false); // Upewnij się, że stan sukcesu jest false
+            setTransactionInitiated(false);
         } finally {
-            setInitiatingTransaction(false); // Zakończ stan ładowania przycisku
+            setInitiatingTransaction(false);
         }
-    }, [item, isOwner]); // Zależności useCallback
+    }, [item, isOwner, isAvailable, transactionInitiated]); // Dodano isAvailable i transactionInitiated do zależności dla bezpieczeństwa
+
 
     // --- Renderowanie ---
 
