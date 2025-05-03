@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "Fh7PysvH3vKLGdEOVH98G4wYzJyGmPRESVY96Bir5Uw=",
+  "Hash": "hd943Joc2juNX8UHcLXODuQtyelVoWlV+cUIyLF8JUg=",
   "Source": "LeafLoop",
   "BasePath": "_content/LeafLoop",
   "Mode": "Default",
@@ -367,8 +367,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "cgsfclw0ho",
-      "Integrity": "zD2hy9vfckJaPwK+85wJOST8RHybphkzYWlXYZS0/4o=",
+      "Fingerprint": "zqujiit793",
+      "Integrity": "a4woxDhOgURScwh5jmAJp/UASUQQNdmSIBTePdDudwg=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/components/ProfileEditForm.js"
@@ -388,8 +388,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "9ltxmdccnx",
-      "Integrity": "8wEPQeLbTy70v3wkDEur+MtWaroQlxl3k0BTOeyTzrE=",
+      "Fingerprint": "yz11xopmde",
+      "Integrity": "XvEEJonCU5MUcV2/38VTR0KIP8d9XfCg1o3nGPr6IwE=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/components/TransactionDetails.js"
@@ -724,8 +724,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "5t70eudru4",
-      "Integrity": "d0L3VHZxob6eiuPcJ1/H+Z3Karz7Ker/XcWIqLQXbVk=",
+      "Fingerprint": "5wirgy93t9",
+      "Integrity": "ZcAK/Lk1bSZAzVKmNP1fEm6EuKMfoHqJYoRvCIEiJFo=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/profileEditForm.bundle.js"
@@ -766,8 +766,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "5wmjy0pyom",
-      "Integrity": "pWwSEmLWkcMQ8drjtn2cGMS7T3uWeiRRgkRB0zWS8Qw=",
+      "Fingerprint": "5s3j5p7sow",
+      "Integrity": "G80n/+saWhn83uvkq//yV1agjhdZY5WL+hgN3K8XlHE=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/transactionDetails.bundle.js"
@@ -2201,6 +2201,27 @@
       "OriginalItemSpec": "wwwroot/lib/jquery/LICENSE.txt"
     },
     {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "vzc99ifjdg",
+      "Integrity": "9XRlo24+eJX16psqCpII6AwHUfKCJzr13btQ1TNfPvQ=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png"
+    },
+    {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/0208243f-a0cb-47eb-a9b8-148ccce17f83_Zrzut ekranu 2025-05-2 o 14.35.21.png",
       "SourceId": "LeafLoop",
       "SourceType": "Discovered",
@@ -2243,6 +2264,27 @@
       "OriginalItemSpec": "wwwroot/uploads/items/1e6ee7c2-8d47-45fc-af18-bfb163011a67_Zrzut ekranu 2025-04-30 o 18.42.27.png"
     },
     {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "uploads/items/394125dc-f570-42ba-9be2-d732e860b31e#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "c1ndx2rpuf",
+      "Integrity": "4K5BMlOAhssiZp+9drM963WtJzmksJNhKzcgDHKz0V0=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png"
+    },
+    {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png",
       "SourceId": "LeafLoop",
       "SourceType": "Discovered",
@@ -2283,6 +2325,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/uploads/items/5aae4af3-cb7e-419c-a5a3-0e394351a768_Zrzut ekranu 2024-12-3 o 23.34.39.png"
+    },
+    {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/69837384-e359-4422-b62e-19254eba98cb.png",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "uploads/items/69837384-e359-4422-b62e-19254eba98cb#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "bk93kx2ht5",
+      "Integrity": "K2sjUchY/rx3WokYbAlJIjvhjg8WwGDExtmd5PqoLBs=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/items/69837384-e359-4422-b62e-19254eba98cb.png"
     },
     {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/81cf02dc-192f-4f78-bba6-966fa939da37_Zrzut ekranu 2025-04-27 o 18.57.48.png",
@@ -3540,51 +3603,6 @@
       ]
     },
     {
-      "Route": "js/components/ProfileEditForm.cgsfclw0ho.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/ProfileEditForm.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "15108"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"zD2hy9vfckJaPwK+85wJOST8RHybphkzYWlXYZS0/4o=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 18:12:57 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "cgsfclw0ho"
-        },
-        {
-          "Name": "label",
-          "Value": "js/components/ProfileEditForm.js"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-zD2hy9vfckJaPwK+85wJOST8RHybphkzYWlXYZS0/4o="
-        }
-      ]
-    },
-    {
       "Route": "js/components/ProfileEditForm.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/ProfileEditForm.js",
       "Selectors": [],
@@ -3595,7 +3613,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "15108"
+          "Value": "13696"
         },
         {
           "Name": "Content-Type",
@@ -3603,11 +3621,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"zD2hy9vfckJaPwK+85wJOST8RHybphkzYWlXYZS0/4o=\""
+          "Value": "\"a4woxDhOgURScwh5jmAJp/UASUQQNdmSIBTePdDudwg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 18:12:57 GMT"
+          "Value": "Sat, 03 May 2025 18:15:13 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3617,13 +3635,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-zD2hy9vfckJaPwK+85wJOST8RHybphkzYWlXYZS0/4o="
+          "Value": "sha256-a4woxDhOgURScwh5jmAJp/UASUQQNdmSIBTePdDudwg="
         }
       ]
     },
     {
-      "Route": "js/components/TransactionDetails.9ltxmdccnx.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/TransactionDetails.js",
+      "Route": "js/components/ProfileEditForm.zqujiit793.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/ProfileEditForm.js",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -3632,7 +3650,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "15949"
+          "Value": "13696"
         },
         {
           "Name": "Content-Type",
@@ -3640,11 +3658,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"8wEPQeLbTy70v3wkDEur+MtWaroQlxl3k0BTOeyTzrE=\""
+          "Value": "\"a4woxDhOgURScwh5jmAJp/UASUQQNdmSIBTePdDudwg=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 17:39:45 GMT"
+          "Value": "Sat, 03 May 2025 18:15:13 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3654,15 +3672,15 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "9ltxmdccnx"
+          "Value": "zqujiit793"
         },
         {
           "Name": "label",
-          "Value": "js/components/TransactionDetails.js"
+          "Value": "js/components/ProfileEditForm.js"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-8wEPQeLbTy70v3wkDEur+MtWaroQlxl3k0BTOeyTzrE="
+          "Value": "sha256-a4woxDhOgURScwh5jmAJp/UASUQQNdmSIBTePdDudwg="
         }
       ]
     },
@@ -3677,7 +3695,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "15949"
+          "Value": "16197"
         },
         {
           "Name": "Content-Type",
@@ -3685,11 +3703,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"8wEPQeLbTy70v3wkDEur+MtWaroQlxl3k0BTOeyTzrE=\""
+          "Value": "\"XvEEJonCU5MUcV2/38VTR0KIP8d9XfCg1o3nGPr6IwE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 17:39:45 GMT"
+          "Value": "Sat, 03 May 2025 18:28:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3699,7 +3717,52 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-8wEPQeLbTy70v3wkDEur+MtWaroQlxl3k0BTOeyTzrE="
+          "Value": "sha256-XvEEJonCU5MUcV2/38VTR0KIP8d9XfCg1o3nGPr6IwE="
+        }
+      ]
+    },
+    {
+      "Route": "js/components/TransactionDetails.yz11xopmde.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/TransactionDetails.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "16197"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"XvEEJonCU5MUcV2/38VTR0KIP8d9XfCg1o3nGPr6IwE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 18:28:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "yz11xopmde"
+        },
+        {
+          "Name": "label",
+          "Value": "js/components/TransactionDetails.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-XvEEJonCU5MUcV2/38VTR0KIP8d9XfCg1o3nGPr6IwE="
         }
       ]
     },
@@ -4934,7 +4997,7 @@
       ]
     },
     {
-      "Route": "js/dist/profileEditForm.bundle.5t70eudru4.js",
+      "Route": "js/dist/profileEditForm.bundle.5wirgy93t9.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/profileEditForm.bundle.js",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4944,7 +5007,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "168730"
+          "Value": "169547"
         },
         {
           "Name": "Content-Type",
@@ -4952,11 +5015,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"d0L3VHZxob6eiuPcJ1/H+Z3Karz7Ker/XcWIqLQXbVk=\""
+          "Value": "\"ZcAK/Lk1bSZAzVKmNP1fEm6EuKMfoHqJYoRvCIEiJFo=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 18:13:10 GMT"
+          "Value": "Sat, 03 May 2025 18:15:27 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4966,7 +5029,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "5t70eudru4"
+          "Value": "5wirgy93t9"
         },
         {
           "Name": "label",
@@ -4974,7 +5037,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-d0L3VHZxob6eiuPcJ1/H+Z3Karz7Ker/XcWIqLQXbVk="
+          "Value": "sha256-ZcAK/Lk1bSZAzVKmNP1fEm6EuKMfoHqJYoRvCIEiJFo="
         }
       ]
     },
@@ -4989,7 +5052,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "168730"
+          "Value": "169547"
         },
         {
           "Name": "Content-Type",
@@ -4997,11 +5060,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"d0L3VHZxob6eiuPcJ1/H+Z3Karz7Ker/XcWIqLQXbVk=\""
+          "Value": "\"ZcAK/Lk1bSZAzVKmNP1fEm6EuKMfoHqJYoRvCIEiJFo=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 18:13:10 GMT"
+          "Value": "Sat, 03 May 2025 18:15:27 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -5011,7 +5074,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-d0L3VHZxob6eiuPcJ1/H+Z3Karz7Ker/XcWIqLQXbVk="
+          "Value": "sha256-ZcAK/Lk1bSZAzVKmNP1fEm6EuKMfoHqJYoRvCIEiJFo="
         }
       ]
     },
@@ -5098,7 +5161,7 @@
       ]
     },
     {
-      "Route": "js/dist/transactionDetails.bundle.5wmjy0pyom.js",
+      "Route": "js/dist/transactionDetails.bundle.5s3j5p7sow.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/transactionDetails.bundle.js",
       "Selectors": [],
       "ResponseHeaders": [
@@ -5108,7 +5171,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "169159"
+          "Value": "171848"
         },
         {
           "Name": "Content-Type",
@@ -5116,11 +5179,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"pWwSEmLWkcMQ8drjtn2cGMS7T3uWeiRRgkRB0zWS8Qw=\""
+          "Value": "\"G80n/+saWhn83uvkq//yV1agjhdZY5WL+hgN3K8XlHE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 17:40:24 GMT"
+          "Value": "Sat, 03 May 2025 18:29:05 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -5130,7 +5193,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "5wmjy0pyom"
+          "Value": "5s3j5p7sow"
         },
         {
           "Name": "label",
@@ -5138,7 +5201,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-pWwSEmLWkcMQ8drjtn2cGMS7T3uWeiRRgkRB0zWS8Qw="
+          "Value": "sha256-G80n/+saWhn83uvkq//yV1agjhdZY5WL+hgN3K8XlHE="
         }
       ]
     },
@@ -5153,7 +5216,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "169159"
+          "Value": "171848"
         },
         {
           "Name": "Content-Type",
@@ -5161,11 +5224,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"pWwSEmLWkcMQ8drjtn2cGMS7T3uWeiRRgkRB0zWS8Qw=\""
+          "Value": "\"G80n/+saWhn83uvkq//yV1agjhdZY5WL+hgN3K8XlHE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 17:40:24 GMT"
+          "Value": "Sat, 03 May 2025 18:29:05 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -5175,7 +5238,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-pWwSEmLWkcMQ8drjtn2cGMS7T3uWeiRRgkRB0zWS8Qw="
+          "Value": "sha256-G80n/+saWhn83uvkq//yV1agjhdZY5WL+hgN3K8XlHE="
         }
       ]
     },
@@ -5858,7 +5921,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:26:23 GMT"
+          "Value": "Sat, 03 May 2025 18:54:08 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -5903,7 +5966,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:26:23 GMT"
+          "Value": "Sat, 03 May 2025 18:54:08 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -5948,7 +6011,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:26:23 GMT"
+          "Value": "Sat, 03 May 2025 18:54:08 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -5985,7 +6048,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 01 May 2025 21:26:23 GMT"
+          "Value": "Sat, 03 May 2025 18:54:08 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -10920,6 +10983,88 @@
       ]
     },
     {
+      "Route": "uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "694967"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9XRlo24+eJX16psqCpII6AwHUfKCJzr13btQ1TNfPvQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 18:16:01 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-9XRlo24+eJX16psqCpII6AwHUfKCJzr13btQ1TNfPvQ="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.vzc99ifjdg.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "694967"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9XRlo24+eJX16psqCpII6AwHUfKCJzr13btQ1TNfPvQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 18:16:01 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "vzc99ifjdg"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-9XRlo24+eJX16psqCpII6AwHUfKCJzr13btQ1TNfPvQ="
+        }
+      ]
+    },
+    {
       "Route": "uploads/items/0208243f-a0cb-47eb-a9b8-148ccce17f83_Zrzut ekranu 2025-05-2 o 14.35.21.bk93kx2ht5.png",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/0208243f-a0cb-47eb-a9b8-148ccce17f83_Zrzut ekranu 2025-05-2 o 14.35.21.png",
       "Selectors": [],
@@ -11084,6 +11229,88 @@
       ]
     },
     {
+      "Route": "uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.c1ndx2rpuf.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "826"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"4K5BMlOAhssiZp+9drM963WtJzmksJNhKzcgDHKz0V0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 18:36:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "c1ndx2rpuf"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-4K5BMlOAhssiZp+9drM963WtJzmksJNhKzcgDHKz0V0="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "826"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"4K5BMlOAhssiZp+9drM963WtJzmksJNhKzcgDHKz0V0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 18:36:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-4K5BMlOAhssiZp+9drM963WtJzmksJNhKzcgDHKz0V0="
+        }
+      ]
+    },
+    {
       "Route": "uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.1q7na21wmd.png",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png",
       "Selectors": [],
@@ -11244,6 +11471,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-DuoJywBPdzzSkTik/hc68Hl5xK6d/0ld7ndpXJLvzT0="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/items/69837384-e359-4422-b62e-19254eba98cb.bk93kx2ht5.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/69837384-e359-4422-b62e-19254eba98cb.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2314385"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"K2sjUchY/rx3WokYbAlJIjvhjg8WwGDExtmd5PqoLBs=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 18:37:35 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "bk93kx2ht5"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/items/69837384-e359-4422-b62e-19254eba98cb.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-K2sjUchY/rx3WokYbAlJIjvhjg8WwGDExtmd5PqoLBs="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/items/69837384-e359-4422-b62e-19254eba98cb.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/69837384-e359-4422-b62e-19254eba98cb.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2314385"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"K2sjUchY/rx3WokYbAlJIjvhjg8WwGDExtmd5PqoLBs=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 18:37:35 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-K2sjUchY/rx3WokYbAlJIjvhjg8WwGDExtmd5PqoLBs="
         }
       ]
     },
