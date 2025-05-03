@@ -1,0 +1,50 @@
+@* Ścieżka: Views/Transactions/Details.cshtml *@
+@{
+    // Pobierz ID transakcji z ViewBag (ustawione w kontrolerze MVC)
+    var transactionId = ViewBag.TransactionId ?? 0;
+    // Ustaw tytuł strony dynamicznie lub statycznie
+    ViewData["Title"] = transactionId > 0 ? $"Szczegóły Transakcji #{transactionId}" : "Błąd Transakcji";
+    // Możesz założyć użycie domyślnego layoutu _Layout.cshtml
+}
+
+<div class="container mt-4">
+
+    @if (transactionId > 0)
+    {
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/Transactions">Moje Transakcje</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Szczegóły Transakcji #@transactionId</li>
+            </ol>
+        </nav>
+
+        <h1 class="mb-3">@ViewData["Title"]</h1>
+
+        {/* Kontener dla komponentu React */}
+        <div id="react-transaction-details-container" data-transaction-id="@transactionId">
+            {/* Wskaźnik ładowania, który React zastąpi */}
+            <div class="text-center py-5">
+                <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Ładowanie szczegółów transakcji...</span>
+                </div>
+                <p class="mt-2 text-muted">Ładowanie danych...</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        {/* Komunikat błędu, jeśli ID nie zostało poprawnie przekazane */}
+        <div class="alert alert-danger">
+            Wystąpił błąd: Nieprawidłowe lub brakujące ID transakcji. Nie można załadować szczegółów.
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    {/* Dołącz bundle JavaScript dla komponentu TransactionDetails */}
+    {/* Upewnij się, że TransactionDetails.js istnieje i jest dodany do webpack.config.js */}
+    <script src="~/js/dist/transactionDetails.bundle.js" asp-append-version="true"></script>
+}
