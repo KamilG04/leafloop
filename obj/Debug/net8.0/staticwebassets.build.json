@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "cNKNG52JDqxl51zmXZ3LSzxuVd1cE7SlQ8ZeNL8kIdk=",
+  "Hash": "8yK5Na0gDTCHTSzL3olWSKR6WBC8z7Z7i7GZ2fbuseY=",
   "Source": "LeafLoop",
   "BasePath": "_content/LeafLoop",
   "Mode": "Default",
@@ -120,6 +120,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/favicon.ico"
+    },
+    {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/img/placeholder-item.png",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "img/placeholder-item#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "5ipweew5fc",
+      "Integrity": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/img/placeholder-item.png"
     },
     {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/auth-test.js",
@@ -330,6 +351,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/components/TransactionForm.js"
+    },
+    {
+      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/userProfile.js",
+      "SourceId": "LeafLoop",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
+      "BasePath": "_content/LeafLoop",
+      "RelativePath": "js/components/userProfile#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "y7j1pso2xa",
+      "Integrity": "cj8Fc6eKaFWdUE81zCPYajbv8J/uvwBK5l3u7jCc2a8=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/js/components/userProfile.js"
     },
     {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/api.bundle.js",
@@ -577,8 +619,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "cvt4baucxb",
-      "Integrity": "yFz8QJYLGNflNoClug2Ta4P7qE6QtCVWQEL9ad4pfDQ=",
+      "Fingerprint": "l2picc8dny",
+      "Integrity": "bUsRVA69nndy5Te6T5+SW/wZy+CbsFZt2v2MUQ9eOgc=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/userProfile.bundle.js"
@@ -603,27 +645,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/dist/userProfile.bundle.js.LICENSE.txt"
-    },
-    {
-      "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.js",
-      "SourceId": "LeafLoop",
-      "SourceType": "Discovered",
-      "ContentRoot": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/",
-      "BasePath": "_content/LeafLoop",
-      "RelativePath": "js/react/userProfile#[.{fingerprint}]?.js",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "Fingerprint": "1b2jw5r4dk",
-      "Integrity": "bZajXPZLr08xg6fAhL32kXe8YCJSw+tOKlucYtBgK3M=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot/js/react/userProfile.js"
     },
     {
       "Identity": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/services/api.js",
@@ -2386,6 +2407,88 @@
       ]
     },
     {
+      "Route": "img/placeholder-item.5ipweew5fc.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/img/placeholder-item.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "0"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 14:02:05 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "5ipweew5fc"
+        },
+        {
+          "Name": "label",
+          "Value": "img/placeholder-item.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+        }
+      ]
+    },
+    {
+      "Route": "img/placeholder-item.png",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/img/placeholder-item.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "0"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 14:02:05 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
+        }
+      ]
+    },
+    {
       "Route": "js/auth-test.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/auth-test.js",
       "Selectors": [],
@@ -3202,6 +3305,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-G4Ucv9ql93g94JYCvwmQViMOnvHtlqVdq//4p++4/rQ="
+        }
+      ]
+    },
+    {
+      "Route": "js/components/userProfile.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/userProfile.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11971"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"cj8Fc6eKaFWdUE81zCPYajbv8J/uvwBK5l3u7jCc2a8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 13:27:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-cj8Fc6eKaFWdUE81zCPYajbv8J/uvwBK5l3u7jCc2a8="
+        }
+      ]
+    },
+    {
+      "Route": "js/components/userProfile.y7j1pso2xa.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/userProfile.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11971"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"cj8Fc6eKaFWdUE81zCPYajbv8J/uvwBK5l3u7jCc2a8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 03 May 2025 13:27:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "y7j1pso2xa"
+        },
+        {
+          "Name": "label",
+          "Value": "js/components/userProfile.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-cj8Fc6eKaFWdUE81zCPYajbv8J/uvwBK5l3u7jCc2a8="
         }
       ]
     },
@@ -4108,51 +4293,6 @@
       ]
     },
     {
-      "Route": "js/dist/userProfile.bundle.cvt4baucxb.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "165669"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"yFz8QJYLGNflNoClug2Ta4P7qE6QtCVWQEL9ad4pfDQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 11:28:28 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "cvt4baucxb"
-        },
-        {
-          "Name": "label",
-          "Value": "js/dist/userProfile.bundle.js"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-yFz8QJYLGNflNoClug2Ta4P7qE6QtCVWQEL9ad4pfDQ="
-        }
-      ]
-    },
-    {
       "Route": "js/dist/userProfile.bundle.js",
       "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",
       "Selectors": [],
@@ -4163,7 +4303,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "165669"
+          "Value": "164598"
         },
         {
           "Name": "Content-Type",
@@ -4171,11 +4311,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"yFz8QJYLGNflNoClug2Ta4P7qE6QtCVWQEL9ad4pfDQ=\""
+          "Value": "\"bUsRVA69nndy5Te6T5+SW/wZy+CbsFZt2v2MUQ9eOgc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 03 May 2025 11:28:28 GMT"
+          "Value": "Sat, 03 May 2025 13:28:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4185,7 +4325,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-yFz8QJYLGNflNoClug2Ta4P7qE6QtCVWQEL9ad4pfDQ="
+          "Value": "sha256-bUsRVA69nndy5Te6T5+SW/wZy+CbsFZt2v2MUQ9eOgc="
         }
       ]
     },
@@ -4272,8 +4412,8 @@
       ]
     },
     {
-      "Route": "js/react/userProfile.1b2jw5r4dk.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.js",
+      "Route": "js/dist/userProfile.bundle.l2picc8dny.js",
+      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4282,7 +4422,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "11355"
+          "Value": "164598"
         },
         {
           "Name": "Content-Type",
@@ -4290,11 +4430,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"bZajXPZLr08xg6fAhL32kXe8YCJSw+tOKlucYtBgK3M=\""
+          "Value": "\"bUsRVA69nndy5Te6T5+SW/wZy+CbsFZt2v2MUQ9eOgc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 17:51:08 GMT"
+          "Value": "Sat, 03 May 2025 13:28:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4304,52 +4444,15 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "1b2jw5r4dk"
+          "Value": "l2picc8dny"
         },
         {
           "Name": "label",
-          "Value": "js/react/userProfile.js"
+          "Value": "js/dist/userProfile.bundle.js"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-bZajXPZLr08xg6fAhL32kXe8YCJSw+tOKlucYtBgK3M="
-        }
-      ]
-    },
-    {
-      "Route": "js/react/userProfile.js",
-      "AssetFile": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "11355"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"bZajXPZLr08xg6fAhL32kXe8YCJSw+tOKlucYtBgK3M=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 02 May 2025 17:51:08 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-bZajXPZLr08xg6fAhL32kXe8YCJSw+tOKlucYtBgK3M="
+          "Value": "sha256-bUsRVA69nndy5Te6T5+SW/wZy+CbsFZt2v2MUQ9eOgc="
         }
       ]
     },

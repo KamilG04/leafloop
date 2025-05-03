@@ -129,6 +129,34 @@ builder.Services.AddAuthentication(options =>
             }
         };
     });
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // Twoje standardowe ścieżki dla MVC
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromDays(7); // Dopasuj do swoich potrzeb
+    options.SlidingExpiration = true;
+    // Opcje bezpieczeństwa ciasteczek
+    options.Cookie.HttpOnly = true; // Ciasteczko sesji powinno być HttpOnly
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Wymagaj HTTPS
+    options.Cookie.SameSite = SameSiteMode.Lax;
+
+    // --- WAŻNE: Podpięcie obsługi przekierowań dla API ---
+    options.Events.OnRedirectToLogin = context =>
+    {
+        // Używamy funkcji statycznej zdefiniowanej na dole Program.cs
+        // Przekazujemy odpowiedni status i komunikat
+        return HandleApiRedirect(context, StatusCodes.Status401Unauthorized, "Authentication required.");
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        // Używamy funkcji statycznej zdefiniowanej na dole Program.cs
+        // Przekazujemy odpowiedni status i komunikat
+        return HandleApiRedirect(context, StatusCodes.Status403Forbidden, "Access denied.");
+    };
+    // --- KONIEC WAŻNEJ SEKCJI ---
+});
 
 // Then add this AUTHORIZATION policy after authentication setup
 builder.Services.AddAuthorization(options =>

@@ -17,6 +17,10 @@
       "PackagePath": "staticwebassets/favicon.ico"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/img/placeholder-item.png",
+      "PackagePath": "staticwebassets/img/placeholder-item.png"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/auth-test.js",
       "PackagePath": "staticwebassets/js/auth-test.js"
     },
@@ -55,6 +59,10 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemList.js",
       "PackagePath": "staticwebassets/js/components/itemList.js"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/userProfile.js",
+      "PackagePath": "staticwebassets/js/components/userProfile.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/api.bundle.js",
@@ -107,10 +115,6 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/userProfile.bundle.js.LICENSE.txt"
-    },
-    {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/react/userProfile.js",
-      "PackagePath": "staticwebassets/js/react/userProfile.js"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/services/api.js",
