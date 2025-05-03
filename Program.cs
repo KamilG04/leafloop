@@ -102,24 +102,32 @@ builder.Services.AddAuthentication(options =>
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"] ??
-                                       throw new InvalidOperationException("JWT Key not configured")))
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
         };
+    
+        // Add token extraction from cookies
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                // Try to get token from cookie for API requests
-                var cookieToken = context.Request.Cookies["jwt_token"];
-                if (!string.IsNullOrEmpty(cookieToken))
+                // Check Authorization header first
+                var authHeader = context.Request.Headers["Authorization"].ToString();
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
                 {
-                    context.Token = cookieToken;
+                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                    return Task.CompletedTask;
+                }
+
+                // If no Authorization header, check cookies
+                var token = context.Request.Cookies["jwt_token"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Token = token;
                 }
 
                 return Task.CompletedTask;
             }
         };
-
     });
 
 // Then add this AUTHORIZATION policy after authentication setup
@@ -181,10 +189,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
     {
+        // Option 1: If you don't need credentials
         builder.AllowAnyOrigin()
             .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials(); // If using credentials across origins
+            .AllowAnyHeader();
+        
+        // OR Option 2: If you need to allow credentials (cookies, auth headers)
+        // builder.WithOrigins("http://localhost:5185", "https://localhost:7181")
+        //        .AllowAnyMethod()
+        //        .AllowAnyHeader()
+        //        .AllowCredentials();
     });
 });
 // Build the app

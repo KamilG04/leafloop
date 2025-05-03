@@ -77,14 +77,15 @@ namespace LeafLoop.Controllers
                         
                         // Store token in a cookie for JavaScript access
                         Response.Cookies.Append(
-                            "jwt_token",
+                            "jwt_token", 
                             token,
                             new CookieOptions
                             {
-                                HttpOnly = false,
-                                Secure = true,
+                                HttpOnly = false, // Ensure JavaScript can access
+                                Secure = Request.IsHttps, 
                                 SameSite = SameSiteMode.Lax,
-                                Expires = DateTime.Now.AddDays(7)
+                                Expires = DateTime.Now.AddDays(7),
+                                Path = "/"
                             });
 
                         await _signInManager.SignInAsync(user, isPersistent: false);
@@ -169,17 +170,19 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
                 token,
                 new CookieOptions
                 {
-                    HttpOnly = false, // Must be false to allow JS access
+                    HttpOnly = false,
                     Secure = Request.IsHttps,
                     SameSite = SameSiteMode.Lax,
                     Expires = DateTime.Now.AddDays(7),
-                    Path = "/" // Ensure available across all paths
+                    Path = "/"
                 });
             await Response.WriteAsync($@"
 <script>
     try {{
         localStorage.setItem('jwt_token', '{token}');
         console.log('Token stored in localStorage');
+         TempData[""JwtToken""] = token;
+        TempData[""ReturnUrl""] = returnUrl ?? ""/"";
     }} catch(e) {{
         console.error('Failed to store token in localStorage:', e);
     }}

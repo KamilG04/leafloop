@@ -6,39 +6,29 @@
  * @returns {string|null} JWT token or null if not found.
  */
 export const getJwtToken = () => {
-    console.log("getJwtToken: Checking multiple sources for token...");
-
-    // Try localStorage first (more reliable across browsers)
-    try {
-        const localToken = localStorage.getItem('jwt_token');
-        if (localToken) {
-            console.log("getJwtToken: Found token in localStorage");
-            return localToken;
-        }
-    } catch (err) {
-        console.warn("getJwtToken: Error accessing localStorage:", err);
+    // Try localStorage first
+    const localToken = localStorage.getItem('jwt_token');
+    if (localToken) {
+        console.log("Token found in localStorage");
+        return localToken;
     }
 
-    // Try cookies next
+    // Then try cookies
     try {
         const cookieValue = document.cookie;
-        console.log("getJwtToken: Raw cookies:", cookieValue);
-
         const cookie = cookieValue
             .split('; ')
             .find(row => row.startsWith('jwt_token='));
 
         if (cookie) {
             const token = cookie.split('=')[1];
-            console.log("getJwtToken: Found token in cookies");
+            console.log("Token found in cookie");
             return token;
         }
     } catch (err) {
-        console.warn("getJwtToken: Error accessing cookies:", err);
+        console.error('Error reading cookie:', err);
     }
 
-    // No token found
-    console.warn("getJwtToken: No token found in any storage source");
     return null;
 };
 /**
@@ -123,6 +113,7 @@ export const handleApiResponse = async (response) => {
         throw new Error('Access Denied. You do not have permission.');
     }
 
+    
     if (!response.ok) {
         let errorMessage = `API Error: ${response.status} ${response.statusText || ''}`;
         let errorDetails = null;
@@ -166,6 +157,36 @@ export const handleApiResponse = async (response) => {
         console.error('handleApiResponse: Error parsing successful JSON response:', error);
         throw new Error("Failed to parse successful API response.");
     }
+    if (response.status === 204) {
+        console.log("handleApiResponse: Received 204 No Content.");
+        return null;
+    }
+
+    try {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            const text = await response.text();
+            if (!text) {
+                console.log("handleApiResponse: Empty response body.");
+                return null;
+            }
+            try {
+                const data = JSON.parse(text);
+                console.log("handleApiResponse: Parsed JSON response:", data);
+                return data;
+            } catch (parseError) {
+                console.error("handleApiResponse: Failed to parse JSON:", parseError);
+                throw new Error("Invalid JSON response from server");
+            }
+        } else {
+            console.log("handleApiResponse: Received successful non-JSON response.");
+            return true;
+        }
+    } catch (error) {
+        console.error('handleApiResponse: Error parsing successful response:', error);
+        throw error;
+    }
+
 };
 
 // Funkcja getResponseData (bez zmian, ale jej logowanie jest ważne)
@@ -185,6 +206,7 @@ export const getResponseData = (apiResponseResult) => {
     }
     console.log("getResponseData: Input was not standard ApiResponse, returning as-is.");
     return apiResponseResult;
+    
 };
 
 

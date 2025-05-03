@@ -132,6 +132,10 @@ else
 {
     <script src="~/js/token-test.js" asp-append-version="true"></script>
 }
+@if (User.Identity.IsAuthenticated)
+{
+    <script src="~/js/auth-test.js"></script>
+}
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

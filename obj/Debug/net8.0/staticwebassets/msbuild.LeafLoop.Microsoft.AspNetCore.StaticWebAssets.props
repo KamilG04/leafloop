@@ -54,6 +54,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\favicon.ico'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\auth-test.js'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>js/auth-test.js</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>t2sbdqsfxk</Fingerprint>
+      <Integrity>G0g5VaBhalDytGOUmS+sQ/5ojDJa6/z+W6zZi+PJwvQ=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\auth-test.js'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\components\DarkModeToggle.js'))">
       <SourceType>Package</SourceType>
       <SourceId>LeafLoop</SourceId>
@@ -228,8 +246,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>qpca11t95r</Fingerprint>
-      <Integrity>IkwOZtgxa3a0HjIiUX3TVcxGP+274k2Q7kv5tr0wJlw=</Integrity>
+      <Fingerprint>s45nv74gsh</Fingerprint>
+      <Integrity>vLQVJXE2Hdgnt9k5Ec3FUoa/itiGmkFltFajvEU0SbI=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\dist\commons.bundle.js'))</OriginalItemSpec>
@@ -606,8 +624,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>4sm3904k1l</Fingerprint>
-      <Integrity>FH9ne/4owwxIY9ur0VhXbKLsJRZVrK1Q+t5UvZGyKgc=</Integrity>
+      <Fingerprint>hmkzhvfxwm</Fingerprint>
+      <Integrity>KRDnVt6xTrIO3Q8N7cZ5JMrDiXD+P6fhF+BQKm/sjmQ=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\utils\auth.js'))</OriginalItemSpec>

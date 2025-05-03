@@ -17,6 +17,10 @@
       "PackagePath": "staticwebassets/favicon.ico"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/auth-test.js",
+      "PackagePath": "staticwebassets/js/auth-test.js"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/DarkModeToggle.js",
       "PackagePath": "staticwebassets/js/components/DarkModeToggle.js"
     },
