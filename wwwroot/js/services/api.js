@@ -9,7 +9,7 @@ class ApiService {
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             }
         };
-
+        
         // Dodaj Content-Type tylko dla metod z body
         if (options.body && typeof options.body === 'string') {
             defaultOptions.headers['Content-Type'] = 'application/json';
@@ -69,7 +69,15 @@ class ApiService {
             body: JSON.stringify(data)
         });
     }
-
+    // W klasie ApiService w pliku api.js
+    static postFormData(url, formData) {
+        // Wywołuje request, przekazując FormData bezpośrednio
+        // Nie ustawia Content-Type: application/json
+        return this.request(url, {
+            method: 'POST',
+            body: formData
+        });
+    }
     static put(url, data) {
         return this.request(url, {
             method: 'PUT',
