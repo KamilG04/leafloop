@@ -10,14 +10,19 @@
 </head>
 <body>
 <script>
-        try {
-            localStorage.setItem('jwt_token', '@token');
-            console.log('Token saved to localStorage');
-        } catch (e) {
-            console.error('Failed to save token to localStorage:', e);
-        }
-        window.location.href = '@returnUrl';
-    </script>
+    // Store token in localStorage
+    try {
+        localStorage.setItem('jwt_token', '@token');
+        console.log('Token saved to localStorage');
+    } catch (e) {
+        console.error('Failed to save token to localStorage:', e);
+    }
+
+    // Redirect to the return URL
+    window.location.href = '@returnUrl';
+</script>
+
+<!-- Fallback for browsers with JavaScript disabled -->
 <noscript>
     <meta http-equiv="refresh" content="0;url=@returnUrl">
 </noscript>

@@ -7,13 +7,10 @@
  */
 export const getJwtToken = () => {
     // Try localStorage first
-    const localToken = localStorage.getItem('jwt_token');
-    if (localToken) {
-        console.log("Token found in localStorage");
-        return localToken;
-    }
+    let localToken = localStorage.getItem('jwt_token');
 
     // Then try cookies
+    let cookieToken = null;
     try {
         const cookieValue = document.cookie;
         const cookie = cookieValue
@@ -21,21 +18,38 @@ export const getJwtToken = () => {
             .find(row => row.startsWith('jwt_token='));
 
         if (cookie) {
-            const token = cookie.split('=')[1];
-            console.log("Token found in cookie");
-            return token;
+            cookieToken = cookie.split('=')[1];
         }
     } catch (err) {
         console.error('Error reading cookie:', err);
     }
 
-    return null;
+    // Sync tokens if one is missing
+    if (localToken && !cookieToken) {
+        // If we have localStorage but not cookie, add it to cookie
+        document.cookie = `jwt_token=${localToken}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+        console.log("Synced token from localStorage to cookie");
+    } else if (!localToken && cookieToken) {
+        // If we have cookie but not localStorage, add it to localStorage
+        try {
+            localStorage.setItem('jwt_token', cookieToken);
+            console.log("Synced token from cookie to localStorage");
+            localToken = cookieToken;
+        } catch (e) {
+            console.error('Failed to sync token to localStorage:', e);
+        }
+    }
+
+    // Return the token (prefer localStorage if both exist)
+    const token = localToken || cookieToken;
+    if (token) {
+        console.log("Token found and available");
+    } else {
+        console.log("No token found in localStorage or cookies");
+    }
+
+    return token;
 };
-/**
- * Creates HTTP headers object including Authorization (Bearer token) if available.
- * @param {boolean} [includeContentType=true] Whether to include 'Content-Type: application/json'.
- * @returns {object} Headers object.
- */
 export const getAuthHeaders = (includeContentType = true) => {
     console.log("getAuthHeaders: Creating headers...");
     const token = getJwtToken(); // Wywołuje logowanie z getJwtToken

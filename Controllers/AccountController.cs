@@ -117,13 +117,16 @@ namespace LeafLoop.Controllers
             return View();
         }
        
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+      
         // In Controllers/AccountController.cs
 
 // In AccountController.cs - Fix the login flow
 // In AccountController.cs - Update the Login method
+// In Controllers/AccountController.cs - Update the Login method
+
+[HttpPost]
+[AllowAnonymous]
+[ValidateAntiForgeryToken]
 public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
 {
     ViewData["ReturnUrl"] = returnUrl;
@@ -135,7 +138,6 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
     
     try
     {
-        // Perform the sign-in operation
         var result = await _signInManager.PasswordSignInAsync(
             model.Email, 
             model.Password, 
@@ -146,7 +148,6 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
         {
             _logger.LogInformation("User logged in successfully: {Email}", model.Email);
     
-            // Get the user entity for token creation
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
@@ -155,7 +156,7 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
                 return View(model);
             }
 
-            // Generate JWT token for API access
+            // Generate JWT token
             var token = await _jwtTokenService.GenerateTokenAsync(user);
             if (string.IsNullOrEmpty(token))
             {
@@ -164,7 +165,7 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
                 return View(model);
             }
     
-            // Store token in a cookie for JavaScript access
+            // Store token in a cookie
             Response.Cookies.Append(
                 "jwt_token",
                 token,
@@ -176,33 +177,20 @@ public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = 
                     Expires = DateTime.Now.AddDays(7),
                     Path = "/"
                 });
-            await Response.WriteAsync($@"
-<script>
-    try {{
-        localStorage.setItem('jwt_token', '{token}');
-        console.log('Token stored in localStorage');
-         TempData[""JwtToken""] = token;
-        TempData[""ReturnUrl""] = returnUrl ?? ""/"";
-    }} catch(e) {{
-        console.error('Failed to store token in localStorage:', e);
-    }}
-    window.location.href = '{returnUrl ?? "/"}';
-</script>");
-            return new EmptyResult();
-
             
-            // Add explicit logging to track cookie setting
             _logger.LogInformation("JWT token cookie set for user: {Email}", model.Email);
     
-            // Update the user's LastActivity time
+            // Update user's LastActivity
             user.LastActivity = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
             
-            // Create user session explicitly if needed
+            // Create user session
             await _sessionService.CreateSessionAsync(user, token, null, HttpContext);
             
-            // Redirect to the return URL or home page
-            return RedirectToLocal(returnUrl);
+            // Return the SetTokenAndRedirect view with token data
+            TempData["JwtToken"] = token;
+            TempData["ReturnUrl"] = returnUrl ?? "/";
+            return View("SetTokenAndRedirect");
         }
         
         if (result.IsLockedOut)

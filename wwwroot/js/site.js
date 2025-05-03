@@ -119,3 +119,9 @@ function setupAccessibilityFeatures() {
 
 document.addEventListener('DOMContentLoaded', setupAccessibilityFeatures);
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Import the function or use it directly if it's globally available
+    if (typeof getJwtToken === 'function') {
+        getJwtToken(); // This will sync the token if needed
+    }
+});
