@@ -42,12 +42,16 @@ namespace LeafLoop.Services
             }
         }
 
-         public async Task<IEnumerable<ItemDto>> GetItemsByUserAsync(int userId)
+        public async Task<IEnumerable<ItemDto>> GetItemsByUserAsync(int userId)
         {
             try
             {
-                // Używa FindAsync z bazowego IRepository<T>
-                var items = await _unitOfWork.Items.FindAsync(i => i.UserId == userId);
+                // Opcja 1: Użyj metody z repozytorium (musisz ją dodać)
+                var items = await _unitOfWork.Items.GetItemsByUserWithRelationsAsync(userId);
+            
+                // Opcja 2: Jeśli nie chcesz dodawać nowej metody, użyj FindAsync ale pamiętaj o include
+                // var items = await _unitOfWork.Items.FindAsync(i => i.UserId == userId);
+            
                 return _mapper.Map<IEnumerable<ItemDto>>(items);
             }
             catch (Exception ex)
@@ -56,20 +60,16 @@ namespace LeafLoop.Services
                 throw;
             }
         }
-
         public async Task<IEnumerable<ItemDto>> GetRecentItemsByUserAsync(int userId, int count)
         {
-             if (count <= 0) count = 5;
-
             try
             {
-                // Wywołaj dedykowaną metodę z IItemRepository
                 var items = await _unitOfWork.Items.GetRecentItemsByUserWithCategoryAsync(userId, count);
                 return _mapper.Map<IEnumerable<ItemDto>>(items);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while getting recent items for user: {UserId}", userId);
+                _logger.LogError(ex, "Error getting recent items for user: {UserId}", userId);
                 throw;
             }
         }

@@ -33,13 +33,14 @@ namespace LeafLoop.Repositories.Interfaces
         /// Implementacja powinna obsługiwać filtrowanie, sortowanie i paginację.
         /// </summary>
         Task<IEnumerable<Item>> SearchItemsAsync(ItemSearchDto searchDto);
+        
 
         /// <summary>
         /// Counts items based on the provided search criteria DTO.
         /// Implementacja powinna stosować te same filtry co SearchItemsAsync.
         /// </summary>
         Task<int> CountAsync(ItemSearchDto searchDto);
-
+        Task<IEnumerable<Item>> GetItemsByUserWithRelationsAsync(int userId);
         // --- Koniec metod specyficznych ---
     }
 }

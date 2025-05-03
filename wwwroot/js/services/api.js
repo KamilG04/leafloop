@@ -1,4 +1,3 @@
-// Simple API service for making authenticated requests
 class ApiService {
     static async request(url, options = {}) {
         const token = localStorage.getItem('jwt_token') ||
@@ -7,10 +6,14 @@ class ApiService {
         const defaultOptions = {
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json',
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             }
         };
+
+        // Dodaj Content-Type tylko dla metod z body
+        if (options.body && typeof options.body === 'string') {
+            defaultOptions.headers['Content-Type'] = 'application/json';
+        }
 
         const finalOptions = {
             ...defaultOptions,
@@ -76,6 +79,14 @@ class ApiService {
 
     static delete(url) {
         return this.request(url, { method: 'DELETE' });
+    }
+
+    // Helper do poprawnej ścieżki obrazka
+    static getImageUrl(path) {
+        if (!path) return '/img/placeholder-item.png';
+        if (path.startsWith('http://') || path.startsWith('https://')) return path;
+        if (path.startsWith('/')) return path;
+        return '/' + path;
     }
 }
 

@@ -62,12 +62,16 @@ namespace LeafLoop.Services.Mappings // Upewnij się, że namespace jest poprawn
 
             // --- Item mappings ---
             CreateMap<Item, ItemDto>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : null))
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
-                // Poprawione mapowanie dla MainPhotoPath
-                .ForMember(dest => dest.MainPhotoPath, opt => opt.MapFrom(src =>
-                    formatImagePath(src.Photos != null && src.Photos.Any() ? src.Photos.OrderBy(p => p.Id).FirstOrDefault().Path : null) // Dodano ?. dla bezpieczeństwa
-                ));
+                .ForMember(dest => dest.MainPhotoPath, 
+                    opt => opt.MapFrom(src => src.Photos != null && src.Photos.Any() 
+                        ? src.Photos.OrderBy(p => p.Id).Select(p => p.Path).FirstOrDefault()
+                        : null))
+                .ForMember(dest => dest.CategoryName, 
+                    opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
+                .ForMember(dest => dest.UserName, 
+                    opt => opt.MapFrom(src => src.User != null 
+                        ? string.Concat(src.User.FirstName, " ", src.User.LastName)
+                        : null));
 
             // Mapowanie ItemWithDetailsDto dziedziczy z ItemDto
              CreateMap<Item, ItemWithDetailsDto>()

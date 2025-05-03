@@ -27,14 +27,14 @@ namespace LeafLoop.Repositories
         /// </summary>
         public async Task<Item> GetItemWithDetailsAsync(int itemId)
         {
+            // THE KEY FIX IS HERE: Use .Include()
             return await _context.Items
-                .Include(i => i.User) // Dołącz dane użytkownika
-                .Include(i => i.Category) // Dołącz dane kategorii
-                .Include(i => i.Photos) // Dołącz wszystkie zdjęcia
-                .Include(i => i.Tags) // Dołącz encje łączące ItemTag
-                    .ThenInclude(it => it.Tag) // Dołącz właściwe dane Tagów
-                .AsNoTracking() // Optymalizacja dla zapytania tylko do odczytu
-                .SingleOrDefaultAsync(i => i.Id == itemId); // Znajdź po ID
+                .Include(i => i.Photos)       // <-- LOAD THE PHOTOS!
+                .Include(i => i.Category)     // Load related Category
+                .Include(i => i.User)         // Load related User
+                // .Include(i => i.Tags)      // Uncomment if ItemWithDetailsDto needs tags
+                // .AsNoTracking()            // Optional: Good for read-only queries
+                .FirstOrDefaultAsync(i => i.Id == itemId); // Find the specific item
         }
 
         /// <summary>
@@ -53,6 +53,17 @@ namespace LeafLoop.Repositories
         /// <summary>
         /// Gets all items for a specific user, ordered by date, including category and the first photo.
         /// </summary>
+        public async Task<IEnumerable<Item>> GetItemsByUserWithRelationsAsync(int userId)
+        {
+            return await _context.Items
+                .Include(i => i.Category)
+                .Include(i => i.Photos)
+                .Include(i => i.User)
+                .Where(i => i.UserId == userId)
+                .OrderByDescending(i => i.DateAdded)
+                .AsNoTracking()
+                .ToListAsync();
+        }
         public async Task<IEnumerable<Item>> GetItemsByUserAsync(int userId)
         {
             return await _context.Items
@@ -86,16 +97,20 @@ namespace LeafLoop.Repositories
         /// </summary>
         public async Task<IEnumerable<Item>> GetRecentItemsByUserWithCategoryAsync(int userId, int count)
         {
-             if (count <= 0) count = 5; // Zabezpieczenie/domyślny limit
-            return await _context.Items
-                .Where(i => i.UserId == userId)             // Filtruj po UserId
-                .OrderByDescending(i => i.DateAdded)        // Sortuj od najnowszych
-                .Include(i => i.Category)                   // Dołącz dane kategorii
-                .Include(i => i.Photos.OrderBy(p => p.Id).Take(1)) // Dołącz pierwsze zdjęcie
-                .Take(count)                                // Pobierz określoną liczbę
-                .AsNoTracking()                             // Zapytanie tylko do odczytu
-                .ToListAsync();                             // Wykonaj zapytanie
-        }
+           
+                if (count <= 0) count = 5;
+    
+                return await _context.Items
+                    .Include(i => i.Category)
+                    .Include(i => i.Photos)  // Załaduj wszystkie zdjęcia
+                    .Include(i => i.User)    // Dołącz User
+                    .Where(i => i.UserId == userId)
+                    .OrderByDescending(i => i.DateAdded)
+                    .Take(count)
+                    .AsNoTracking()
+                    .ToListAsync();
+                                   // Wykonaj zapytanie
+        }       
 
         /// <summary>
         /// Searches for available items based on various criteria provided in the search DTO,
