@@ -65,7 +65,7 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 // Add these lines to your Program.cs file:
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-
+builder.Services.AddScoped<IReportService, ReportService>();
 // Add memory cache
 builder.Services.AddMemoryCache();
 
@@ -87,7 +87,8 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options => {
     options.SignIn.RequireConfirmedAccount = false;
 })
 .AddEntityFrameworkStores<LeafLoopDbContext>()
-.AddDefaultTokenProviders();
+.AddDefaultTokenProviders()
+.AddRoleManager<RoleManager<IdentityRole<int>>>(); // <- Dodaj to
 
 // 2. Configure Authentication Schemes (Cookie for MVC, JWT for API)
 builder.Services.AddAuthentication(options =>
@@ -312,7 +313,16 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
     
+    string[] roleNames = { "Admin", "User", "Moderator" };
+    foreach (var roleName in roleNames)
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new IdentityRole<int>(roleName));
+        }
+    }
     try
     {
         // Initialize roles
@@ -341,7 +351,31 @@ using (var scope = app.Services.CreateScope())
             await unitOfWork.CompleteAsync();
             logger.LogInformation("Initial categories seeded.");
         }
-
+        // W sekcji seed data w Program.cs
+        var adminEmail = "admin@leafloop.pl";
+        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        {
+            var adminUser = new User
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                FirstName = "Admin",
+                LastName = "Leafloop",
+                CreatedDate = DateTime.UtcNow,
+                LastActivity = DateTime.UtcNow,
+                IsActive = true,
+                EcoScore = 100,
+                EmailConfirmed = true
+            };
+    
+            var result = await userManager.CreateAsync(adminUser, "Admin123!");
+    
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+                logger.LogInformation("Admin user created and assigned Admin role.");
+            }
+        }
         // Sprawdź i dodaj użytkownika testowego
         var testUserEmail = "test@example.com";
         if (await userManager.FindByEmailAsync(testUserEmail) == null)

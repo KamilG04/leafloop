@@ -11,7 +11,7 @@ namespace LeafLoop.Data
     // Jeśli używasz Identity, dziedziczenie z IdentityDbContext<User, IdentityRole<int>, int> jest często wygodniejsze
     // public class LeafLoopDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     // Jeśli nie, pozostaw dziedziczenie z DbContext i konfiguruj tabele Identity ręcznie (jak masz teraz)
-    public class LeafLoopDbContext : DbContext
+    public class LeafLoopDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public LeafLoopDbContext(DbContextOptions<LeafLoopDbContext> options)
             : base(options)
@@ -54,9 +54,17 @@ namespace LeafLoop.Data
             // WAŻNE: Jeśli *nie* dziedziczysz z IdentityDbContext, musisz wywołać base.OnModelCreating()
             // aby skonfigurować klucze i relacje IdentityUser. Jeśli dziedziczysz, jest to robione automatycznie.
              base.OnModelCreating(modelBuilder);
-
+   
             // Ignoruj DTO, jeśli przypadkiem zostało dodane do modelu
             modelBuilder.Ignore<PreferencesData>(); // OK
+            
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<IdentityRole<int>>().ToTable("Roles");
+            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("UserRoles");
+            modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("UserClaims");
+            modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
+            modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
+            modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
 
             // --- Relacje Wiele-do-Wielu (Klucze złożone) ---
             modelBuilder.Entity<ItemTag>()

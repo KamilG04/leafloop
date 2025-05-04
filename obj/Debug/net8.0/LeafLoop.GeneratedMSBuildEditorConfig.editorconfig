@@ -44,8 +44,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vQWRtaW5Mb2dzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/dashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vZGFzaGJvYXJkLmNzaHRtbA==
+[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/Items.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vSXRlbXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/UserDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vVXNlckRldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/Users.cshtml]

@@ -9,7 +9,6 @@ using LeafLoop.Services.Interfaces;
 using LeafLoop.ViewModels.Home;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
 namespace LeafLoop.Controllers
 {
     public class HomeController : BaseController

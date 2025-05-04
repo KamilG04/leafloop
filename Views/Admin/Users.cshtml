@@ -3,46 +3,71 @@
     ViewData["Title"] = "User Management";
 }
 
-<h1>User Management</h1>
+<div class="container-fluid">
+    <h1>User Management</h1>
 
-<table class="table">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Status</th>
-        <th>Roles</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var user in Model)
+    @if (TempData["Success"] != null)
     {
-        <tr>
-            <td>@user.UserId</td>
-            <td>@user.FirstName @user.LastName</td>
-            <td>@user.Email</td>
-            <td>
-                @if (user.IsActive)
-                {
-                    <span class="badge bg-success">Active</span>
-                }
-                else
-                {
-                    <span class="badge bg-danger">Inactive</span>
-                }
-            </td>
-            <td>@string.Join(", ", user.Roles)</td>
-            <td>
-                <a href="@Url.Action("UserDetails", new { id = user.UserId })" class="btn btn-sm btn-info">Details</a>
-                <form asp-action="ToggleUserStatus" asp-route-id="@user.UserId" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-danger" : "btn-success")">
-                        @(user.IsActive ? "Deactivate" : "Activate")
-                    </button>
-                </form>
-            </td>
-        </tr>
+        <div class="alert alert-success">@TempData["Success"]</div>
     }
-    </tbody>
-</table>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Roles</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.UserId</td>
+                        <td>@user.FirstName @user.LastName</td>
+                        <td>@user.Email</td>
+                        <td>
+                            @if (user.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </td>
+                        <td>@string.Join(", ", user.Roles)</td>
+                        <td>@user.CreatedDate.ToString("d")</td>
+                        <td>
+                            @if (user.UserId > 0)
+                            {
+                                <a href="@Url.Action("UserDetails", new { id = user.UserId })" class="btn btn-sm btn-info">Details</a>
+                                <form asp-action="ToggleUserStatus" asp-route-id="@user.UserId" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-danger" : "btn-success")">
+                                        @(user.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Invalid User ID</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

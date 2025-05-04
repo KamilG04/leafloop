@@ -1,3 +1,4 @@
+// Controllers/AdminController.cs
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -72,22 +73,42 @@ namespace LeafLoop.Controllers
             return View(users);
         }
 
+        [HttpGet("Admin/UserDetails/{id:int}")]
         public async Task<IActionResult> UserDetails(int id)
         {
+            if (id <= 0)
+            {
+                TempData["Error"] = "Invalid user ID.";
+                return RedirectToAction(nameof(Users));
+            }
+
             await LogAdminAction("View User Details", "User", id);
             var user = await _adminService.GetUserDetailsAsync(id);
             if (user == null)
-                return NotFound();
+            {
+                TempData["Error"] = "User not found.";
+                return RedirectToAction(nameof(Users));
+            }
 
             return View(user);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleUserStatus(int id)
         {
+            if (id <= 0)
+            {
+                TempData["Error"] = "Invalid user ID.";
+                return RedirectToAction(nameof(Users));
+            }
+
             var user = await _adminService.GetUserDetailsAsync(id);
             if (user == null)
-                return NotFound();
+            {
+                TempData["Error"] = "User not found.";
+                return RedirectToAction(nameof(Users));
+            }
 
             var newStatus = !user.IsActive;
             var result = await _adminService.UpdateUserStatusAsync(id, newStatus);
@@ -111,8 +132,15 @@ namespace LeafLoop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateUserRoles(int id, List<string> roles)
         {
+            if (id <= 0)
+            {
+                TempData["Error"] = "Invalid user ID.";
+                return RedirectToAction(nameof(Users));
+            }
+
             var result = await _adminService.UpdateUserRolesAsync(id, roles);
             
             if (result)
@@ -137,9 +165,9 @@ namespace LeafLoop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcessReport(int id, ReportStatus status)
         {
-            var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             await _reportService.UpdateReportStatusAsync(id, status);
             
             await LogAdminAction("Process Report", "Report", id, $"Status changed to: {status}");
@@ -165,11 +193,15 @@ namespace LeafLoop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteItem(int id)
         {
             var item = await _itemService.GetItemByIdAsync(id);
             if (item == null)
-                return NotFound();
+            {
+                TempData["Error"] = "Item not found.";
+                return RedirectToAction(nameof(Items));
+            }
 
             var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             await _itemService.DeleteItemAsync(id, adminId);
@@ -189,6 +221,7 @@ namespace LeafLoop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateTransactionStatus(int id, TransactionStatus status)
         {
             var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -209,6 +242,7 @@ namespace LeafLoop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateSystemSettings(SystemSettingsDto settings)
         {
             var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
