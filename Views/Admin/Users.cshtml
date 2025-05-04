@@ -1,0 +1,48 @@
+@model IEnumerable<LeafLoop.Services.DTOs.UserManagementDto>
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<h1>User Management</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Roles</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.UserId</td>
+            <td>@user.FirstName @user.LastName</td>
+            <td>@user.Email</td>
+            <td>
+                @if (user.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Inactive</span>
+                }
+            </td>
+            <td>@string.Join(", ", user.Roles)</td>
+            <td>
+                <a href="@Url.Action("UserDetails", new { id = user.UserId })" class="btn btn-sm btn-info">Details</a>
+                <form asp-action="ToggleUserStatus" asp-route-id="@user.UserId" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-danger" : "btn-success")">
+                        @(user.IsActive ? "Deactivate" : "Activate")
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

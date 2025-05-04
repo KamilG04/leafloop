@@ -45,6 +45,8 @@ namespace LeafLoop.Data
         public DbSet<SavedSearch> SavedSearches { get; set; }
         public DbSet<UserSession> UserSessions { get; set; }
         public DbSet<UserPreferences> UserPreferences { get; set; }
+        
+        public DbSet<AdminLog> AdminLogs { get; set; }
 
         // --- Konfiguracja Modelu ---
         protected override void OnModelCreating(ModelBuilder modelBuilder)

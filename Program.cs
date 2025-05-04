@@ -60,6 +60,11 @@ builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<ISavedSearchRepository, SavedSearchRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+// Add these lines to your Program.cs file:
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 // Add memory cache
 builder.Services.AddMemoryCache();
@@ -305,9 +310,23 @@ app.MapControllerRoute(
 // Seed data
 using (var scope = app.Services.CreateScope())
 {
-    // ... (kod seed data bez zmian, zakładając, że używa UserManager.CreateAsync) ...
-     var services = scope.ServiceProvider;
+    var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
+    
+    try
+    {
+        // Initialize roles
+        await RoleInitializationService.InitializeRoles(services);
+        
+        // Seed admin user
+        var configuration = services.GetRequiredService<IConfiguration>();
+        await AdminUserSeeder.SeedAdminUser(services, configuration);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+    
     try
     {
         var unitOfWork = services.GetRequiredService<IUnitOfWork>();
@@ -327,16 +346,16 @@ using (var scope = app.Services.CreateScope())
         var testUserEmail = "test@example.com";
         if (await userManager.FindByEmailAsync(testUserEmail) == null)
         {
-             logger.LogInformation("Seeding test user...");
-             var testUser = new User
-             {
-                 UserName = testUserEmail, Email = testUserEmail, FirstName = "Jan", LastName = "Testowy",
-                 CreatedDate = DateTime.UtcNow, LastActivity = DateTime.UtcNow, IsActive = true, EcoScore = 100,
-                 EmailConfirmed = true
-             };
-             var result = await userManager.CreateAsync(testUser, "Password123!");
-             if (result.Succeeded) logger.LogInformation("Test user seeded successfully.");
-             else logger.LogError("Failed to seed test user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+            logger.LogInformation("Seeding test user...");
+            var testUser = new User
+            {
+                UserName = testUserEmail, Email = testUserEmail, FirstName = "Jan", LastName = "Testowy",
+                CreatedDate = DateTime.UtcNow, LastActivity = DateTime.UtcNow, IsActive = true, EcoScore = 100,
+                EmailConfirmed = true
+            };
+            var result = await userManager.CreateAsync(testUser, "Password123!");
+            if (result.Succeeded) logger.LogInformation("Test user seeded successfully.");
+            else logger.LogError("Failed to seed test user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
         }
     }
     catch (Exception ex)
@@ -344,7 +363,6 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "An error occurred during database seeding.");
     }
 }
-
 app.Run();
 
 // --- Funkcja pomocnicza do obsługi przekierowań dla API ---

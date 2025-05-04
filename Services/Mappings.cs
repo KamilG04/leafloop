@@ -101,6 +101,17 @@ namespace LeafLoop.Services.Mappings // Upewnij się, że namespace jest poprawn
                 .ForMember(dest => dest.IconPath, opt => opt.MapFrom(src => formatImagePath(src.IconPath)));
             CreateMap<CategoryCreateDto, Category>();
             CreateMap<CategoryUpdateDto, Category>();
+            
+            // Add to MappingProfile.cs
+
+// Admin mappings
+            CreateMap<AdminLog, AdminLogDto>()
+                .ForMember(dest => dest.AdminUserName, 
+                    opt => opt.MapFrom(src => src.AdminUser != null ? 
+                        $"{src.AdminUser.FirstName} {src.AdminUser.LastName}" : "Unknown"));
+
+            CreateMap<User, UserManagementDto>()
+                .ForMember(dest => dest.Roles, opt => opt.Ignore()); // Roles need to be loaded separately
 
             // --- Tag mappings ---
             CreateMap<Tag, TagDto>()
