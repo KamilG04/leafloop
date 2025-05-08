@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace LeafLoop.Models
 {
@@ -29,7 +26,7 @@ namespace LeafLoop.Models
         
         public TransactionStatus Status { get; set; }
         
-        public DateTime LastUpdateDate { get; set; } // <-- DODAJ TĘ LINIĘ
+        public DateTime LastUpdateDate { get; set; }
         public TransactionType Type { get; set; }
         
         public int SellerId { get; set; }
@@ -44,5 +41,7 @@ namespace LeafLoop.Models
         public virtual Item Item { get; set; }
         public virtual ICollection<Rating> Ratings { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
+        
+        
     }
 }

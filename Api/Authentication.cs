@@ -1,17 +1,10 @@
-using System;
-using System.Threading.Tasks;
 using LeafLoop.Models;
-using LeafLoop.Models.API;      // Dla ApiResponse<T> i ApiResponse
-using LeafLoop.Services;
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.DTOs.Auth;
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using LeafLoop.Api;             // Dla ApiControllerExtensions
 
 namespace LeafLoop.Api
 {
@@ -45,7 +38,6 @@ namespace LeafLoop.Api
         // POST: api/auth/register
         [HttpPost("register")]
         [AllowAnonymous]
-        // === ZMIANA SYGNATURY z powrotem na Task<IActionResult> ===
         public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationDto)
         {
             if (registrationDto == null || string.IsNullOrWhiteSpace(registrationDto.Email) || string.IsNullOrWhiteSpace(registrationDto.Password))
@@ -91,7 +83,7 @@ namespace LeafLoop.Api
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred during user registration for email {Email}", registrationDto?.Email);
+                _logger.LogError(ex, "Error occurred during user registration for email {Email}", registrationDto.Email);
                  // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
                 return this.ApiInternalError("An error occurred during registration. Please try again later.", ex);
             }
@@ -100,7 +92,6 @@ namespace LeafLoop.Api
         // POST: api/auth/login
         [HttpPost("login")]
         [AllowAnonymous]
-        // === ZMIANA SYGNATURY z powrotem na Task<IActionResult> ===
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
              if (loginDto == null || string.IsNullOrWhiteSpace(loginDto.Email) || string.IsNullOrWhiteSpace(loginDto.Password))
@@ -154,11 +145,87 @@ namespace LeafLoop.Api
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred during user login for email {Email}", loginDto?.Email);
+                _logger.LogError(ex, "Error occurred during user login for email {Email}", loginDto.Email);
                  // Metody rozszerzeń zwracają IActionResult, co jest zgodne z typem metody
                  return this.ApiInternalError("An error occurred during login. Please try again later.", ex);
             }
         }
+        [HttpPost("forgot-password")]
+[AllowAnonymous]
+public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
+{
+    if (forgotPasswordDto == null || string.IsNullOrWhiteSpace(forgotPasswordDto.Email))
+    {
+        return this.ApiBadRequest("Email is required.");
     }
-    // Pozostałe definicje DTO bez zmian...
+
+    try
+    {
+        var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+        
+        // Don't reveal if the user exists or not for security reasons
+        if (user == null || !user.IsActive)
+        {
+            return this.ApiOk("If your email is registered, you will receive password reset instructions.");
+        }
+
+        // Generate reset token
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        
+        // TODO: Send email with the token (ideally through an email service)
+        // For now, we'll return the token in the response (not recommended for production)
+        _logger.LogInformation("Password reset token generated for user {Email}: {Token}", forgotPasswordDto.Email, token);
+        
+        return this.ApiOk("Password reset instructions have been sent to your email.");
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error occurred during password reset request for email {Email}", forgotPasswordDto.Email);
+        return this.ApiInternalError("An error occurred. Please try again later.", ex);
+    }
+}
+
+[HttpPost("reset-password")]
+[AllowAnonymous]
+public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+{
+    if (resetPasswordDto == null || 
+        string.IsNullOrWhiteSpace(resetPasswordDto.Email) || 
+        string.IsNullOrWhiteSpace(resetPasswordDto.Token) || 
+        string.IsNullOrWhiteSpace(resetPasswordDto.NewPassword))
+    {
+        return this.ApiBadRequest("All fields are required.");
+    }
+
+    try
+    {
+        var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+        if (user == null)
+        {
+            // Don't reveal the user doesn't exist
+            return this.ApiBadRequest("Password reset failed.");
+        }
+
+        var result = await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.NewPassword);
+        if (!result.Succeeded)
+        {
+            _logger.LogWarning("Password reset failed for user {Email}. Errors: {Errors}", 
+                resetPasswordDto.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+            return this.ApiBadRequest("Password reset failed. The link may have expired.");
+        }
+
+        // Update last activity
+        user.LastActivity = DateTime.UtcNow;
+        await _userManager.UpdateAsync(user);
+
+        return this.ApiOk("Your password has been reset successfully. You can now log in with your new password.");
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error occurred during password reset for email {Email}", resetPasswordDto.Email);
+        return this.ApiInternalError("An error occurred. Please try again later.", ex);
+    }
+}
+    }
+    
 }

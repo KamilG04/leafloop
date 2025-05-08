@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq; // Potrzebne dla LINQ w logowaniu błędów
 using System.Security.Claims;
-using System.Threading.Tasks;
 using LeafLoop.Models;
-using LeafLoop.Models.API; // Potrzebne dla ApiResponse
+using LeafLoop.Models.API; 
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using LeafLoop.Api; // Potrzebne dla ApiControllerExtensions (choć część zastępujemy)
+
 
 namespace LeafLoop.Api
 {
@@ -24,14 +18,14 @@ namespace LeafLoop.Api
     {
         private readonly ITransactionService _transactionService;
         private readonly IMessageService _messageService;
-        private readonly IRatingService _ratingService; // Dodaj, jeśli potrzebujesz RateTransaction
+        private readonly IRatingService _ratingService; 
         private readonly UserManager<User> _userManager;
         private readonly ILogger<TransactionsController> _logger;
 
         public TransactionsController(
             ITransactionService transactionService,
             IMessageService messageService,
-            IRatingService ratingService, // Dodaj wstrzykiwanie
+            IRatingService ratingService, // added injection fix
             UserManager<User> userManager,
             ILogger<TransactionsController> logger)
         {
@@ -45,7 +39,7 @@ namespace LeafLoop.Api
         // POST: api/transactions
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<TransactionDto>), StatusCodes.Status201Created)]
-        // ... inne ProducesResponseType ...
+   
         public async Task<IActionResult> InitiateTransaction([FromBody] TransactionCreateDto transactionDto)
         {
             // Walidacja DTO
@@ -85,7 +79,7 @@ namespace LeafLoop.Api
             catch (InvalidOperationException ex) { return this.ApiBadRequest(ex.Message); }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error initiating transaction for ItemId: {ItemId}", transactionDto?.ItemId);
+                _logger.LogError(ex, "Error initiating transaction for ItemId: {ItemId}", transactionDto.ItemId); // known to not be null mowi interpreter ale jak cos sie spierdoli to pytaj tutaj NULL 
                 return this.ApiInternalError("Error initiating transaction", ex);
             }
         }
@@ -94,7 +88,6 @@ namespace LeafLoop.Api
         // GET: api/transactions
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<TransactionDto>>), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
         public async Task<IActionResult> GetUserTransactions([FromQuery] bool asSeller = false)
         {
             try
@@ -103,7 +96,7 @@ namespace LeafLoop.Api
                 if (user == null) return this.ApiUnauthorized("User not found.");
 
                 var transactions = await _transactionService.GetTransactionsByUserAsync(user.Id, asSeller);
-                // Użyj generycznego ApiOk, kompilator wywnioskuje T = IEnumerable<TransactionDto>
+                //kompilator wywnioskuje T = IEnumerable<TransactionDto>
                 return this.ApiOk(transactions ?? new List<TransactionDto>()); // Zwróć pustą listę, jeśli null
             }
             catch (Exception ex)
@@ -116,7 +109,6 @@ namespace LeafLoop.Api
         // GET: api/transactions/{id:int}
         [HttpGet("{id:int}", Name = "GetTransaction")] // Dodano Name dla CreatedAtAction
         [ProducesResponseType(typeof(ApiResponse<TransactionWithDetailsDto>), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
         public async Task<IActionResult> GetTransaction(int id)
         {
             if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
@@ -131,7 +123,7 @@ namespace LeafLoop.Api
                 var transaction = await _transactionService.GetTransactionWithDetailsAsync(id);
                 if (transaction == null) return this.ApiNotFound($"Transaction with ID {id} not found");
 
-                 // Użyj generycznego ApiOk, kompilator wywnioskuje T = TransactionWithDetailsDto
+                 // ApiOk, kompilator wywnioskuje T = TransactionWithDetailsDto
                 return this.ApiOk(transaction);
             }
             catch (Exception ex)
@@ -140,13 +132,11 @@ namespace LeafLoop.Api
                 return this.ApiInternalError("Error retrieving transaction details", ex);
             }
         }
-
-         // --- >>> DODANE/POPRAWIONE AKCJE <<< ---
+        
 
         // PUT: api/transactions/{id:int}/status
         [HttpPut("{id:int}/status")]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)] // Zmieniono na 200 OK z komunikatem
-        // ... inne ProducesResponseType ...
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)] 
         public async Task<IActionResult> UpdateTransactionStatus(int id, [FromBody] TransactionStatusUpdateDto statusUpdateDto)
         {
              if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
@@ -162,7 +152,7 @@ namespace LeafLoop.Api
 
                 string successMessage = $"Transaction status updated to {statusUpdateDto.Status}.";
                 // Użyj bezpośrednio Ok() z niegenerycznym ApiResponse
-                return Ok(ApiResponse.SuccessResponse(successMessage));
+                return this.Ok(ApiResponse.SuccessResponse(successMessage));
             }
             catch (KeyNotFoundException) { return this.ApiNotFound($"Transaction with ID {id} not found"); }
             catch (UnauthorizedAccessException) { return this.ApiForbidden("You are not authorized to update this transaction status."); }
@@ -177,7 +167,6 @@ namespace LeafLoop.Api
         // POST: api/transactions/{id:int}/complete
         [HttpPost("{id:int}/complete")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
         public async Task<IActionResult> CompleteTransaction(int id)
         {
             if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
@@ -186,8 +175,8 @@ namespace LeafLoop.Api
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null) return this.ApiUnauthorized("User not found.");
                 await _transactionService.CompleteTransactionAsync(id, user.Id);
-                // Użyj bezpośrednio Ok() z niegenerycznym ApiResponse
-                return Ok(ApiResponse.SuccessResponse("Transaction completed successfully"));
+             
+                return this.Ok(ApiResponse.SuccessResponse("Transaction completed successfully"));
             }
             catch (KeyNotFoundException) { return this.ApiNotFound($"Transaction with ID {id} not found"); }
             catch (UnauthorizedAccessException) { return this.ApiForbidden("You are not authorized to complete this transaction."); }
@@ -202,7 +191,6 @@ namespace LeafLoop.Api
         // POST: api/transactions/{id:int}/cancel
         [HttpPost("{id:int}/cancel")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-         // ... inne ProducesResponseType ...
         public async Task<IActionResult> CancelTransaction(int id)
         {
             if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
@@ -211,8 +199,8 @@ namespace LeafLoop.Api
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null) return this.ApiUnauthorized("User not found.");
                 await _transactionService.CancelTransactionAsync(id, user.Id);
-                 // Użyj bezpośrednio Ok() z niegenerycznym ApiResponse
-                return Ok(ApiResponse.SuccessResponse("Transaction cancelled successfully"));
+                 // Ogolnie to mozna dac samo bo i tak uzywamy tego niegenerycznego, ale kto bogatemu zabroni
+                return this.Ok(ApiResponse.SuccessResponse("Transaction cancelled successfully"));
             }
             catch (KeyNotFoundException) { return this.ApiNotFound($"Transaction with ID {id} not found"); }
             catch (UnauthorizedAccessException) { return this.ApiForbidden("You are not authorized to cancel this transaction."); }
@@ -227,7 +215,6 @@ namespace LeafLoop.Api
         // GET: api/transactions/{id:int}/messages
         [HttpGet("{id:int}/messages")]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<MessageDto>>), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
         public async Task<IActionResult> GetTransactionMessages(int id)
         {
             if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
@@ -254,7 +241,6 @@ namespace LeafLoop.Api
         [HttpPost("{id:int}/messages")]
         [ProducesResponseType(typeof(ApiResponse<MessageDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)] // Dla przypadku błędu pobrania wiadomości
-        // ... inne ProducesResponseType ...
         public async Task<IActionResult> SendTransactionMessage(int id, [FromBody] TransactionMessageDto messageDto)
         {
             _logger.LogInformation("API SendTransactionMessage START for TransactionID: {TransactionId}. Auth User: {AuthUser}", id, User.Identity?.Name ?? "N/A");
@@ -294,8 +280,6 @@ namespace LeafLoop.Api
                 if (createdMessage == null)
                 {
                     _logger.LogError("Message sent (ID: {MessageId}) but could not be retrieved for transaction {TransactionId}.", messageId, id);
-                    // <<< === POPRAWKA TUTAJ === >>>
-                    // Zwróć 200 OK z komunikatem, używając bezpośrednio Ok() i ApiResponse
                     return Ok(ApiResponse.SuccessResponse("Message sent, but could not retrieve details."));
                 }
 
@@ -314,11 +298,6 @@ namespace LeafLoop.Api
         // POST: api/transactions/{id:int}/ratings
         [HttpPost("{id:int}/ratings")]
         [ProducesResponseType(typeof(ApiResponse<RatingDto>), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
-     // POST: api/transactions/{id:int}/ratings
-        [HttpPost("{id:int}/ratings")]
-        [ProducesResponseType(typeof(ApiResponse<RatingDto>), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
         public async Task<IActionResult> RateTransaction(int id, [FromBody] TransactionRatingDto ratingDto)
         {
              if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
@@ -329,29 +308,27 @@ namespace LeafLoop.Api
                 var user = await _userManager.GetUserAsync(User);
                  if (user == null) return this.ApiUnauthorized("User not found.");
 
-                 // Sprawdź dostęp do transakcji (czy user jest jej stroną)
+               
                  var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
                  if (!canAccess) return this.ApiForbidden("You were not part of this transaction.");
 
-                 // Pobierz transakcję, aby znaleźć drugiego użytkownika
+            
                  var transaction = await _transactionService.GetTransactionByIdAsync(id);
                  if (transaction == null) return this.ApiNotFound($"Transaction with ID {id} not found.");
 
-                // Przygotuj DTO dla serwisu ocen
+              
                 var ratingCreateDto = new RatingCreateDto
                 {
                     Value = ratingDto.Value,
                     Comment = ratingDto.Comment,
                     RaterId = user.Id,
-                    // Oceniamy drugą osobę w transakcji
                     RatedEntityId = user.Id == transaction.SellerId ? transaction.BuyerId : transaction.SellerId,
-                    RatedEntityType = RatedEntityType.User, // Zakładamy, że RatedEntityType istnieje
-                    TransactionId = id // Powiąż ocenę z transakcją
+                    RatedEntityType = RatedEntityType.User, 
+                    TransactionId = id 
                 };
 
-                // --- >>> POPRAWKA TUTAJ - Przekaż tylko DTO <<< ---
+                
                 var ratingId = await _ratingService.AddRatingAsync(ratingCreateDto);
-                // --- >>> KONIEC POPRAWKI <<< ---
 
                  var createdRating = await _ratingService.GetRatingByIdAsync(ratingId);
                  if (createdRating == null)
@@ -374,7 +351,6 @@ namespace LeafLoop.Api
         // GET: api/transactions/{id:int}/ratings
         [HttpGet("{id:int}/ratings")]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<RatingDto>>), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
         public async Task<IActionResult> GetTransactionRatings(int id)
         {
             if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
@@ -387,7 +363,7 @@ namespace LeafLoop.Api
                 if (!canAccess) return this.ApiForbidden("You are not authorized to view ratings for this transaction.");
 
                 var ratings = await _ratingService.GetRatingsByTransactionAsync(id);
-                // Użyj generycznego ApiOk
+                //tu generycznie
                 return this.ApiOk(ratings ?? new List<RatingDto>());
             }
              catch (KeyNotFoundException) { return this.ApiNotFound($"Transaction with ID {id} not found."); }
@@ -397,15 +373,5 @@ namespace LeafLoop.Api
                 return this.ApiInternalError("Error retrieving transaction ratings", ex);
             }
         }
-
-         // --- DODANE BRAKUJĄCE METODY ---
-         // (Zakładając, że potrzebujesz ich w API, jeśli nie - usuń)
-
-         // PUT: api/transactions/{id:int}/status (Już jest wyżej, upewnij się, że jest tylko raz)
-
-         // POST: api/transactions/{id:int}/complete (Już jest wyżej, upewnij się, że jest tylko raz)
-
-         // POST: api/transactions/{id:int}/cancel (Już jest wyżej, upewnij się, że jest tylko raz)
-
     }
 }

@@ -1,347 +1,302 @@
 // Api/ItemApiController.cs
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using System.Security.Claims;
-using System.IO;
 using LeafLoop.Models;
-using LeafLoop.Models.API;
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using LeafLoop.Api;
+using LeafLoop.Middleware;
 
-namespace LeafLoop.Api
+namespace LeafLoop.Api;
+
+[Route("api/[controller]")]
+[ApiController]
+public class ItemsController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ItemsController : ControllerBase
+    private readonly IItemService _itemService;
+    private readonly IPhotoService _photoService;
+    private readonly UserManager<User> _userManager;
+    private readonly ILogger<ItemsController> _logger;
+
+    public ItemsController(
+        IItemService itemService,
+        IPhotoService photoService,
+        UserManager<User> userManager,
+        ILogger<ItemsController> logger)
     {
-        private readonly IItemService _itemService;
-        private readonly IPhotoService _photoService;
-        private readonly UserManager<User> _userManager;
-        private readonly ILogger<ItemsController> _logger;
+        _itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
+        _photoService = photoService ?? throw new ArgumentNullException(nameof(photoService));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
 
-        public ItemsController(
-            IItemService itemService,
-            IPhotoService photoService,
-            UserManager<User> userManager,
-            ILogger<ItemsController> logger)
+    // GET: api/items
+    [HttpGet]
+    public async Task<IActionResult> GetItems([FromQuery] ItemSearchDto searchDto)
+    {
+        try
         {
-            _itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
-            _photoService = photoService ?? throw new ArgumentNullException(nameof(photoService));
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            searchDto.Page ??= 1;
+            searchDto.PageSize ??= 8;
+
+
+            if (searchDto.Page <= 0) searchDto.Page = 1;
+            if (searchDto.PageSize <= 0 || searchDto.PageSize > 100) searchDto.PageSize = 8;
+
+            var items = await _itemService.SearchItemsAsync(searchDto);
+            var totalItems = await _itemService.GetItemsCountAsync(searchDto);
+            var totalPages = (int)Math.Ceiling((double)totalItems / searchDto.PageSize.Value);
+
+            return this.ApiOkWithPagination(items, totalItems, totalPages, searchDto.Page.Value);
         }
-
-        // GET: api/items
-        [HttpGet]
-        public async Task<IActionResult> GetItems([FromQuery] ItemSearchDto searchDto)
+        catch (Exception ex)
         {
-            try
-            {
-                searchDto.Page ??= 1;
-                searchDto.PageSize ??= 8;
-
-                // Walidacja Page/PageSize
-                if (searchDto.Page <= 0) searchDto.Page = 1;
-                if (searchDto.PageSize <= 0 || searchDto.PageSize > 100) searchDto.PageSize = 8;
-
-                var items = await _itemService.SearchItemsAsync(searchDto);
-                var totalItems = await _itemService.GetItemsCountAsync(searchDto);
-                var totalPages = (int)Math.Ceiling((double)totalItems / searchDto.PageSize.Value);
-
-                return this.ApiOkWithPagination(items, totalItems, totalPages, searchDto.Page.Value);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving items with search: {@SearchDto}", searchDto);
-                return this.ApiInternalError("Error retrieving items", ex);
-            }
+            _logger.LogError(ex, "Error retrieving items with search: {@SearchDto}", searchDto);
+            return this.ApiInternalError("Error retrieving items", ex);
         }
+    }
 
-        // GET: api/items/{id:int}
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetItem(int id)
+    // GET: api/items/{id:int}
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetItem(int id)
+    {
+        if (id <= 0) return this.ApiBadRequest("Invalid item ID.");
+
+        try
         {
-            if (id <= 0)
-            {
-                return this.ApiBadRequest("Invalid item ID.");
-            }
+            var item = await _itemService.GetItemWithDetailsAsync(id);
 
-            try
-            {
-                var item = await _itemService.GetItemWithDetailsAsync(id);
+            if (item == null) return this.ApiNotFound($"Item with ID {id} not found.");
 
-                if (item == null)
-                {
-                    return this.ApiNotFound($"Item with ID {id} not found.");
-                }
-
-                return this.ApiOk(item);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving item details. ItemId: {ItemId}", id);
-                return this.ApiInternalError("Error retrieving item details", ex);
-            }
+            return this.ApiOk(item);
         }
-
-        // GET: api/items/my
-        [HttpGet("my")]
-        [Authorize(Policy = "ApiAuthPolicy")]
-        public async Task<IActionResult> GetCurrentUserItems()
+        catch (Exception ex)
         {
-            try
-            {
-                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
-                {
-                    return this.ApiUnauthorized("Unable to identify user.");
-                }
-
-                var items = await _itemService.GetItemsByUserAsync(userId);
-                return this.ApiOk(items);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving current user items");
-                return this.ApiInternalError("Error retrieving your items", ex);
-            }
+            _logger.LogError(ex, "Error retrieving item details. ItemId: {ItemId}", id);
+            return this.ApiInternalError("Error retrieving item details", ex);
         }
+    }
 
-        // POST: api/items
-        [HttpPost]
-        [Authorize(Policy = "ApiAuthPolicy")]
-        public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto itemDto)
+    // GET: api/items/my
+    [HttpGet("my")]
+    [Authorize(Policy = "ApiAuthPolicy")]
+    public async Task<IActionResult> GetCurrentUserItems()
+    {
+        try
         {
-            if (!ModelState.IsValid)
-            {
-                return this.ApiBadRequest(ModelState);
-            }
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
+                return this.ApiUnauthorized("Unable to identify user.");
 
-                if (user == null)
-                {
-                    return this.ApiUnauthorized("Unable to identify user.");
-                }
-
-                var itemId = await _itemService.AddItemAsync(itemDto, user.Id);
-                var createdItemDto = await _itemService.GetItemByIdAsync(itemId);
-
-                if (createdItemDto == null)
-                {
-                    _logger.LogError("Could not retrieve the item (ID: {ItemId}) right after creation", itemId);
-                    return this.ApiInternalError("Error retrieving created item.");
-                }
-
-                return this.ApiCreatedAtAction(
-                    createdItemDto,
-                    nameof(GetItem),
-                    "Items",
-                    new { id = itemId },
-                    "Item created successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating item. DTO: {@ItemDto}", itemDto);
-                return this.ApiInternalError("Error creating item", ex);
-            }
+            var items = await _itemService.GetItemsByUserAsync(userId);
+            return this.ApiOk(items);
         }
-
-        // PUT: api/items/{id:int}
-        [HttpPut("{id:int}")]
-        [Authorize(Policy = "ApiAuthPolicy")]
-        public async Task<IActionResult> UpdateItem(int id, [FromBody] ItemUpdateDto itemDto)
+        catch (Exception ex)
         {
-            if (id != itemDto.Id)
-            {
-                return this.ApiBadRequest("Item ID mismatch in URL and body.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return this.ApiBadRequest(ModelState);
-            }
-
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-
-                if (user == null)
-                {
-                    return this.ApiUnauthorized("Unable to identify user.");
-                }
-
-                await _itemService.UpdateItemAsync(itemDto, user.Id);
-                return this.ApiOk("Item updated successfully");
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return this.ApiNotFound(ex.Message);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return this.ApiForbidden("You are not authorized to update this item.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating item. ItemId: {ItemId}, DTO: {@ItemDto}", id, itemDto);
-                return this.ApiInternalError("Error updating item", ex);
-            }
+            _logger.LogError(ex, "Error retrieving current user items");
+            return this.ApiInternalError("Error retrieving your items", ex);
         }
+    }
 
-        // DELETE: api/items/{id:int}
-        [HttpDelete("{id:int}")]
-        [Authorize(Policy = "ApiAuthPolicy")]
-        public async Task<IActionResult> DeleteItem(int id)
+    // POST: api/items
+    [HttpPost]
+    [Authorize(Policy = "ApiAuthPolicy")]
+    public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto itemDto)
+    {
+        if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+
+        try
         {
-            if (id <= 0)
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return this.ApiUnauthorized("Unable to identify user.");
+
+            var itemId = await _itemService.AddItemAsync(itemDto, user.Id);
+            var createdItemDto = await _itemService.GetItemByIdAsync(itemId);
+
+            if (createdItemDto == null)
             {
-                return this.ApiBadRequest("Invalid item ID.");
+                _logger.LogError("Could not retrieve the item (ID: {ItemId}) right after creation", itemId);
+                return this.ApiInternalError("Error retrieving created item.");
             }
 
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-
-                if (user == null)
-                {
-                    return this.ApiUnauthorized("Unable to identify user.");
-                }
-
-                await _itemService.DeleteItemAsync(id, user.Id);
-                return this.ApiOk("Item deleted successfully");
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return this.ApiNotFound(ex.Message);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return this.ApiForbidden("You are not authorized to delete this item.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting item. ItemId: {ItemId}", id);
-                return this.ApiInternalError("Error deleting item", ex);
-            }
+            return this.ApiCreatedAtAction(
+                createdItemDto,
+                nameof(GetItem),
+                "Items",
+                new { id = itemId },
+                "Item created successfully");
         }
-
-        // POST: api/items/{id:int}/photos
-        [HttpPost("{id:int}/photos")]
-        [Authorize(Policy = "ApiAuthPolicy")]
-        public async Task<IActionResult> UploadPhoto(int id, IFormFile photo)
+        catch (Exception ex)
         {
-            if (id <= 0)
-                return this.ApiBadRequest("Invalid item ID.");
-            if (photo == null || photo.Length == 0)
-                return this.ApiBadRequest("No photo file was uploaded.");
-            if (photo.Length > 5 * 1024 * 1024)
-                return this.ApiBadRequest("File size exceeds maximum of 5MB.");
-            var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/webp" };
-            if (!allowedContentTypes.Contains(photo.ContentType.ToLowerInvariant()))
-                return this.ApiBadRequest("Invalid file type (allowed: JPG, PNG, WEBP).");
+            _logger.LogError(ex, "Error creating item. DTO: {@ItemDto}", itemDto);
+            return this.ApiInternalError("Error creating item", ex);
+        }
+    }
 
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                    return this.ApiUnauthorized("Unable to identify user.");
+    // PUT: api/items/{id:int}
+    [HttpPut("{id:int}")]
+    [Authorize(Policy = "ApiAuthPolicy")]
+    public async Task<IActionResult> UpdateItem(int id, [FromBody] ItemUpdateDto itemDto)
+    {
+        if (id != itemDto.Id) return this.ApiBadRequest("Item ID mismatch in URL and body.");
 
-                if (!await _itemService.IsItemOwnerAsync(id, user.Id))
-                {
-                    return this.ApiForbidden("You are not authorized to upload photos for this item.");
-                }
+        if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
 
-                string photoPath;
-                using (var stream = photo.OpenReadStream())
-                {
-                    photoPath = await _photoService.UploadPhotoAsync(stream, photo.FileName, photo.ContentType);
-                }
+        try
+        {
+            var user = await _userManager.GetUserAsync(User);
 
-                var photoCreateDto = new PhotoCreateDto
-                {
-                    Path = photoPath,
-                    FileName = Path.GetFileName(photo.FileName),
-                    FileSize = photo.Length,
-                    ItemId = id
-                };
+            if (user == null) return this.ApiUnauthorized("Unable to identify user.");
 
-                var photoId = await _photoService.AddPhotoAsync(photoCreateDto, user.Id);
-                var createdPhotoDto = await _photoService.GetPhotoByIdAsync(photoId);
+            await _itemService.UpdateItemAsync(itemDto, user.Id);
+            return this.ApiOk("Item updated successfully");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return this.ApiNotFound(ex.Message);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return this.ApiForbidden("You are not authorized to update this item.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating item. ItemId: {ItemId}, DTO: {@ItemDto}", id, itemDto);
+            return this.ApiInternalError("Error updating item", ex);
+        }
+    }
 
-                if (createdPhotoDto == null)
-                {
-                    _logger.LogError("Could not retrieve photo info (ID: {PhotoId}) after upload for item {ItemId}", photoId, id);
-                    return this.ApiInternalError("Error retrieving uploaded photo information.");
-                }
+    // DELETE: api/items/{id:int}
+    [HttpDelete("{id:int}")]
+    [Authorize(Policy = "ApiAuthPolicy")]
+    public async Task<IActionResult> DeleteItem(int id)
+    {
+        if (id <= 0) return this.ApiBadRequest("Invalid item ID.");
 
-                return this.ApiOk(createdPhotoDto, "Photo uploaded successfully");
-            }
-            catch (UnauthorizedAccessException)
-            {
+        try
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return this.ApiUnauthorized("Unable to identify user.");
+
+            await _itemService.DeleteItemAsync(id, user.Id);
+            return this.ApiOk("Item deleted successfully");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return this.ApiNotFound(ex.Message);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return this.ApiForbidden("You are not authorized to delete this item.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting item. ItemId: {ItemId}", id);
+            return this.ApiInternalError("Error deleting item", ex);
+        }
+    }
+
+// In ItemApiController.cs - update the UploadPhoto method
+    [HttpPost("{id:int}/photos")]
+    [Authorize(Policy = "ApiAuthPolicy")]
+    public async Task<IActionResult> UploadPhoto(int id, IFormFile photo)
+    {
+        if (id <= 0)
+            return this.ApiBadRequest("Invalid item ID.");
+        if (photo == null)
+            return this.ApiBadRequest("No photo file was uploaded.");
+
+        // Use the new validation help
+        if (!await FileValidationHelper.IsValidImageFileAsync(photo))
+            return this.ApiBadRequest(
+                "Invalid file type or size. Only JPG, PNG, and WEBP files under 5MB are accepted.");
+
+        try
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return this.ApiUnauthorized("Unable to identify user.");
+
+            if (!await _itemService.IsItemOwnerAsync(id, user.Id))
                 return this.ApiForbidden("You are not authorized to upload photos for this item.");
-            }
-            catch (KeyNotFoundException ex)
+
+            string photoPath;
+            using (var stream = photo.OpenReadStream())
             {
-                return this.ApiNotFound(ex.Message);
+                photoPath = await _photoService.UploadPhotoAsync(stream, photo.FileName, photo.ContentType);
             }
-            catch (Exception ex)
+
+            var photoCreateDto = new PhotoCreateDto
             {
-                _logger.LogError(ex, "Error uploading photo for item. ItemId: {ItemId}", id);
-                return this.ApiInternalError("Error uploading photo", ex);
+                Path = photoPath,
+                FileName = Path.GetFileName(photo.FileName),
+                FileSize = photo.Length,
+                ItemId = id
+            };
+
+            var photoId = await _photoService.AddPhotoAsync(photoCreateDto, user.Id);
+            var createdPhotoDto = await _photoService.GetPhotoByIdAsync(photoId);
+
+            if (createdPhotoDto == null)
+            {
+                _logger.LogError("Could not retrieve photo info (ID: {PhotoId}) after upload for item {ItemId}",
+                    photoId, id);
+                return this.ApiInternalError("Error retrieving uploaded photo information.");
             }
+
+            return this.ApiOk(createdPhotoDto, "Photo uploaded successfully");
         }
-
-        // DELETE: api/items/{itemId:int}/photos/{photoId:int}
-        [HttpDelete("{itemId:int}/photos/{photoId:int}")]
-        [Authorize(Policy = "ApiAuthPolicy")]
-        public async Task<IActionResult> DeletePhoto(int itemId, int photoId)
+        catch (UnauthorizedAccessException)
         {
-            if (itemId <= 0 || photoId <= 0)
-            {
-                return this.ApiBadRequest("Invalid item or photo ID.");
-            }
+            return this.ApiForbidden("You are not authorized to upload photos for this item.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return this.ApiNotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading photo for item. ItemId: {ItemId}", id);
+            return this.ApiInternalError("Error uploading photo", ex);
+        }
+    }
 
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
+    // DELETE: api/items/{itemId:int}/photos/{photoId:int}
+    [HttpDelete("{itemId:int}/photos/{photoId:int}")]
+    [Authorize(Policy = "ApiAuthPolicy")]
+    public async Task<IActionResult> DeletePhoto(int itemId, int photoId)
+    {
+        if (itemId <= 0 || photoId <= 0) return this.ApiBadRequest("Invalid item or photo ID.");
 
-                if (user == null)
-                {
-                    return this.ApiUnauthorized("Unable to identify user.");
-                }
+        try
+        {
+            var user = await _userManager.GetUserAsync(User);
 
-                if (!await _itemService.IsItemOwnerAsync(itemId, user.Id))
-                {
-                    return this.ApiForbidden("You are not authorized to delete photos for this item.");
-                }
+            if (user == null) return this.ApiUnauthorized("Unable to identify user.");
 
-                await _photoService.DeletePhotoAsync(photoId, user.Id);
-                return this.ApiOk("Photo deleted successfully");
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return this.ApiNotFound(ex.Message);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return this.ApiForbidden("You are not authorized to delete this photo.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting photo. PhotoId: {PhotoId}, ItemId: {ItemId}", photoId, itemId);
-                return this.ApiInternalError("Error deleting photo", ex);
-            }
+            if (!await _itemService.IsItemOwnerAsync(itemId, user.Id))
+                return this.ApiForbidden("You are not authorized to delete photos for this item.");
+
+            await _photoService.DeletePhotoAsync(photoId, user.Id);
+            return this.ApiOk("Photo deleted successfully");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return this.ApiNotFound(ex.Message);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return this.ApiForbidden("You are not authorized to delete this photo.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting photo. PhotoId: {PhotoId}, ItemId: {ItemId}", photoId, itemId);
+            return this.ApiInternalError("Error deleting photo", ex);
         }
     }
 }
