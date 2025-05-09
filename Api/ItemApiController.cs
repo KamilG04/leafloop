@@ -1,5 +1,3 @@
-// Api/ItemApiController.cs
-
 using System.Security.Claims;
 using LeafLoop.Models;
 using LeafLoop.Services.DTOs;
@@ -8,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using LeafLoop.Middleware;
+
 
 namespace LeafLoop.Api;
 
@@ -32,7 +31,6 @@ public class ItemsController : ControllerBase
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    // GET: api/items
     [HttpGet]
     public async Task<IActionResult> GetItems([FromQuery] ItemSearchDto searchDto)
     {
@@ -40,7 +38,6 @@ public class ItemsController : ControllerBase
         {
             searchDto.Page ??= 1;
             searchDto.PageSize ??= 8;
-
 
             if (searchDto.Page <= 0) searchDto.Page = 1;
             if (searchDto.PageSize <= 0 || searchDto.PageSize > 100) searchDto.PageSize = 8;
@@ -58,7 +55,6 @@ public class ItemsController : ControllerBase
         }
     }
 
-    // GET: api/items/{id:int}
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetItem(int id)
     {
@@ -79,7 +75,6 @@ public class ItemsController : ControllerBase
         }
     }
 
-    // GET: api/items/my
     [HttpGet("my")]
     [Authorize(Policy = "ApiAuthPolicy")]
     public async Task<IActionResult> GetCurrentUserItems()
@@ -101,7 +96,6 @@ public class ItemsController : ControllerBase
         }
     }
 
-    // POST: api/items
     [HttpPost]
     [Authorize(Policy = "ApiAuthPolicy")]
     public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto itemDto)
@@ -137,7 +131,6 @@ public class ItemsController : ControllerBase
         }
     }
 
-    // PUT: api/items/{id:int}
     [HttpPut("{id:int}")]
     [Authorize(Policy = "ApiAuthPolicy")]
     public async Task<IActionResult> UpdateItem(int id, [FromBody] ItemUpdateDto itemDto)
@@ -170,7 +163,6 @@ public class ItemsController : ControllerBase
         }
     }
 
-    // DELETE: api/items/{id:int}
     [HttpDelete("{id:int}")]
     [Authorize(Policy = "ApiAuthPolicy")]
     public async Task<IActionResult> DeleteItem(int id)
@@ -201,7 +193,6 @@ public class ItemsController : ControllerBase
         }
     }
 
-// In ItemApiController.cs - update the UploadPhoto method
     [HttpPost("{id:int}/photos")]
     [Authorize(Policy = "ApiAuthPolicy")]
     public async Task<IActionResult> UploadPhoto(int id, IFormFile photo)
@@ -211,7 +202,6 @@ public class ItemsController : ControllerBase
         if (photo == null)
             return this.ApiBadRequest("No photo file was uploaded.");
 
-        // Use the new validation help
         if (!await FileValidationHelper.IsValidImageFileAsync(photo))
             return this.ApiBadRequest(
                 "Invalid file type or size. Only JPG, PNG, and WEBP files under 5MB are accepted.");
@@ -266,7 +256,6 @@ public class ItemsController : ControllerBase
         }
     }
 
-    // DELETE: api/items/{itemId:int}/photos/{photoId:int}
     [HttpDelete("{itemId:int}/photos/{photoId:int}")]
     [Authorize(Policy = "ApiAuthPolicy")]
     public async Task<IActionResult> DeletePhoto(int itemId, int photoId)

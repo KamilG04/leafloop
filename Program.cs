@@ -12,19 +12,15 @@ using LeafLoop.Services.Interfaces;
 using LeafLoop.Services.Mappings;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using NWebsec.AspNetCore.Middleware;
-using System.Linq;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Hosting;
-using System.Text.Json.Serialization;
+using Microsoft.IdentityModel.Logging;
+
+IdentityModelEventSource.ShowPII = true;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -75,28 +71,27 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // --- Authentication & Authorization Configuration ---
 
 // 1. Configure Identity
-builder.Services.AddIdentity<User, IdentityRole<int>>(options => {
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireLowercase = true;
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedAccount = false;
-})
-.AddEntityFrameworkStores<LeafLoopDbContext>()
-.AddDefaultTokenProviders()
-.AddRoleManager<RoleManager<IdentityRole<int>>>(); // <- Dodaj to
+builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+    {
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.User.RequireUniqueEmail = true;
+        options.SignIn.RequireConfirmedAccount = false;
+    })
+    .AddEntityFrameworkStores<LeafLoopDbContext>()
+    .AddDefaultTokenProviders()
+    .AddRoleManager<RoleManager<IdentityRole<int>>>();
 
-// 2. Configure Authentication Schemes (Cookie for MVC, JWT for API)
+// (identity dla MVC, JWT dla API)
 builder.Services.AddAuthentication(options =>
     {
-        // For web pages - use cookie auth by default
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
         options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
-        // DO NOT set DefaultAuthenticateScheme here
     })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
@@ -109,60 +104,103 @@ builder.Services.AddAuthentication(options =>
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+                Encoding.UTF8.GetBytes(
+                    builder.Configuration["JwtSettings:Key"])) // Klucz teraz jest odczytany z User Secrets/Key Vault
         };
-    
-        // Add token extraction from cookies
+
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                // Check Authorization header first
+                var tokenSource = "None";
                 var authHeader = context.Request.Headers["Authorization"].ToString();
+
                 if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
                 {
                     context.Token = authHeader.Substring("Bearer ".Length).Trim();
-                    return Task.CompletedTask;
+                    tokenSource = "Authorization Header";
                 }
-
-                // If no Authorization header, check cookies
-                var token = context.Request.Cookies["jwt_token"];
-                if (!string.IsNullOrEmpty(token))
+                else
                 {
-                    context.Token = token;
+                    // Logika fallback dla ciasteczek - najpierw planowane 'auth_token', potem 'jwt_token' (które widać w logach klienta)
+                    var plannedCookieToken = context.Request.Cookies["auth_token"];
+                    if (!string.IsNullOrEmpty(plannedCookieToken))
+                    {
+                        context.Token = plannedCookieToken;
+                        tokenSource = "'auth_token' Cookie (zgodnie z planem naprawczym)";
+                    }
+                    else
+                    {
+                        var legacyCookieToken =
+                            context.Request.Cookies["jwt_token"]; // To ciasteczko widać w Twoich logach JS
+                        if (!string.IsNullOrEmpty(legacyCookieToken))
+                        {
+                            context.Token = legacyCookieToken;
+                            tokenSource = "'jwt_token' Cookie (istniejące, nie-HttpOnly)";
+                        }
+                    }
                 }
 
+                // Loguj skąd pochodzi token i czy został znaleziony
+                Console.WriteLine(
+                    $"SERVER (OnMessageReceived): Token dostarczony przez: {tokenSource}. Wartość tokenu: {(string.IsNullOrEmpty(context.Token) ? "BRAK" : "[OBECNY]")}");
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context => // << --- TO JEST NAJWAŻNIEJSZY ELEMENT DO DODANIA/SPRAWDZENIA
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("--------------------------------------------------------------------------");
+                Console.WriteLine("SERVER: UWIERZYTELNIANIE JWT NIE POWIODŁO SIĘ (OnAuthenticationFailed):");
+                Console.WriteLine($"Typ Wyjątku: {context.Exception?.GetType().FullName}");
+                Console.WriteLine($"Wiadomość Wyjątku: {context.Exception?.Message}");
+                Console.WriteLine("Pełny Stack Trace Wyjątku:");
+                Console.WriteLine(context.Exception?.ToString());
+                Console.WriteLine("--------------------------------------------------------------------------");
+                Console.ResetColor();
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("SERVER: TOKEN JWT POPRAWNIE ZWALIDOWANY dla użytkownika: " +
+                                  context.Principal?.Identity?.Name);
+                Console.ResetColor();
+                // Tu w przyszłości będzie logika blacklisty (FIXME BLACKLISTY)
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("SERVER: WYZWANIE JWT (OnChallenge) triggered.");
+                Console.WriteLine(
+                    $"Błąd: {context.Error}, Opis: {context.ErrorDescription}, Błąd Uwierzytelnienia: {context.AuthenticateFailure?.Message}");
+                Console.ResetColor();
+                // Na razie nie modyfikuj domyślnej odpowiedzi, aby zobaczyć, co się dzieje.
+                // context.HandleResponse(); // Odkomentuj, jeśli chcesz, aby JWT sam obsługiwał 401 bez fallbacku do cookies.
                 return Task.CompletedTask;
             }
         };
     });
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    // Twoje standardowe ścieżki dla MVC
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromDays(7); // Dopasuj do swoich potrzeb
+    options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.SlidingExpiration = true;
-    // Opcje bezpieczeństwa ciasteczek
-    options.Cookie.HttpOnly = true; // Ciasteczko sesji powinno być HttpOnly
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Wymagaj HTTPS
+
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax;
 
-    // --- WAŻNE: Podpięcie obsługi przekierowań dla API ---
     options.Events.OnRedirectToLogin = context =>
     {
-        // Używamy funkcji statycznej zdefiniowanej na dole Program.cs
-        // Przekazujemy odpowiedni status i komunikat
         return HandleApiRedirect(context, StatusCodes.Status401Unauthorized, "Authentication required.");
     };
 
     options.Events.OnRedirectToAccessDenied = context =>
     {
-        // Używamy funkcji statycznej zdefiniowanej na dole Program.cs
-        // Przekazujemy odpowiedni status i komunikat
         return HandleApiRedirect(context, StatusCodes.Status403Forbidden, "Access denied.");
     };
-    // --- KONIEC WAŻNEJ SEKCJI ---
 });
 
 // Then add this AUTHORIZATION policy after authentication setup
@@ -183,14 +221,16 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "LeafLoop API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
         Scheme = "Bearer"
-     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
             new OpenApiSecurityScheme
             {
@@ -199,11 +239,11 @@ builder.Services.AddSwaggerGen(c =>
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 },
-                Scheme = "oauth2", Name = "Bearer", In = ParameterLocation.Header,
+                Scheme = "oauth2", Name = "Bearer", In = ParameterLocation.Header
             },
             new List<string>()
         }
-     });
+    });
 });
 
 // Register application services
@@ -228,7 +268,7 @@ builder.Services.AddCors(options =>
         builder.AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader();
-        
+
         // OR Option 2: If you need to allow credentials (cookies, auth headers)
         // builder.WithOrigins("http://localhost:5185", "https://localhost:7181")
         //        .AllowAnyMethod()
@@ -245,11 +285,26 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LeafLoop API v1"));
+    builder.Configuration.AddUserSecrets<Program>(); // Assumes Program class is in the root namespace
 }
 else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+}
+
+//Kamil drogi Pawle wrzucajac to na azure bedziesz musiał skonfigurowac nasz jwt 
+if (builder.Environment.IsProduction())
+{
+    var keyVaultName = builder.Configuration["KeyVaultName"]; // env zminne albo appsettings
+    if (!string.IsNullOrEmpty(keyVaultName))
+    {
+        var keyVaultUri = $"https://{keyVaultName}.vault.azure.net/";
+        // Azure.Identity and Azure.Extensions.AspNetCore.Configuration.Secrets packages
+        // builder.Configuration.AddAzureKeyVault(
+        //     new Uri(keyVaultUri),
+        //     new DefaultAzureCredential()); // albo inaczej
+    }
 }
 
 app.UseEnhancedErrorHandling();
@@ -260,18 +315,18 @@ var provider = new FileExtensionContentTypeProvider();
 if (!provider.Mappings.ContainsKey(".css")) provider.Mappings.Add(".css", "text/css");
 if (!provider.Mappings.ContainsKey(".webp")) provider.Mappings.Add(".webp", "image/webp");
 if (!provider.Mappings.ContainsKey(".woff2")) provider.Mappings.Add(".woff2", "font/woff2");
-app.UseStaticFiles(new StaticFileOptions {
+app.UseStaticFiles(new StaticFileOptions
+{
     ContentTypeProvider = provider,
-    OnPrepareResponse = ctx => {
+    OnPrepareResponse = ctx =>
+    {
         var maxAge = TimeSpan.FromDays(7);
         if (ctx.File.Name.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ||
             ctx.File.Name.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
-        {
             maxAge = TimeSpan.FromHours(1);
-        }
         ctx.Context.Response.Headers.Append("Cache-Control", $"public, max-age={maxAge.TotalSeconds}");
         ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
-     }
+    }
 });
 
 // Security middleware NWebsec
@@ -305,8 +360,8 @@ app.UseAuthorization();
 // Mapowanie endpointów
 app.MapControllers();
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    "default",
+    "{controller=Home}/{action=Index}/{id?}");
 
 // Seed data
 using (var scope = app.Services.CreateScope())
@@ -314,20 +369,17 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-    
+
     string[] roleNames = { "Admin", "User", "Moderator" };
     foreach (var roleName in roleNames)
-    {
         if (!await roleManager.RoleExistsAsync(roleName))
-        {
             await roleManager.CreateAsync(new IdentityRole<int>(roleName));
-        }
-    }
+
     try
     {
         // Initialize roles
         await RoleInitializationService.InitializeRoles(services);
-        
+
         // Seed admin user
         var configuration = services.GetRequiredService<IConfiguration>();
         await AdminUserSeeder.SeedAdminUser(services, configuration);
@@ -336,7 +388,7 @@ using (var scope = app.Services.CreateScope())
     {
         logger.LogError(ex, "An error occurred while seeding the database.");
     }
-    
+
     try
     {
         var unitOfWork = services.GetRequiredService<IUnitOfWork>();
@@ -346,11 +398,17 @@ using (var scope = app.Services.CreateScope())
         if (!await unitOfWork.Categories.ExistsAsync(c => true))
         {
             logger.LogInformation("Seeding initial categories...");
-            await unitOfWork.Categories.AddAsync(new Category { Name = "Elektronika", Description = "Urządzenia elektroniczne", IconPath = "/img/categories/electronics.png" });
-            await unitOfWork.Categories.AddAsync(new Category { Name = "Ubrania", Description = "Odzież i dodatki", IconPath = "/img/categories/clothes.png" });
+            await unitOfWork.Categories.AddAsync(new Category
+            {
+                Name = "Elektronika", Description = "Urządzenia elektroniczne",
+                IconPath = "/img/categories/electronics.png"
+            });
+            await unitOfWork.Categories.AddAsync(new Category
+                { Name = "Ubrania", Description = "Odzież i dodatki", IconPath = "/img/categories/clothes.png" });
             await unitOfWork.CompleteAsync();
             logger.LogInformation("Initial categories seeded.");
         }
+
         // W sekcji seed data w Program.cs
         var adminEmail = "admin@leafloop.pl";
         if (await userManager.FindByEmailAsync(adminEmail) == null)
@@ -367,15 +425,16 @@ using (var scope = app.Services.CreateScope())
                 EcoScore = 100,
                 EmailConfirmed = true
             };
-    
+
             var result = await userManager.CreateAsync(adminUser, "Admin123!");
-    
+
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(adminUser, "Admin");
                 logger.LogInformation("Admin user created and assigned Admin role.");
             }
         }
+
         // Sprawdź i dodaj użytkownika testowego
         var testUserEmail = "test@example.com";
         if (await userManager.FindByEmailAsync(testUserEmail) == null)
@@ -389,7 +448,9 @@ using (var scope = app.Services.CreateScope())
             };
             var result = await userManager.CreateAsync(testUser, "Password123!");
             if (result.Succeeded) logger.LogInformation("Test user seeded successfully.");
-            else logger.LogError("Failed to seed test user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+            else
+                logger.LogError("Failed to seed test user: {Errors}",
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
         }
     }
     catch (Exception ex)
@@ -397,6 +458,7 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "An error occurred during database seeding.");
     }
 }
+
 app.Run();
 
 // --- Funkcja pomocnicza do obsługi przekierowań dla API ---
@@ -408,7 +470,11 @@ static Task HandleApiRedirect(RedirectContext<CookieAuthenticationOptions> conte
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
         var response = ApiResponse.ErrorResponse(message);
-        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+        var jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
 
         // === ZMIANA: Zamiast HandleResponse(), po prostu piszemy do odpowiedzi ===
         // Zapisz odpowiedź JSON
