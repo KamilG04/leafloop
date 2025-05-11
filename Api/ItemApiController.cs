@@ -288,4 +288,6 @@ public class ItemsController : ControllerBase
             return this.ApiInternalError("Error deleting photo", ex);
         }
     }
+    
+    
 }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "aaXLv8dESHk=",
+  "dgSpecHash": "7bVn/UppNEY=",
   "success": true,
-  "projectFilePath": "/Users/kamilglowacki/Downloads/LeafLoop-1/LeafLoop.csproj",
+  "projectFilePath": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/LeafLoop.csproj",
   "expectedPackageFiles": [
     "/Users/kamilglowacki/.nuget/packages/automapper/12.0.1/automapper.12.0.1.nupkg.sha512",
     "/Users/kamilglowacki/.nuget/packages/automapper.extensions.microsoft.dependencyinjection/12.0.1/automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/kamilglowacki/Downloads/LeafLoop-1/LeafLoop.csproj": {}
+    "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/LeafLoop.csproj": {}
   },
   "projects": {
-    "/Users/kamilglowacki/Downloads/LeafLoop-1/LeafLoop.csproj": {
+    "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/LeafLoop.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/kamilglowacki/Downloads/LeafLoop-1/LeafLoop.csproj",
+        "projectUniqueName": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/LeafLoop.csproj",
         "projectName": "LeafLoop",
-        "projectPath": "/Users/kamilglowacki/Downloads/LeafLoop-1/LeafLoop.csproj",
+        "projectPath": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/LeafLoop.csproj",
         "packagesPath": "/Users/kamilglowacki/.nuget/packages/",
-        "outputPath": "/Users/kamilglowacki/Downloads/LeafLoop-1/obj/",
+        "outputPath": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/kamilglowacki/.nuget/NuGet/NuGet.Config"

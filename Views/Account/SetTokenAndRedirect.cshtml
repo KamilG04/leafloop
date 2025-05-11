@@ -1,30 +1,59 @@
 @{
     Layout = null;
+    // Odczytaj token i returnUrl z TempData
     var token = TempData["JwtToken"] as string;
-    var returnUrl = TempData["ReturnUrl"] as string ?? "/";
+    var returnUrl = TempData["ReturnUrl"] as string ?? "/"; // Domyślnie przekieruj na stronę główną
 }
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Logging in...</title>
+    <meta charset="utf-8" />
+    <title>Logowanie...</title>
+    <script>
+        // Ten skrypt wykona się natychmiast po załadowaniu strony.
+        (function() {
+            try {
+                // Bezpieczne przekazanie tokenu z C# do JavaScript.
+                const tokenFromCs = @Html.Raw(Json.Serialize(token));
+                const returnUrlFromCs = @Html.Raw(Json.Serialize(returnUrl));
+
+                // KROK 1: Zawsze usuń stary token z localStorage, aby zapewnić czysty stan.
+                localStorage.removeItem('jwt_token');
+                console.log('SetTokenAndRedirect.cshtml: Usunięto istniejący jwt_token z localStorage (jeśli istniał).');
+
+                // KROK 2: Jeśli nowy token jest prawidłowy, zapisz go.
+                if (tokenFromCs && typeof tokenFromCs === 'string' && tokenFromCs.trim() !== "") {
+                    localStorage.setItem('jwt_token', tokenFromCs);
+                    console.log('SetTokenAndRedirect.cshtml: Nowy token JWT został pomyślnie zapisany w localStorage:', tokenFromCs);
+                } else {
+                    // Jeśli token z TempData jest pusty lub null, localStorage pozostanie wyczyszczone (z kroku 1).
+                    console.warn('SetTokenAndRedirect.cshtml: Nie znaleziono tokenu w TempData lub token jest pusty. localStorage NIE zostało zaktualizowane nowym tokenem (pozostaje puste lub wyczyszczone).');
+                }
+
+                // KROK 3: Przekieruj na docelowy URL.
+                if (returnUrlFromCs) {
+                    console.log('SetTokenAndRedirect.cshtml: Przekierowywanie na:', returnUrlFromCs);
+                    window.location.href = returnUrlFromCs;
+                } else {
+                    console.warn('SetTokenAndRedirect.cshtml: Brak returnUrl. Przekierowywanie na stronę główną "/".');
+                    window.location.href = '/'; // Domyślne przekierowanie
+                }
+
+            } catch (e) {
+                console.error('SetTokenAndRedirect.cshtml: Wystąpił błąd podczas zapisywania tokenu lub przekierowania:', e);
+                // W przypadku błędu w skrypcie, spróbuj przekierować na domyślny URL.
+                const fallbackReturnUrl = '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(returnUrl))';
+                console.log('SetTokenAndRedirect.cshtml: Próba przekierowania awaryjnego na:', fallbackReturnUrl || '/');
+                window.location.href = fallbackReturnUrl || '/';
+            }
+        })();
+    </script>
 </head>
 <body>
-<script>
-    // Store token in localStorage
-    try {
-        localStorage.setItem('jwt_token', '@token');
-        console.log('Token saved to localStorage');
-    } catch (e) {
-        console.error('Failed to save token to localStorage:', e);
-    }
-
-    // Redirect to the return URL
-    window.location.href = '@returnUrl';
-</script>
-
-<!-- Fallback for browsers with JavaScript disabled -->
-<noscript>
-    <meta http-equiv="refresh" content="0;url=@returnUrl">
-</noscript>
+    <p>Trwa logowanie, proszę czekać...</p>
+    <noscript>
+        <p>JavaScript jest wyłączony. Proszę włączyć JavaScript, aby kontynuować.</p>
+        <meta http-equiv="refresh" content="0;url=@Html.Raw(returnUrl)">
+    </noscript>
 </body>
 </html>

@@ -8,11 +8,9 @@ using LeafLoop.Services.DTOs; // Upewnij się, że using jest poprawny dla DTO
 using System.Collections.Generic;
 using LeafLoop.ViewModels.Profile; // Potrzebne dla List<> itp.
 
-// Jeśli używasz DTO z podfolderów, dodaj odpowiednie usingi:
-// using LeafLoop.Services.DTOs.Auth;
-// using LeafLoop.Services.DTOs.Preferences;
 
-namespace LeafLoop.Services.Mappings // Upewnij się, że namespace jest poprawny
+
+namespace LeafLoop.Services.Mappings 
 {
     public class MappingProfile : Profile
     {
@@ -125,10 +123,12 @@ namespace LeafLoop.Services.Mappings // Upewnij się, że namespace jest poprawn
                 .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.Seller != null ? $"{src.Seller.FirstName} {src.Seller.LastName}" : null))
                 .ForMember(dest => dest.BuyerName, opt => opt.MapFrom(src => src.Buyer != null ? $"{src.Buyer.FirstName} {src.Buyer.LastName}" : null))
                 .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.Item != null ? src.Item.Name : null))
-                // Poprawione mapowanie dla ItemPhotoPath
                 .ForMember(dest => dest.ItemPhotoPath, opt => opt.MapFrom(src =>
-                     formatImagePath(src.Item != null && src.Item.Photos != null && src.Item.Photos.Any() ? src.Item.Photos.OrderBy(p => p.Id).FirstOrDefault().Path : null) // Dodano ?.
-                 ));
+                    formatImagePath(src.Item != null && src.Item.Photos != null && src.Item.Photos.Any() ? src.Item.Photos.OrderBy(p => p.Id).FirstOrDefault().Path : null)))
+                .ForMember(dest => dest.BuyerConfirmed, opt => opt.MapFrom(src => src.BuyerConfirmed))
+                .ForMember(dest => dest.SellerConfirmed, opt => opt.MapFrom(src => src.SellerConfirmed));
+
+
 
             // TransactionWithDetailsDto dziedziczy z TransactionDto
              CreateMap<Transaction, TransactionWithDetailsDto>()
@@ -201,10 +201,7 @@ namespace LeafLoop.Services.Mappings // Upewnij się, że namespace jest poprawn
 
             CreateMap<Subscription, SubscriptionDto>(); // Dodaj mapowanie dla ContentName
             CreateMap<SubscriptionCreateDto, Subscription>();
-
-            // Dodaj mapowania dla DTO z Auth i Preferences, jeśli są potrzebne do mapowania encji
-             // np. CreateMap<UserPreferences, PreferencesData>();
-             //     CreateMap<PreferencesData, UserPreferences>();
+            
 
         }
     }

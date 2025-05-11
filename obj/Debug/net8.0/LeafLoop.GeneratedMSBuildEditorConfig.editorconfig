@@ -9,137 +9,137 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = LeafLoop
 build_property.RootNamespace = LeafLoop
-build_property.ProjectDir = /Users/kamilglowacki/Downloads/LeafLoop-1/
+build_property.ProjectDir = /Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = /Users/kamilglowacki/Downloads/LeafLoop-1
+build_property.MSBuildProjectDirectory = /Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Account/AccessDenied.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Account/AccessDenied.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9BY2Nlc3NEZW5pZWQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Account/Lockout.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Account/Lockout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2Nrb3V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Account/Login.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Account/Register.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9SZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Account/SetTokenAndRedirect.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Account/SetTokenAndRedirect.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9TZXRUb2tlbkFuZFJlZGlyZWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/AdminLogs.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Admin/AdminLogs.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vQWRtaW5Mb2dzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/Dashboard.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Admin/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vRGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/Index.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Admin/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/Items.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Admin/Items.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vSXRlbXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/UserDetails.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Admin/UserDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vVXNlckRldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Admin/Users.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Admin/Users.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vVXNlcnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Home/About.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Home/About.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9BYm91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Home/Contact.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Home/Contact.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Db250YWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Home/Index.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Home/Privacy.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Items/Create.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Items/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSXRlbXMvQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Items/Details.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Items/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSXRlbXMvRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Items/Edit.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Items/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSXRlbXMvRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Items/Index.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Items/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSXRlbXMvSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Items/MyItems.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Items/MyItems.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSXRlbXMvTXlJdGVtcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Profile/Edit.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Profile/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvZmlsZS9FZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Profile/Index.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Profile/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvZmlsZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Shared/Error.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Shared/_CookieConsentPartial.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Shared/_CookieConsentPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Db29raWVDb25zZW50UGFydGlhbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Shared/_LoginPartial.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Shared/_LoginPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Mb2dpblBhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Shared/_ValidationScriptsPartial.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Transactions/Details.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Transactions/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVHJhbnNhY3Rpb25zL0RldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Transactions/Index.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Transactions/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVHJhbnNhY3Rpb25zL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/_ViewImports.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/_ViewStart.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/kamilglowacki/Downloads/LeafLoop-1/Views/Shared/_Layout.cshtml]
+[/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-ckdpbzrrkn
