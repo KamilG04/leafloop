@@ -437,6 +437,13 @@
             <response code="500">If an internal server error occurs.</response>
         </member>
         <member name="M:LeafLoop.Api.ItemsController.UpdateItem(System.Int32,LeafLoop.Services.DTOs.ItemUpdateDto)">
+            <summary>
+            Updates an existing item. Requires authentication and user must be the owner.
+            </summary>
+            <param name="id">The ID of the item to update.</param>
+            <param name="itemDto">The updated item data.</param>
+            <returns>A 200 OK response with a success message, or 204 No Content if preferred.</returns>
+            <response code="200">Item updated successfully (returns a message).</response>
             <response code="400">If the item data is invalid or ID mismatch.</response>
             <response code="401">If the user is not authenticated.</response>
             <response code="403">If the user is not authorized to update this item.</response>
@@ -444,6 +451,12 @@
             <response code="500">If an internal server error occurs.</response>
         </member>
         <member name="M:LeafLoop.Api.ItemsController.DeleteItem(System.Int32)">
+            <summary>
+            Deletes an item. Requires authentication and user must be the owner.
+            </summary>
+            <param name="id">The ID of the item to delete.</param>
+            <returns>A 200 OK response with a success message, or 204 No Content if preferred.</returns>
+            <response code="200">Item deleted successfully (returns a message).</response>
             <response code="400">If the item ID is invalid.</response>
             <response code="401">If the user is not authenticated.</response>
             <response code="403">If the user is not authorized to delete this item.</response>
@@ -465,6 +478,13 @@
             <response code="500">If an internal server error occurs.</response>
         </member>
         <member name="M:LeafLoop.Api.ItemsController.DeletePhoto(System.Int32,System.Int32)">
+            <summary>
+            Deletes a photo associated with an item. Requires authentication and user must be the owner of the item.
+            </summary>
+            <param name="itemId">The ID of the item the photo belongs to.</param>
+            <param name="photoId">The ID of the photo to delete.</param>
+            <returns>A 200 OK response with a success message, or 204 No Content if preferred.</returns>
+            <response code="200">Photo deleted successfully (returns a message).</response>
             <response code="400">If item or photo ID is invalid.</response>
             <response code="401">If the user is not authenticated.</response>
             <response code="403">If the user is not authorized to delete this photo.</response>

@@ -1,5 +1,3 @@
-// Create new file: Utilities/FileValidationHelper.cs
-
 
 namespace LeafLoop.Middleware
 {

@@ -1,4 +1,4 @@
-// Pełna ścieżka: Data/LeafLoopDbContext.cs (KOMPLETNY I POPRAWIONY)
+
 
 using LeafLoop.Models;
 using LeafLoop.Services.DTOs; // Potrzebne dla modelBuilder.Ignore<PreferencesData>()
@@ -8,9 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LeafLoop.Data
 {
-    // Jeśli używasz Identity, dziedziczenie z IdentityDbContext<User, IdentityRole<int>, int> jest często wygodniejsze
-    // public class LeafLoopDbContext : IdentityDbContext<User, IdentityRole<int>, int>
-    // Jeśli nie, pozostaw dziedziczenie z DbContext i konfiguruj tabele Identity ręcznie (jak masz teraz)
     public class LeafLoopDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public LeafLoopDbContext(DbContextOptions<LeafLoopDbContext> options)
@@ -51,8 +48,7 @@ namespace LeafLoop.Data
         // --- Konfiguracja Modelu ---
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // WAŻNE: Jeśli *nie* dziedziczysz z IdentityDbContext, musisz wywołać base.OnModelCreating()
-            // aby skonfigurować klucze i relacje IdentityUser. Jeśli dziedziczysz, jest to robione automatycznie.
+            
              base.OnModelCreating(modelBuilder);
    
             // Ignoruj DTO, jeśli przypadkiem zostało dodane do modelu
@@ -78,7 +74,7 @@ namespace LeafLoop.Data
 
             // --- Konfiguracje Relacji (wybrane, ważne lub wymagające uwagi) ---
 
-            // User <-> Address (Opcjonalna relacja 1-do-wielu)
+            // User <-> Address relacja 1-do-wielu
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Address)
                 .WithMany(a => a.Users) // Zakładając, że Address ma ICollection<User> Users
@@ -206,7 +202,7 @@ namespace LeafLoop.Data
                  .HasForeignKey(p => p.ItemId)
                  .OnDelete(DeleteBehavior.Cascade); // Usuń zdjęcia, jeśli usunięto przedmiot
 
-            // Konfiguracja tabel Identity (jeśli nie dziedziczysz z IdentityDbContext)
+            
             // Te linie mogą być zbędne, jeśli base.OnModelCreating() je konfiguruje.
             // Sprawdź, czy nie powodują konfliktów.
             modelBuilder.Entity<User>().ToTable("Users");
@@ -217,7 +213,7 @@ namespace LeafLoop.Data
             modelBuilder.Entity<IdentityUserRole<int>>().HasKey(r => new { r.UserId, r.RoleId });
             modelBuilder.Entity<IdentityUserToken<int>>().HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
 
-            // TODO: Dodaj inne potrzebne konfiguracje (indeksy, ograniczenia unikalności itp.)
+            // TODO: Dodać inne potrzebne konfiguracje (indeksy, ograniczenia unikalności itp.) I Te JEBANE NULLABLE
         }
     }
 }
