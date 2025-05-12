@@ -2070,6 +2070,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\b9990ab9-b7db-4b58-a3eb-62e34500fe32_Zrzut ekranu 2024-11-4 o 17.05.03.png'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\ddbe3b7c-c187-47a9-8ad6-cd0f16adcc87.png'))">
+      <SourceType>Package</SourceType>
+      <SourceId>LeafLoop</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/LeafLoop</BasePath>
+      <RelativePath>uploads/items/ddbe3b7c-c187-47a9-8ad6-cd0f16adcc87.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>cr2279pisa</Fingerprint>
+      <Integrity>iErOoCiCm0rQE4MMn7MisDcQjXHp/7O83lV4obA6So0=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\ddbe3b7c-c187-47a9-8ad6-cd0f16adcc87.png'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\items\de4a3c46-edab-4403-b127-d6b343c54043_Zrzut ekranu 2025-04-30 o 12.03.47.png'))">
       <SourceType>Package</SourceType>
       <SourceId>LeafLoop</SourceId>

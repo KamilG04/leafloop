@@ -1,26 +1,30 @@
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LeafLoop.Data;
 using LeafLoop.Middleware;
 using LeafLoop.Models;
-using LeafLoop.Models.API;
+using LeafLoop.Models.API; // For ApiResponse used in HandleApiRedirect
 using LeafLoop.Repositories;
 using LeafLoop.Repositories.Interfaces;
 using LeafLoop.Services;
 using LeafLoop.Services.Interfaces;
-using LeafLoop.Services.Mappings;
+using LeafLoop.Services.Mappings; // For AutoMapper MappingProfile
+using Microsoft.AspNetCore.Authentication; 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore; // For DbContext and EF Core extension methods
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.IdentityModel.Logging;
 
+// FIXME: IdentityModelEventSource.ShowPII should only be true in Development for security reasons.
+// Consider using: IdentityModelEventSource.ShowPII = builder.Environment.IsDevelopment();
 IdentityModelEventSource.ShowPII = true;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -38,7 +42,8 @@ builder.Services.AddDbContext<LeafLoopDbContext>(options =>
 
 // Register Unit of Work and Repositories
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); // Generic repository
+// Specific repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -58,10 +63,8 @@ builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<ISavedSearchRepository, SavedSearchRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-// Add these lines to your Program.cs file:
-builder.Services.AddScoped<IAdminRepository, AdminRepository>();
-builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+
 // Add memory cache
 builder.Services.AddMemoryCache();
 
@@ -69,25 +72,25 @@ builder.Services.AddMemoryCache();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // --- Authentication & Authorization Configuration ---
-
 // 1. Configure Identity
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     {
         options.Password.RequireDigit = true;
         options.Password.RequiredLength = 8;
-        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireNonAlphanumeric = false; // TODO: Consider enabling for stronger passwords.
         options.Password.RequireUppercase = true;
         options.Password.RequireLowercase = true;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.User.RequireUniqueEmail = true;
+        // TODO: Set SignIn.RequireConfirmedAccount to true once email confirmation flow is fully implemented and tested.
         options.SignIn.RequireConfirmedAccount = false;
     })
     .AddEntityFrameworkStores<LeafLoopDbContext>()
     .AddDefaultTokenProviders()
     .AddRoleManager<RoleManager<IdentityRole<int>>>();
 
-// (identity dla MVC, JWT dla API)
+// 2. Configure combined authentication (Identity for MVC, JWT for API)
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
@@ -105,7 +108,7 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
-                    builder.Configuration["JwtSettings:Key"])) // Klucz teraz jest odczytany z User Secrets/Key Vault
+                    builder.Configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.")))
         };
 
         options.Events = new JwtBearerEvents
@@ -115,45 +118,44 @@ builder.Services.AddAuthentication(options =>
                 var tokenSource = "None";
                 var authHeader = context.Request.Headers["Authorization"].ToString();
 
-                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
                 {
                     context.Token = authHeader.Substring("Bearer ".Length).Trim();
                     tokenSource = "Authorization Header";
                 }
                 else
                 {
-                    // Logika fallback dla ciasteczek - najpierw planowane 'auth_token', potem 'jwt_token' (które widać w logach klienta)
                     var plannedCookieToken = context.Request.Cookies["auth_token"];
                     if (!string.IsNullOrEmpty(plannedCookieToken))
                     {
                         context.Token = plannedCookieToken;
-                        tokenSource = "'auth_token' Cookie (zgodnie z planem naprawczym)";
+                        tokenSource = "'auth_token' Cookie (HttpOnly)";
                     }
                     else
                     {
-                        var legacyCookieToken =
-                            context.Request.Cookies["jwt_token"]; // To ciasteczko widać w Twoich logach JS
+                        // TODO: Evaluate if the legacy 'jwt_token' cookie is still needed or can be phased out.
+                        var legacyCookieToken = context.Request.Cookies["jwt_token"];
                         if (!string.IsNullOrEmpty(legacyCookieToken))
                         {
                             context.Token = legacyCookieToken;
-                            tokenSource = "'jwt_token' Cookie (istniejące, nie-HttpOnly)";
+                            tokenSource = "'jwt_token' Cookie (Non-HttpOnly, legacy)";
                         }
                     }
                 }
-
-                // Loguj skąd pochodzi token i czy został znaleziony
+                // FIXME: This console logging is too verbose for production. Use ILogger with appropriate log levels.
                 Console.WriteLine(
-                    $"SERVER (OnMessageReceived): Token dostarczony przez: {tokenSource}. Wartość tokenu: {(string.IsNullOrEmpty(context.Token) ? "BRAK" : "[OBECNY]")}");
+                    $"SERVER (OnMessageReceived): Token provided by: {tokenSource}. Token value: {(string.IsNullOrEmpty(context.Token) ? "NONE" : "[PRESENT]")}");
                 return Task.CompletedTask;
             },
-            OnAuthenticationFailed = context => // << --- TO JEST NAJWAŻNIEJSZY ELEMENT DO DODANIA/SPRAWDZENIA
+            OnAuthenticationFailed = context =>
             {
+                // FIXME: This console logging is too verbose for production. Use ILogger.
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("--------------------------------------------------------------------------");
-                Console.WriteLine("SERVER: UWIERZYTELNIANIE JWT NIE POWIODŁO SIĘ (OnAuthenticationFailed):");
-                Console.WriteLine($"Typ Wyjątku: {context.Exception?.GetType().FullName}");
-                Console.WriteLine($"Wiadomość Wyjątku: {context.Exception?.Message}");
-                Console.WriteLine("Pełny Stack Trace Wyjątku:");
+                Console.WriteLine("SERVER: JWT AUTHENTICATION FAILED (OnAuthenticationFailed):");
+                Console.WriteLine($"Exception Type: {context.Exception?.GetType().FullName}");
+                Console.WriteLine($"Exception Message: {context.Exception?.Message}");
+                Console.WriteLine("Full Exception Stack Trace:");
                 Console.WriteLine(context.Exception?.ToString());
                 Console.WriteLine("--------------------------------------------------------------------------");
                 Console.ResetColor();
@@ -161,26 +163,33 @@ builder.Services.AddAuthentication(options =>
             },
             OnTokenValidated = context =>
             {
+                // FIXME: This console logging is too verbose for production. Use ILogger.
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("SERVER: TOKEN JWT POPRAWNIE ZWALIDOWANY dla użytkownika: " +
+                Console.WriteLine("SERVER: JWT TOKEN SUCCESSFULLY VALIDATED for user: " +
                                   context.Principal?.Identity?.Name);
                 Console.ResetColor();
-                // Tu w przyszłości będzie logika blacklisty (FIXME BLACKLISTY)
+                // TODO: Implement token blacklist logic here if needed for immediate revocation.
                 return Task.CompletedTask;
             },
             OnChallenge = context =>
             {
+                // FIXME: This console logging is too verbose for production. Use ILogger.
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("SERVER: WYZWANIE JWT (OnChallenge) triggered.");
+                Console.WriteLine("SERVER: JWT CHALLENGE (OnChallenge) triggered.");
                 Console.WriteLine(
-                    $"Błąd: {context.Error}, Opis: {context.ErrorDescription}, Błąd Uwierzytelnienia: {context.AuthenticateFailure?.Message}");
+                    $"Error: {context.Error}, Description: {context.ErrorDescription}, Auth Failure: {context.AuthenticateFailure?.Message}");
                 Console.ResetColor();
-                // Na razie nie modyfikuj domyślnej odpowiedzi, aby zobaczyć, co się dzieje.
-                // context.HandleResponse(); // Odkomentuj, jeśli chcesz, aby JWT sam obsługiwał 401 bez fallbacku do cookies.
+                // If API routes should strictly return 401 for JWT issues without any fallback to cookie auth challenges:
+                // if (context.Request.Path.StartsWithSegments("/api"))
+                // {
+                //     context.HandleResponse(); // This prevents other handlers, ensuring JWT is the sole challenger for /api.
+                // }
                 return Task.CompletedTask;
             }
         };
     });
+
+// 3. Configure Application Cookie (for MVC/Identity UI)
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -189,33 +198,34 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Ensures cookie is sent only over HTTPS.
+    options.Cookie.SameSite = SameSiteMode.Lax; // Good balance for security and usability.
 
     options.Events.OnRedirectToLogin = context =>
     {
+        // This static method is defined at the end of this file.
         return HandleApiRedirect(context, StatusCodes.Status401Unauthorized, "Authentication required.");
     };
 
     options.Events.OnRedirectToAccessDenied = context =>
     {
+        // This static method is defined at the end of this file.
         return HandleApiRedirect(context, StatusCodes.Status403Forbidden, "Access denied.");
     };
 });
 
-// Then add this AUTHORIZATION policy after authentication setup
+// 4. Add Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
-    // Add a specific policy for API endpoints
     options.AddPolicy("ApiAuthPolicy", policy =>
     {
         policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
         policy.RequireAuthenticatedUser();
     });
+    // TODO: Define other role-based or claim-based policies as application requirements grow.
+    // Example: options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin").Combine(options.GetPolicy("ApiAuthPolicy")!));
 });
-
-// --- Koniec konfiguracji Authentication & Authorization ---
-
+// --- End of Authentication & Authorization Configuration ---
 
 // Add Swagger/OpenAPI support
 builder.Services.AddSwaggerGen(c =>
@@ -244,6 +254,20 @@ builder.Services.AddSwaggerGen(c =>
             new List<string>()
         }
     });
+
+    // Include XML comments for richer Swagger documentation.
+    // Ensure <GenerateDocumentationFile>true</GenerateDocumentationFile> is in the .csproj file.
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
+    else
+    {
+        // This warning helps during setup if the XML file is missing.
+        Console.WriteLine($"Warning: XML documentation file not found at '{xmlPath}'. Swagger UI descriptions might be incomplete.");
+    }
 });
 
 // Register application services
@@ -260,23 +284,26 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IUserPreferencesService, UserPreferencesService>();
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowAll", corsPolicyBuilder =>
     {
-        // Option 1: If you don't need credentials
-        builder.AllowAnyOrigin()
+        // FIXME: "AllowAll" is very permissive. For production, restrict to known origins.
+        // If credentials (cookies, auth headers) are needed, .AllowAnyOrigin() cannot be used with .AllowCredentials().
+        // Specific origins must be listed in that case.
+        corsPolicyBuilder.AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader();
 
-        // OR Option 2: If you need to allow credentials (cookies, auth headers)
-        // builder.WithOrigins("http://localhost:5185", "https://localhost:7181")
+        // Example for specific origins with credentials:
+        // corsPolicyBuilder.WithOrigins("http://localhost:5185", "https://psgej.com") // Replace with your actual client origins
         //        .AllowAnyMethod()
         //        .AllowAnyHeader()
         //        .AllowCredentials();
     });
 });
-// Build the app
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -285,206 +312,224 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LeafLoop API v1"));
-    builder.Configuration.AddUserSecrets<Program>(); // Assumes Program class is in the root namespace
 }
 else
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseExceptionHandler("/Home/Error"); // Standard MVC error handler page.
+    app.UseHsts(); // Adds Strict-Transport-Security header.
 }
 
-//Kamil drogi Pawle wrzucajac to na azure bedziesz musiał skonfigurowac nasz jwt 
+// TODO: Implement Azure Key Vault (or other secure secret management) for production.
+// The following is a placeholder. Ensure correct packages (Azure.Identity, Azure.Extensions.AspNetCore.Configuration.Secrets)
+// and authentication (e.g., Managed Identity) are set up.
 if (builder.Environment.IsProduction())
 {
-    var keyVaultName = builder.Configuration["KeyVaultName"]; // env zminne albo appsettings
+    var keyVaultName = builder.Configuration["KeyVaultName"];
     if (!string.IsNullOrEmpty(keyVaultName))
     {
-        var keyVaultUri = $"https://{keyVaultName}.vault.azure.net/";
-        // Azure.Identity and Azure.Extensions.AspNetCore.Configuration.Secrets packages
-        // builder.Configuration.AddAzureKeyVault(
-        //     new Uri(keyVaultUri),
-        //     new DefaultAzureCredential()); // albo inaczej
+        // var keyVaultUri = $"https://{keyVaultName}.vault.azure.net/";
+        // builder.Configuration.AddAzureKeyVault( new Uri(keyVaultUri), new DefaultAzureCredential());
     }
 }
 
-app.UseEnhancedErrorHandling();
-app.UseHttpsRedirection();
+app.UseMiddleware<EnhancedErrorHandlingMiddleware>(); // Custom global error handling.
+app.UseHttpsRedirection(); // Redirect HTTP to HTTPS.
 
-// Konfiguracja plików statycznych
-var provider = new FileExtensionContentTypeProvider();
-if (!provider.Mappings.ContainsKey(".css")) provider.Mappings.Add(".css", "text/css");
-if (!provider.Mappings.ContainsKey(".webp")) provider.Mappings.Add(".webp", "image/webp");
-if (!provider.Mappings.ContainsKey(".woff2")) provider.Mappings.Add(".woff2", "font/woff2");
+// Static files configuration
+var fileExtensionProvider = new FileExtensionContentTypeProvider();
+if (!fileExtensionProvider.Mappings.ContainsKey(".css")) fileExtensionProvider.Mappings.Add(".css", "text/css");
+if (!fileExtensionProvider.Mappings.ContainsKey(".webp")) fileExtensionProvider.Mappings.Add(".webp", "image/webp");
+if (!fileExtensionProvider.Mappings.ContainsKey(".woff2")) fileExtensionProvider.Mappings.Add(".woff2", "font/woff2");
 app.UseStaticFiles(new StaticFileOptions
 {
-    ContentTypeProvider = provider,
+    ContentTypeProvider = fileExtensionProvider,
     OnPrepareResponse = ctx =>
     {
-        var maxAge = TimeSpan.FromDays(7);
-        if (ctx.File.Name.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ||
-            ctx.File.Name.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
-            maxAge = TimeSpan.FromHours(1);
-        ctx.Context.Response.Headers.Append("Cache-Control", $"public, max-age={maxAge.TotalSeconds}");
-        ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        var defaultMaxAge = TimeSpan.FromDays(7); // Cache for 7 days for most static assets.
+        // Shorter cache for CSS/JS during development or if they change frequently.
+        // TODO: Review caching strategy for production vs. development for CSS/JS.
+        var specificMaxAge = (ctx.File.Name.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ||
+                              ctx.File.Name.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
+                           ? TimeSpan.FromHours(1)
+                           : defaultMaxAge;
+        ctx.Context.Response.Headers.Append("Cache-Control", $"public, max-age={specificMaxAge.TotalSeconds}");
+        ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff"); // Security header.
     }
 });
 
-// Security middleware NWebsec
-app.UseXContentTypeOptions();
-app.UseReferrerPolicy(options => options.NoReferrer());
-app.UseXXssProtection(options => options.EnabledWithBlockMode());
-app.UseXfo(options => options.Deny());
-app.UseCsp(options => options /* ... konfiguracja CSP ... */
+// Security Headers Middleware
+app.UseXContentTypeOptions(); // Prevents MIME-sniffing.
+app.UseReferrerPolicy(options => options.NoReferrer()); // Controls referrer information.
+app.UseXXssProtection(options => options.EnabledWithBlockMode()); // XSS protection (mostly for older browsers).
+app.UseXfo(options => options.Deny()); // Prevents clickjacking (X-Frame-Options).
+
+// Content Security Policy (CSP)
+// FIXME: CSP needs careful review. 'unsafe-inline' for scripts and styles should be avoided if possible by using nonces, hashes, or redesigning inline resources.
+app.UseCsp(options => options
     .DefaultSources(s => s.Self())
     .ScriptSources(s => s.Self()
         .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://unpkg.com")
-        .UnsafeInline())
+        .UnsafeInline()) // FIXME: Strive to remove 'unsafe-inline'.
     .StyleSources(s => s.Self()
         .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com")
-        .UnsafeInline())
-    .ImageSources(s => s.Self().CustomSources("data:", "blob:"))
+        .UnsafeInline()) // FIXME: Strive to remove 'unsafe-inline'.
+    .ImageSources(s => s.Self().CustomSources("data:", "blob:")) // 'data:' for inline images, 'blob:' for client-side generated images.
     .FontSources(s => s.Self().CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"))
-    .FormActions(s => s.Self())
-    .FrameAncestors(s => s.None())
-    .ObjectSources(s => s.None())
-    .ConnectSources(s => s.Self())
-    .UpgradeInsecureRequests()
+    .FormActions(s => s.Self()) // Restricts where forms can submit to.
+    .FrameAncestors(s => s.None()) // Equivalent to X-Frame-Options: DENY.
+    .ObjectSources(s => s.None()) // Disallows <object>, <embed>, <applet>.
+    .ConnectSources(s => s.Self()) // Restricts AJAX, WebSockets, etc. Add other domains if your API calls them.
+    .UpgradeInsecureRequests() // Converts HTTP requests to HTTPS on the client side.
 );
 
-// Poprawna kolejność middleware
-app.UseRouting();
-app.UseCors("AllowAll");
-app.UseAuthentication();
-app.UseAuthorization();
+// Middleware order is critical for security and functionality.
+app.UseRouting();         // Determines which endpoint will handle the request.
+app.UseCors("AllowAll");  // Applies CORS policy. Must be after Routing and before Auth.
+app.UseAuthentication();  // Identifies the user.
+app.UseAuthorization();   // Verifies if the identified user has permission.
 
-// Mapowanie endpointów
-app.MapControllers();
+// Map controllers for API and MVC routes.
+app.MapControllers(); // For attribute-routed API controllers.
 app.MapControllerRoute(
-    "default",
-    "{controller=Home}/{action=Index}/{id?}");
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}"); // For conventional MVC routes.
 
-// Seed data
+// Seed data - This should be idempotent.
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+    var userManager = services.GetRequiredService<UserManager<User>>();
+    var configuration = services.GetRequiredService<IConfiguration>();
 
     string[] roleNames = { "Admin", "User", "Moderator" };
     foreach (var roleName in roleNames)
+    {
         if (!await roleManager.RoleExistsAsync(roleName))
-            await roleManager.CreateAsync(new IdentityRole<int>(roleName));
+        {
+            var roleResult = await roleManager.CreateAsync(new IdentityRole<int>(roleName));
+            if (roleResult.Succeeded)
+            {
+                logger.LogInformation("Role '{RoleName}' created.", roleName);
+            }
+            else
+            {
+                logger.LogError("Failed to create role '{RoleName}': {Errors}", roleName, string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+            }
+        }
+    }
 
     try
     {
-        // Initialize roles
+        // TODO: Consider moving seeding logic into a dedicated static class or service for better separation of concerns.
         await RoleInitializationService.InitializeRoles(services);
-
-        // Seed admin user
-        var configuration = services.GetRequiredService<IConfiguration>();
-        await AdminUserSeeder.SeedAdminUser(services, configuration);
+        await AdminUserSeeder.SeedAdminUser(services, configuration); // Assumes this seeder is idempotent.
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        logger.LogError(ex, "An error occurred while initializing roles or seeding system admin user.");
     }
 
     try
     {
         var unitOfWork = services.GetRequiredService<IUnitOfWork>();
-        var userManager = services.GetRequiredService<UserManager<User>>();
 
-        // Sprawdź i dodaj kategorie
-        if (!await unitOfWork.Categories.ExistsAsync(c => true))
+        // Seed categories
+        if (await unitOfWork.Categories.CountAsync() == 0) 
         {
             logger.LogInformation("Seeding initial categories...");
-            await unitOfWork.Categories.AddAsync(new Category
+            await unitOfWork.Categories.AddRangeAsync(new List<Category>
             {
-                Name = "Elektronika", Description = "Urządzenia elektroniczne",
-                IconPath = "/img/categories/electronics.png"
+                new Category { Name = "Electronics", Description = "Electronic devices", IconPath = "/img/categories/electronics.png" },
+                new Category { Name = "Clothing", Description = "Apparel and accessories", IconPath = "/img/categories/clothes.png" }
+                // TODO: Add more essential initial categories.
             });
-            await unitOfWork.Categories.AddAsync(new Category
-                { Name = "Ubrania", Description = "Odzież i dodatki", IconPath = "/img/categories/clothes.png" });
-            await unitOfWork.CompleteAsync();
+            await unitOfWork.CompleteAsync(); 
             logger.LogInformation("Initial categories seeded.");
         }
 
-        // W sekcji seed data w Program.cs
-        var adminEmail = "admin@leafloop.pl";
+        // Seed a default admin user (idempotent pattern)
+        var adminEmail = configuration["AdminUser:Email"] ?? "admin@leafloop.pl";
+        var adminPassword = configuration["AdminUser:Password"] ?? "Admin123!"; // FIXME: Default password should not be hardcoded here for production setup. Load from secure config.
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
             var adminUser = new User
             {
-                UserName = adminEmail,
-                Email = adminEmail,
-                FirstName = "Admin",
-                LastName = "Leafloop",
-                CreatedDate = DateTime.UtcNow,
-                LastActivity = DateTime.UtcNow,
-                IsActive = true,
-                EcoScore = 100,
-                EmailConfirmed = true
+                UserName = adminEmail, Email = adminEmail, FirstName = "Admin", LastName = "Leafloop",
+                CreatedDate = DateTime.UtcNow, LastActivity = DateTime.UtcNow, IsActive = true, EcoScore = 100, EmailConfirmed = true
             };
-
-            var result = await userManager.CreateAsync(adminUser, "Admin123!");
-
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(adminUser, "Admin");
-                logger.LogInformation("Admin user created and assigned Admin role.");
+                logger.LogInformation("Default admin user '{AdminEmail}' created and assigned Admin role.", adminEmail);
+            }
+            else
+            {
+                logger.LogError("Failed to create default admin user '{AdminEmail}': {Errors}", adminEmail, string.Join(", ", result.Errors.Select(e => e.Description)));
             }
         }
 
-        // Sprawdź i dodaj użytkownika testowego
-        var testUserEmail = "test@example.com";
-        if (await userManager.FindByEmailAsync(testUserEmail) == null)
+        // Seed a test user (development environment only, idempotent pattern)
+        if (app.Environment.IsDevelopment())
         {
-            logger.LogInformation("Seeding test user...");
-            var testUser = new User
+            var testUserEmail = "test@example.com";
+            var testUserPassword = "Password123!"; // FIXME: Test user password for development.
+            if (await userManager.FindByEmailAsync(testUserEmail) == null)
             {
-                UserName = testUserEmail, Email = testUserEmail, FirstName = "Jan", LastName = "Testowy",
-                CreatedDate = DateTime.UtcNow, LastActivity = DateTime.UtcNow, IsActive = true, EcoScore = 100,
-                EmailConfirmed = true
-            };
-            var result = await userManager.CreateAsync(testUser, "Password123!");
-            if (result.Succeeded) logger.LogInformation("Test user seeded successfully.");
-            else
-                logger.LogError("Failed to seed test user: {Errors}",
-                    string.Join(", ", result.Errors.Select(e => e.Description)));
+                logger.LogInformation("Seeding test user '{TestUserEmail}' for development environment...", testUserEmail);
+                var testUser = new User
+                {
+                    UserName = testUserEmail, Email = testUserEmail, FirstName = "Jan", LastName = "Testowy",
+                    CreatedDate = DateTime.UtcNow, LastActivity = DateTime.UtcNow, IsActive = true, EcoScore = 75, EmailConfirmed = true
+                };
+                var result = await userManager.CreateAsync(testUser, testUserPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(testUser, "User");
+                    logger.LogInformation("Test user '{TestUserEmail}' seeded successfully and assigned User role.", testUserEmail);
+                }
+                else
+                {
+                    logger.LogError("Failed to seed test user '{TestUserEmail}': {Errors}", testUserEmail, string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
+            }
         }
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "An error occurred during database seeding.");
+        logger.LogError(ex, "An error occurred during database data seeding.");
     }
 }
 
 app.Run();
 
-// --- Funkcja pomocnicza do obsługi przekierowań dla API ---
-static Task HandleApiRedirect(RedirectContext<CookieAuthenticationOptions> context, int statusCode, string message)
+// --- Helper function for handling API redirects for cookie authentication ---
+// This function ensures that API calls (identified by path starting with /api)
+// that would normally be redirected by cookie authentication (e.g., to a login page)
+// instead receive a proper JSON error response, suitable for API clients.
+static async Task HandleApiRedirect(RedirectContext<CookieAuthenticationOptions> context, int statusCode, string message)
 {
-    // Sprawdzaj TYLKO ścieżkę żądania
-    if (context.Request.Path.StartsWithSegments("/api"))
+    // Check if the request path targets an API endpoint.
+    if (context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase))
     {
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
-        var response = ApiResponse.ErrorResponse(message);
+
+        var response = ApiResponse.ErrorResponse(message); 
+
         var jsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
-
-        // === ZMIANA: Zamiast HandleResponse(), po prostu piszemy do odpowiedzi ===
-        // Zapisz odpowiedź JSON
-        return context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
-        // Nie wywołujemy context.Response.Redirect() ani context.HandleResponse()
-        // Ustawienie StatusCode i zapisanie odpowiedzi powinno wystarczyć, aby middleware
-        // nie wykonało domyślnego przekierowania.
+        // Write the JSON response.
+        // This prevents the default redirect behavior of the cookie authentication middleware.
+        await context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+        // No need to call context.HandleResponse() here, as writing to the response directly
+        // and not calling context.Response.Redirect() effectively handles it.
     }
-
-    // Dla żądań innych niż /api, pozwól na domyślne przekierowanie
-    // Nie robimy nic, middleware wykona domyślną logikę (context.Response.Redirect)
-    return Task.CompletedTask;
+    // For non-API requests, allow the default redirect behavior.
+    // The middleware will proceed with context.Response.Redirect(context.RedirectUri) if not handled here.
 }

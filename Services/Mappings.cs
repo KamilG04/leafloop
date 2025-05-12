@@ -50,15 +50,15 @@ namespace LeafLoop.Services.Mappings
                 // AutoMapper powinien automatycznie zmapować pasujące nazwy właściwości:
                 // UserId, FirstName, LastName, Email, AvatarPath, EcoScore, CreatedDate, LastActivity,
                 // Address, AverageRating, Badges
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id)) // <--- DODAJ TO JAWNIE
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
                 // Ignorujemy pola ViewModelu, które wypełniamy ręcznie w kontrolerze:
                 .ForMember(dest => dest.RecentItems, opt => opt.Ignore())
                 .ForMember(dest => dest.TotalItemsCount, opt => opt.Ignore())
                 .ForMember(dest => dest.TotalTransactionsCount, opt => opt.Ignore());
             // --- Address mappings ---
             CreateMap<Address, AddressDto>();
-            CreateMap<AddressDto, Address>();
-
+            CreateMap<AddressDto, Address>() 
+                .ForMember(dest => dest.Id, opt => opt.Ignore()); 
             // --- Item mappings ---
             CreateMap<Item, ItemDto>()
                 .ForMember(dest => dest.MainPhotoPath, 

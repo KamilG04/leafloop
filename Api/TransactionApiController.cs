@@ -1,41 +1,44 @@
-using System;
-using System.Collections.Generic;
-using System.Linq; // Potrzebne dla LINQ w logowaniu błędów
-using System.Security.Claims;
-using System.Threading.Tasks;
 using AutoMapper;
 using LeafLoop.Models;
-using LeafLoop.Models.API; // Potrzebne dla ApiResponse
-using LeafLoop.Services.DTOs;
+using LeafLoop.Models.API; // For ApiResponse and ApiResponse<T>
+using LeafLoop.Repositories.Interfaces; // For IUnitOfWork
+using LeafLoop.Services.DTOs; // For Transaction DTOs, MessageDto, RatingDto
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http; // For StatusCodes
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using LeafLoop.Api;
-using LeafLoop.Repositories.Interfaces; // Potrzebne dla ApiControllerExtensions (choć część zastępujemy)
+using System;
+using System.Collections.Generic; // For IEnumerable
+using System.Linq; // For Count() and ModelState error logging
+using System.Security.Claims; // For ClaimTypes
+using System.Threading.Tasks; // For Task
 
 namespace LeafLoop.Api
 {
+    /// <summary>
+    /// Manages transactions between users for items.
+    /// All actions require authentication according to the 'ApiAuthPolicy'.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "ApiAuthPolicy")] // Polityka dla całego kontrolera
+    [Authorize(Policy = "ApiAuthPolicy")] 
     [Produces("application/json")]
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
         private readonly IMessageService _messageService;
-        private readonly IRatingService _ratingService; // Dodaj, jeśli potrzebujesz RateTransaction
+        private readonly IRatingService _ratingService;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<TransactionsController> _logger;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork; 
+        private readonly IMapper _mapper;         
 
         public TransactionsController(
             ITransactionService transactionService,
             IMessageService messageService,
-            IRatingService ratingService, // Dodaj wstrzykiwanie
+            IRatingService ratingService,
             UserManager<User> userManager,
             ILogger<TransactionsController> logger,
             IUnitOfWork unitOfWork,
@@ -43,247 +46,551 @@ namespace LeafLoop.Api
         {
             _transactionService = transactionService ?? throw new ArgumentNullException(nameof(transactionService));
             _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
-            _ratingService = ratingService ?? throw new ArgumentNullException(nameof(ratingService)); // Przypisz
+            _ratingService = ratingService ?? throw new ArgumentNullException(nameof(ratingService));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        // POST: api/transactions
+        /// <summary>
+        /// Initiates a new transaction for an item (e.g., a user expresses intent to buy/borrow).
+        /// </summary>
+        /// <param name="transactionCreateDto">The data for the new transaction, including ItemId and Type.</param>
+        /// <returns>The newly created transaction details if successful.</returns>
+        /// <response code="201">Transaction initiated successfully. Returns the created transaction and its location.</response>
+        /// <response code="400">If the transaction data is invalid (e.g., invalid type, item not available for transaction, self-transaction).</response>
+        /// <response code="401">If the user is not authenticated or cannot be identified.</response>
+        /// <response code="404">If the item specified in the DTO is not found.</response>
+        /// <response code="500">If an internal server error occurs during transaction initiation.</response>
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<TransactionDto>), StatusCodes.Status201Created)]
-        // ... inne ProducesResponseType ...
-        public async Task<IActionResult> InitiateTransaction([FromBody] TransactionCreateDto transactionDto)
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> InitiateTransaction([FromBody] TransactionCreateDto transactionCreateDto)
         {
-            // Walidacja DTO
-            if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
-            // Sprawdzenie, czy Type jest poprawną wartością enuma (opcjonalne, ale dobre)
-            if (!Enum.IsDefined(typeof(TransactionType), transactionDto.Type))
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API InitiateTransaction START for ItemID: {ItemId} by UserID Claim: {UserIdClaim}. DTO: {@TransactionCreateDto}", 
+                transactionCreateDto?.ItemId, userIdClaim ?? "N/A", transactionCreateDto);
+
+            if (!ModelState.IsValid)
             {
-                 return this.ApiBadRequest($"Invalid transaction type value: {transactionDto.Type}");
+                _logger.LogWarning("API InitiateTransaction BAD_REQUEST: Invalid model state by UserID Claim: {UserIdClaim}. Errors: {@ModelStateErrors}", 
+                    userIdClaim ?? "N/A", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return this.ApiBadRequest(ModelState);
+            }
+            if (!Enum.IsDefined(typeof(TransactionType), transactionCreateDto.Type))
+            {
+                _logger.LogWarning("API InitiateTransaction BAD_REQUEST: Invalid transaction type '{TransactionType}' by UserID Claim: {UserIdClaim}.", 
+                    transactionCreateDto.Type, userIdClaim ?? "N/A");
+                return this.ApiBadRequest($"Invalid transaction type value: {transactionCreateDto.Type}.");
             }
 
             try
             {
-                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
                 {
+                    _logger.LogWarning("API InitiateTransaction UNAUTHORIZED: Could not parse UserID from claims: {UserIdClaim}", userIdClaim);
                     return this.ApiUnauthorized("Unable to identify user.");
                 }
 
-                var transactionId = await _transactionService.InitiateTransactionAsync(transactionDto, userId);
-                var createdTransaction = await _transactionService.GetTransactionByIdAsync(transactionId); // Pobierz DTO
+                var transactionId = await _transactionService.InitiateTransactionAsync(transactionCreateDto, userId);
+                var createdTransaction = await _transactionService.GetTransactionByIdAsync(transactionId); 
 
                  if (createdTransaction == null) {
-                     _logger.LogError("Transaction created (ID: {TransactionId}) but GetTransactionByIdAsync returned null.", transactionId);
+                     _logger.LogError("API InitiateTransaction ERROR: Transaction created (ID: {TransactionId}) but GetTransactionByIdAsync returned null. UserID: {UserId}", 
+                        transactionId, userId);
                      return this.ApiInternalError("Transaction created but failed to retrieve details.");
                  }
-
-                // Użyj poprawnego rozszerzenia dla CreatedAtAction
+                _logger.LogInformation("API InitiateTransaction SUCCESS. New TransactionID: {TransactionId} for ItemID: {ItemId}, UserID: {UserId}", 
+                    transactionId, createdTransaction.ItemId, userId);
                 return this.ApiCreatedAtAction(
-                    createdTransaction, // Przekaż DTO jako dane
-                    nameof(GetTransaction), // Nazwa akcji GET
-                    "Transactions",         // Nazwa kontrolera (bez 'Controller')
-                    new { id = transactionId } // Parametry routingu
-                    // Domyślny komunikat z ApiCreatedAtAction jest OK
+                    createdTransaction, 
+                    nameof(GetTransaction), 
+                    this.ControllerContext.ActionDescriptor.ControllerName, // Dynamically get controller name         
+                    new { id = transactionId } 
                 );
             }
-            catch (KeyNotFoundException ex) { return this.ApiNotFound(ex.Message); }
-            catch (InvalidOperationException ex) { return this.ApiBadRequest(ex.Message); }
+            catch (KeyNotFoundException ex) 
+            {
+                _logger.LogWarning(ex, "API InitiateTransaction NOT_FOUND for ItemID: {ItemId} by UserID Claim: {UserIdClaim}", 
+                    transactionCreateDto?.ItemId, userIdClaim ?? "N/A");
+                return this.ApiNotFound(ex.Message); 
+            }
+            catch (InvalidOperationException ex) 
+            {
+                _logger.LogWarning(ex, "API InitiateTransaction BAD_REQUEST (Invalid Op) for ItemID: {ItemId} by UserID Claim: {UserIdClaim}", 
+                    transactionCreateDto?.ItemId, userIdClaim ?? "N/A");
+                return this.ApiBadRequest(ex.Message); 
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error initiating transaction for ItemId: {ItemId}", transactionDto?.ItemId);
-                return this.ApiInternalError("Error initiating transaction", ex);
+                _logger.LogError(ex, "API InitiateTransaction ERROR for ItemID: {ItemId} by UserID Claim: {UserIdClaim}", 
+                    transactionCreateDto?.ItemId, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error initiating transaction.", ex);
             }
         }
 
-
-        // GET: api/transactions
+        /// <summary>
+        /// Retrieves transactions for the authenticated user, either as a buyer or a seller.
+        /// </summary>
+        /// <param name="asSeller">If true, retrieves transactions where the user is the seller. If false (default), retrieves transactions where the user is the buyer.</param>
+        /// <returns>A list of the user's transactions.</returns>
+        /// <response code="200">Successfully retrieved transactions.</response>
+        /// <response code="401">If the user is not authenticated or cannot be identified.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<TransactionDto>>), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUserTransactions([FromQuery] bool asSeller = false)
         {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API GetUserTransactions START for UserID Claim: {UserIdClaim}, AsSeller: {AsSeller}", userIdClaim ?? "N/A", asSeller);
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
+                if (user == null)
+                {
+                    _logger.LogWarning("API GetUserTransactions UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}", userIdClaim ?? "N/A");
+                    return this.ApiUnauthorized("User not found.");
+                }
 
                 var transactions = await _transactionService.GetTransactionsByUserAsync(user.Id, asSeller);
-                // Użyj generycznego ApiOk, kompilator wywnioskuje T = IEnumerable<TransactionDto>
-                return this.ApiOk(transactions ?? new List<TransactionDto>()); // Zwróć pustą listę, jeśli null
+                _logger.LogInformation("API GetUserTransactions SUCCESS for UserID: {UserId}, AsSeller: {AsSeller}. Count: {Count}", 
+                    user.Id, asSeller, transactions?.Count() ?? 0);
+                return this.ApiOk(transactions ?? new List<TransactionDto>());
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving user transactions for UserID: {UserId}, asSeller: {AsSeller}", User.FindFirstValue(ClaimTypes.NameIdentifier), asSeller);
-                return this.ApiInternalError("Error retrieving transactions", ex);
+                _logger.LogError(ex, "API GetUserTransactions ERROR for UserID Claim: {UserIdClaim}, AsSeller: {AsSeller}", userIdClaim ?? "N/A", asSeller);
+                return this.ApiInternalError("Error retrieving transactions.", ex);
             }
         }
 
-        // GET: api/transactions/{id:int}
-        [HttpGet("{id:int}", Name = "GetTransaction")] // Dodano Name dla CreatedAtAction
+        /// <summary>
+        /// Retrieves a specific transaction by its ID, including detailed information.
+        /// The authenticated user must be a party to the transaction (buyer or seller).
+        /// </summary>
+        /// <param name="id">The ID of the transaction to retrieve.</param>
+        /// <returns>The detailed information for the specified transaction.</returns>
+        /// <response code="200">Successfully retrieved transaction details.</response>
+        /// <response code="400">If the transaction ID is invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not a party to this transaction.</response>
+        /// <response code="404">If the transaction with the specified ID is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
+        [HttpGet("{id:int}", Name = "GetTransaction")] 
         [ProducesResponseType(typeof(ApiResponse<TransactionWithDetailsDto>), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetTransaction(int id)
         {
-            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API GetTransaction START for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", id, userIdClaim ?? "N/A");
+
+            if (id <= 0)
+            {
+                _logger.LogWarning("API GetTransaction BAD_REQUEST: Invalid Transaction ID: {TransactionId}", id);
+                return this.ApiBadRequest("Invalid Transaction ID.");
+            }
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
+                if (user == null)
+                {
+                    _logger.LogWarning("API GetTransaction UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}. TransactionID: {TransactionId}", 
+                        userIdClaim ?? "N/A", id);
+                    return this.ApiUnauthorized("User not found.");
+                }
 
                 var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
-                if (!canAccess) return this.ApiForbidden("You are not authorized to view this transaction.");
+                if (!canAccess)
+                {
+                    _logger.LogWarning("API GetTransaction FORBIDDEN: UserID {UserId} not authorized for TransactionID {TransactionId}.", user.Id, id);
+                    return this.ApiForbidden("You are not authorized to view this transaction.");
+                }
 
                 var transaction = await _transactionService.GetTransactionWithDetailsAsync(id);
-                if (transaction == null) return this.ApiNotFound($"Transaction with ID {id} not found");
-
-                 // Użyj generycznego ApiOk, kompilator wywnioskuje T = TransactionWithDetailsDto
+                if (transaction == null)
+                {
+                    _logger.LogWarning("API GetTransaction NOT_FOUND: TransactionID {TransactionId} not found for UserID {UserId}.", id, user.Id);
+                    return this.ApiNotFound($"Transaction with ID {id} not found.");
+                }
+                _logger.LogInformation("API GetTransaction SUCCESS for TransactionID: {TransactionId}, UserID: {UserId}", id, user.Id);
                 return this.ApiOk(transaction);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving transaction details. TransactionId: {TransactionId}", id);
-                return this.ApiInternalError("Error retrieving transaction details", ex);
+                _logger.LogError(ex, "API GetTransaction ERROR for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", id, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error retrieving transaction details.", ex);
             }
         }
 
-         // --- >>> DODANE/POPRAWIONE AKCJE <<< ---
-
-        // PUT: api/transactions/{id:int}/status
+        /// <summary>
+        /// Updates the status of a transaction (e.g., accept, decline, ship).
+        /// The authenticated user must be a party to the transaction and authorized to perform the status change.
+        /// </summary>
+        /// <param name="id">The ID of the transaction to update.</param>
+        /// <param name="statusUpdateDto">The DTO containing the new status.</param>
+        /// <returns>A 200 OK response with a success message indicating the new status.</returns>
+        /// <response code="200">Transaction status updated successfully.</response>
+        /// <response code="400">If the transaction ID or new status is invalid, or the status transition is not allowed.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not authorized to update this transaction's status.</response>
+        /// <response code="404">If the transaction is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpPut("{id:int}/status")]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)] // Zmieniono na 200 OK z komunikatem
-        // ... inne ProducesResponseType ...
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)] 
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateTransactionStatus(int id, [FromBody] TransactionStatusUpdateDto statusUpdateDto)
         {
-             if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
-             if (!Enum.IsDefined(typeof(TransactionStatus), statusUpdateDto.Status)) { return this.ApiBadRequest($"Invalid transaction status value: {statusUpdateDto.Status}"); }
-             if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API UpdateTransactionStatus START for TransactionID: {TransactionId}, NewStatus: {NewStatus}, UserID Claim: {UserIdClaim}", 
+                id, statusUpdateDto?.Status, userIdClaim ?? "N/A");
+
+            if (id <= 0)
+            {
+                _logger.LogWarning("API UpdateTransactionStatus BAD_REQUEST: Invalid Transaction ID: {TransactionId}", id);
+                return this.ApiBadRequest("Invalid Transaction ID.");
+            }
+            if (statusUpdateDto == null || !Enum.IsDefined(typeof(TransactionStatus), statusUpdateDto.Status)) 
+            {
+                _logger.LogWarning("API UpdateTransactionStatus BAD_REQUEST: Invalid transaction status value: {StatusValue} for TransactionID: {TransactionId}", 
+                    statusUpdateDto?.Status, id);
+                return this.ApiBadRequest($"Invalid transaction status value: {statusUpdateDto?.Status}.");
+            }
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("API UpdateTransactionStatus BAD_REQUEST: Invalid model state for TransactionID: {TransactionId}. Errors: {@ModelStateErrors}", 
+                    id, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return this.ApiBadRequest(ModelState);
+            }
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
+                if (user == null)
+                {
+                    _logger.LogWarning("API UpdateTransactionStatus UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}. TransactionID: {TransactionId}", 
+                        userIdClaim ?? "N/A", id);
+                    return this.ApiUnauthorized("User not found.");
+                }
 
                 await _transactionService.UpdateTransactionStatusAsync(id, statusUpdateDto.Status, user.Id);
-
-                string successMessage = $"Transaction status updated to {statusUpdateDto.Status}.";
-                // Użyj bezpośrednio Ok() z niegenerycznym ApiResponse
-                return Ok(ApiResponse.SuccessResponse(successMessage));
+                _logger.LogInformation("API UpdateTransactionStatus SUCCESS for TransactionID: {TransactionId}, NewStatus: {NewStatus}, UserID: {UserId}", 
+                    id, statusUpdateDto.Status, user.Id);
+                return this.ApiOk($"Transaction status updated to {statusUpdateDto.Status}.");
             }
-            catch (KeyNotFoundException) { return this.ApiNotFound($"Transaction with ID {id} not found"); }
-            catch (UnauthorizedAccessException) { return this.ApiForbidden("You are not authorized to update this transaction status."); }
-            catch (InvalidOperationException ex) { return this.ApiBadRequest(ex.Message); }
+            catch (KeyNotFoundException) 
+            {
+                _logger.LogWarning("API UpdateTransactionStatus NOT_FOUND: TransactionID {TransactionId} not found for UserID Claim: {UserIdClaim}.", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiNotFound($"Transaction with ID {id} not found."); 
+            }
+            catch (UnauthorizedAccessException) 
+            {
+                _logger.LogWarning("API UpdateTransactionStatus FORBIDDEN: UserID Claim {UserIdClaim} not authorized for TransactionID {TransactionId}.", 
+                    userIdClaim ?? "N/A", id);
+                return this.ApiForbidden("You are not authorized to update this transaction status."); 
+            }
+            catch (InvalidOperationException ex) 
+            {
+                _logger.LogWarning(ex, "API UpdateTransactionStatus BAD_REQUEST (Invalid Op) for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiBadRequest(ex.Message); 
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating transaction status. TransactionId: {TransactionId}, UserID: {UserId}", id, User.FindFirstValue(ClaimTypes.NameIdentifier));
-                return this.ApiInternalError("Error updating transaction status", ex);
+                _logger.LogError(ex, "API UpdateTransactionStatus ERROR for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error updating transaction status.", ex);
             }
         }
 
-        // POST: api/transactions/{id:int}/complete
+        /// <summary>
+        /// Marks a transaction as completed by the authenticated user.
+        /// This might involve one or both parties confirming completion depending on the transaction flow.
+        /// </summary>
+        /// <param name="id">The ID of the transaction to complete.</param>
+        /// <returns>A 200 OK response with a message indicating the outcome of the completion attempt.</returns>
+        /// <response code="200">Transaction completion process initiated/confirmed successfully.</response>
+        /// <response code="400">If the transaction ID is invalid or the transaction cannot be completed at this stage.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not authorized to complete this transaction.</response>
+        /// <response code="404">If the transaction is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpPost("{id:int}/complete")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CompleteTransaction(int id)
         {
-            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API CompleteTransaction START for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", id, userIdClaim ?? "N/A");
+
+            if (id <= 0)
+            {
+                _logger.LogWarning("API CompleteTransaction BAD_REQUEST: Invalid Transaction ID: {TransactionId}", id);
+                return this.ApiBadRequest("Invalid Transaction ID.");
+            }
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
-                await _transactionService.CompleteTransactionAsync(id, user.Id);
-                // Użyj bezpośrednio Ok() z niegenerycznym ApiResponse
-                return Ok(ApiResponse.SuccessResponse("Transaction completed successfully"));
+                if (user == null)
+                {
+                     _logger.LogWarning("API CompleteTransaction UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}. TransactionID: {TransactionId}", 
+                        userIdClaim ?? "N/A", id);
+                    return this.ApiUnauthorized("User not found.");
+                }
+                // The service method should handle the logic of completion.
+                // Assuming ConfirmTransactionCompletionAsync is the correct method name from previous context.
+                // If the service returns a detailed result, it should be used to form the message.
+                await _transactionService.ConfirmTransactionCompletionAsync(id, user.Id); 
+                _logger.LogInformation("API CompleteTransaction SUCCESS for TransactionID: {TransactionId}, UserID: {UserId}", id, user.Id);
+                // TODO: The response message could be more dynamic based on the actual state after the service call (e.g., if it auto-completes or waits for both parties).
+                // For now, a generic success message.
+                return this.ApiOk("Transaction completion process initiated successfully.");
             }
-            catch (KeyNotFoundException) { return this.ApiNotFound($"Transaction with ID {id} not found"); }
-            catch (UnauthorizedAccessException) { return this.ApiForbidden("You are not authorized to complete this transaction."); }
-            catch (InvalidOperationException ex) { return this.ApiBadRequest(ex.Message); }
+            catch (KeyNotFoundException) 
+            {
+                _logger.LogWarning("API CompleteTransaction NOT_FOUND: TransactionID {TransactionId} not found for UserID Claim: {UserIdClaim}.", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiNotFound($"Transaction with ID {id} not found."); 
+            }
+            catch (UnauthorizedAccessException) 
+            {
+                _logger.LogWarning("API CompleteTransaction FORBIDDEN: UserID Claim {UserIdClaim} not authorized for TransactionID {TransactionId}.", 
+                    userIdClaim ?? "N/A", id);
+                return this.ApiForbidden("You are not authorized to complete this transaction."); 
+            }
+            catch (InvalidOperationException ex) 
+            {
+                _logger.LogWarning(ex, "API CompleteTransaction BAD_REQUEST (Invalid Op) for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiBadRequest(ex.Message); 
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error completing transaction. TransactionId: {TransactionId}", id);
-                return this.ApiInternalError("Error completing transaction", ex);
+                _logger.LogError(ex, "API CompleteTransaction ERROR for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error completing transaction.", ex);
             }
         }
 
-        // POST: api/transactions/{id:int}/cancel
+        /// <summary>
+        /// Cancels a transaction by the authenticated user.
+        /// Applicable if the transaction is in a state that allows cancellation by one of the parties.
+        /// </summary>
+        /// <param name="id">The ID of the transaction to cancel.</param>
+        /// <returns>A 200 OK response with a success message.</returns>
+        /// <response code="200">Transaction cancelled successfully.</response>
+        /// <response code="400">If the transaction ID is invalid or the transaction cannot be cancelled at this stage.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not authorized to cancel this transaction.</response>
+        /// <response code="404">If the transaction is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpPost("{id:int}/cancel")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
-         // ... inne ProducesResponseType ...
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CancelTransaction(int id)
         {
-            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API CancelTransaction START for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", id, userIdClaim ?? "N/A");
+            if (id <= 0)
+            {
+                _logger.LogWarning("API CancelTransaction BAD_REQUEST: Invalid Transaction ID: {TransactionId}", id);
+                return this.ApiBadRequest("Invalid Transaction ID.");
+            }
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
+                if (user == null)
+                {
+                    _logger.LogWarning("API CancelTransaction UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}. TransactionID: {TransactionId}", 
+                        userIdClaim ?? "N/A", id);
+                    return this.ApiUnauthorized("User not found.");
+                }
                 await _transactionService.CancelTransactionAsync(id, user.Id);
-                 // Użyj bezpośrednio Ok() z niegenerycznym ApiResponse
-                return Ok(ApiResponse.SuccessResponse("Transaction cancelled successfully"));
+                _logger.LogInformation("API CancelTransaction SUCCESS for TransactionID: {TransactionId}, UserID: {UserId}", id, user.Id);
+                return this.ApiOk("Transaction cancelled successfully.");
             }
-            catch (KeyNotFoundException) { return this.ApiNotFound($"Transaction with ID {id} not found"); }
-            catch (UnauthorizedAccessException) { return this.ApiForbidden("You are not authorized to cancel this transaction."); }
-            catch (InvalidOperationException ex) { return this.ApiBadRequest(ex.Message); }
+            catch (KeyNotFoundException) 
+            {
+                _logger.LogWarning("API CancelTransaction NOT_FOUND: TransactionID {TransactionId} not found for UserID Claim: {UserIdClaim}.", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiNotFound($"Transaction with ID {id} not found."); 
+            }
+            catch (UnauthorizedAccessException) 
+            {
+                _logger.LogWarning("API CancelTransaction FORBIDDEN: UserID Claim {UserIdClaim} not authorized for TransactionID {TransactionId}.", 
+                    userIdClaim ?? "N/A", id);
+                return this.ApiForbidden("You are not authorized to cancel this transaction."); 
+            }
+            catch (InvalidOperationException ex) 
+            {
+                 _logger.LogWarning(ex, "API CancelTransaction BAD_REQUEST (Invalid Op) for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiBadRequest(ex.Message); 
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error cancelling transaction. TransactionId: {TransactionId}", id);
-                return this.ApiInternalError("Error cancelling transaction", ex);
+                _logger.LogError(ex, "API CancelTransaction ERROR for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error cancelling transaction.", ex);
             }
         }
 
-        // GET: api/transactions/{id:int}/messages
+        /// <summary>
+        /// Retrieves messages for a specific transaction.
+        /// The authenticated user must be a party to the transaction.
+        /// </summary>
+        /// <param name="id">The ID of the transaction.</param>
+        /// <returns>A list of messages for the transaction.</returns>
+        /// <response code="200">Successfully retrieved transaction messages.</response>
+        /// <response code="400">If the transaction ID is invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not a party to this transaction.</response>
+        /// <response code="404">If the transaction is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpGet("{id:int}/messages")]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<MessageDto>>), StatusCodes.Status200OK)]
-        // ... inne ProducesResponseType ...
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetTransactionMessages(int id)
         {
-            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API GetTransactionMessages START for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", id, userIdClaim ?? "N/A");
+            if (id <= 0)
+            {
+                _logger.LogWarning("API GetTransactionMessages BAD_REQUEST: Invalid Transaction ID: {TransactionId}", id);
+                return this.ApiBadRequest("Invalid Transaction ID.");
+            }
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
+                if (user == null)
+                {
+                    _logger.LogWarning("API GetTransactionMessages UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}. TransactionID: {TransactionId}", 
+                        userIdClaim ?? "N/A", id);
+                    return this.ApiUnauthorized("User not found.");
+                }
                 var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
-                if (!canAccess) return this.ApiForbidden("You are not authorized to view messages for this transaction.");
+                if (!canAccess)
+                {
+                    _logger.LogWarning("API GetTransactionMessages FORBIDDEN: UserID {UserId} not authorized for TransactionID {TransactionId}.", user.Id, id);
+                    return this.ApiForbidden("You are not authorized to view messages for this transaction.");
+                }
 
                 var messages = await _messageService.GetTransactionMessagesAsync(id);
-                // Użyj generycznego ApiOk
+                _logger.LogInformation("API GetTransactionMessages SUCCESS for TransactionID: {TransactionId}, UserID: {UserId}. Message count: {Count}", 
+                    id, user.Id, messages?.Count() ?? 0);
                 return this.ApiOk(messages ?? new List<MessageDto>());
             }
-            catch (KeyNotFoundException) { return this.ApiNotFound($"Transaction with ID {id} not found."); }
+            catch (KeyNotFoundException) 
+            {
+                _logger.LogWarning("API GetTransactionMessages NOT_FOUND: TransactionID {TransactionId} not found for UserID Claim: {UserIdClaim}.", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiNotFound($"Transaction with ID {id} not found.");
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving transaction messages. TransactionId: {TransactionId}", id);
-                return this.ApiInternalError("Error retrieving transaction messages", ex);
+                _logger.LogError(ex, "API GetTransactionMessages ERROR for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error retrieving transaction messages.", ex);
             }
         }
 
-        // POST: api/transactions/{id:int}/messages
+        /// <summary>
+        /// Sends a message related to a specific transaction.
+        /// The authenticated user must be a party to the transaction.
+        /// </summary>
+        /// <param name="id">The ID of the transaction.</param>
+        /// <param name="messageDto">The DTO containing the message content.</param>
+        /// <returns>The details of the sent message if successfully retrieved, otherwise a success confirmation.</returns>
+        /// <response code="200">Message sent successfully. May return message details or a simple success message.</response>
+        /// <response code="400">If transaction ID is invalid, message content is empty, or transaction is not in a state to accept messages.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not authorized to send messages for this transaction.</response>
+        /// <response code="404">If the transaction is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpPost("{id:int}/messages")]
-        [ProducesResponseType(typeof(ApiResponse<MessageDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)] // Dla przypadku błędu pobrania wiadomości
-        // ... inne ProducesResponseType ...
+        [ProducesResponseType(typeof(ApiResponse<MessageDto>), StatusCodes.Status200OK)] 
+        // One ProducesResponseType for 200 is enough; the description can clarify variations.
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SendTransactionMessage(int id, [FromBody] TransactionMessageDto messageDto)
         {
-            _logger.LogInformation("API SendTransactionMessage START for TransactionID: {TransactionId}. Auth User: {AuthUser}", id, User.Identity?.Name ?? "N/A");
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API SendTransactionMessage START for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}. Content Preview: '{ContentPreview}'", 
+                id, userIdClaim ?? "N/A", messageDto?.Content?.Substring(0, Math.Min(messageDto.Content.Length, 50)));
 
-            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
-            if (messageDto == null || string.IsNullOrWhiteSpace(messageDto.Content)) return this.ApiBadRequest("Message content cannot be empty.");
-            if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+            if (id <= 0)
+            {
+                _logger.LogWarning("API SendTransactionMessage BAD_REQUEST: Invalid Transaction ID: {TransactionId}", id);
+                return this.ApiBadRequest("Invalid Transaction ID.");
+            }
+            if (messageDto == null || string.IsNullOrWhiteSpace(messageDto.Content))
+            {
+                _logger.LogWarning("API SendTransactionMessage BAD_REQUEST: Message content cannot be empty for TransactionID: {TransactionId}", id);
+                return this.ApiBadRequest("Message content cannot be empty.");
+            }
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("API SendTransactionMessage BAD_REQUEST: Invalid model state for TransactionID: {TransactionId}. Errors: {@ModelStateErrors}", 
+                    id, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return this.ApiBadRequest(ModelState);
+            }
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
+                if (user == null)
+                {
+                    _logger.LogWarning("API SendTransactionMessage UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}. TransactionID: {TransactionId}", 
+                        userIdClaim ?? "N/A", id);
+                    return this.ApiUnauthorized("User not found.");
+                }
 
                 var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
-                if (!canAccess) return this.ApiForbidden("You are not authorized to send messages for this transaction.");
+                if (!canAccess)
+                {
+                    _logger.LogWarning("API SendTransactionMessage FORBIDDEN: UserID {UserId} not authorized for TransactionID {TransactionId}.", user.Id, id);
+                    return this.ApiForbidden("You are not authorized to send messages for this transaction.");
+                }
 
-                var transaction = await _transactionService.GetTransactionByIdAsync(id);
-                if (transaction == null) return this.ApiNotFound($"Transaction with ID {id} not found.");
+                var transaction = await _transactionService.GetTransactionByIdAsync(id); 
+                if (transaction == null)
+                {
+                    _logger.LogWarning("API SendTransactionMessage NOT_FOUND: TransactionID {TransactionId} not found for UserID {UserId}.", id, user.Id);
+                    return this.ApiNotFound($"Transaction with ID {id} not found.");
+                }
 
                 if (transaction.Status != TransactionStatus.Pending && transaction.Status != TransactionStatus.InProgress)
                 {
+                    _logger.LogWarning("API SendTransactionMessage BAD_REQUEST: Cannot send messages for TransactionID {TransactionId} with status '{Status}'.", id, transaction.Status);
                     return this.ApiBadRequest($"Cannot send messages for a transaction with status '{transaction.Status}'.");
                 }
 
@@ -296,30 +603,50 @@ namespace LeafLoop.Api
                 };
 
                 var messageId = await _messageService.SendMessageAsync(messageCreateDto);
-                _logger.LogInformation("Message sent via service. New MessageID: {MessageId} for TransactionID: {TransactionId}", messageId, id);
+                _logger.LogInformation("Message sent via service. New MessageID: {MessageId} for TransactionID: {TransactionId}, SenderID: {SenderId}", 
+                    messageId, id, user.Id);
 
                 var createdMessage = await _messageService.GetMessageByIdAsync(messageId);
                 if (createdMessage == null)
                 {
-                    _logger.LogError("Message sent (ID: {MessageId}) but could not be retrieved for transaction {TransactionId}.", messageId, id);
-                    // <<< === POPRAWKA TUTAJ === >>>
-                    // Zwróć 200 OK z komunikatem, używając bezpośrednio Ok() i ApiResponse
-                    return Ok(ApiResponse.SuccessResponse("Message sent, but could not retrieve details."));
+                    _logger.LogError("API SendTransactionMessage ERROR: Message sent (ID: {MessageId}) but could not be retrieved for TransactionID {TransactionId}.", messageId, id);
+                    return this.ApiOk("Message sent, but an issue occurred retrieving its details."); 
                 }
-
-                // Zwróć 200 OK z generycznym ApiOk, bo masz dane (createdMessage)
-                return this.ApiOk(createdMessage, "Message sent successfully");
+                _logger.LogInformation("API SendTransactionMessage SUCCESS. MessageID: {MessageId}, TransactionID: {TransactionId}", messageId, id);
+                return this.ApiOk(createdMessage, "Message sent successfully."); 
             }
-            catch (KeyNotFoundException) { return this.ApiNotFound($"Transaction with ID {id} not found."); }
-            catch (UnauthorizedAccessException) { return this.ApiForbidden("You are not authorized for this transaction."); }
+            catch (KeyNotFoundException) 
+            {
+                _logger.LogWarning("API SendTransactionMessage NOT_FOUND: TransactionID {TransactionId} not found for UserID Claim: {UserIdClaim}.", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiNotFound($"Transaction with ID {id} not found."); 
+            }
+            catch (UnauthorizedAccessException) 
+            {
+                _logger.LogWarning("API SendTransactionMessage FORBIDDEN: UserID Claim {UserIdClaim} not authorized for TransactionID {TransactionId}.", 
+                    userIdClaim ?? "N/A", id);
+                return this.ApiForbidden("You are not authorized for this transaction."); 
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error sending transaction message. TransactionId: {TransactionId}, SenderId: {SenderId}", id, User.FindFirstValue(ClaimTypes.NameIdentifier));
-                return this.ApiInternalError("Error sending message", ex);
+                _logger.LogError(ex, "API SendTransactionMessage ERROR for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error sending message.", ex);
             }
         }
 
-        // POST: api/transactions/{id:int}/ratings
+        /// <summary>
+        /// Submits a rating for a completed transaction by the authenticated user for the other party in the transaction.
+        /// </summary>
+        /// <param name="id">The ID of the transaction to rate.</param>
+        /// <param name="ratingDto">The rating data (value and optional comment).</param>
+        /// <returns>The newly created rating details.</returns>
+        /// <response code="201">Rating submitted successfully. Returns the created rating and its location.</response>
+        /// <response code="400">If transaction ID is invalid, rating data is invalid, transaction not completed, or user has already rated this transaction for the other party.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user was not part of this transaction or is attempting to rate themselves.</response>
+        /// <response code="404">If the transaction is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpPost("{id:int}/ratings")]
         [ProducesResponseType(typeof(ApiResponse<RatingDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -329,114 +656,195 @@ namespace LeafLoop.Api
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RateTransaction(int id, [FromBody] TransactionRatingDto ratingDto)
         {
-            if (id <= 0) return this.ApiBadRequest("Invalid Transaction ID.");
-            if (!ModelState.IsValid) return this.ApiBadRequest(ModelState);
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API RateTransaction START for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}. RatingValue: {RatingValue}",
+                id, userIdClaim ?? "N/A", ratingDto?.Value);
+
+            if (id <= 0)
+            {
+                _logger.LogWarning("API RateTransaction BAD_REQUEST: Invalid Transaction ID: {TransactionId}", id);
+                return this.ApiBadRequest("Invalid Transaction ID.");
+            }
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("API RateTransaction BAD_REQUEST: Invalid model state for TransactionID: {TransactionId}. Errors: {@ModelStateErrors}", 
+                    id, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return this.ApiBadRequest(ModelState);
+            }
 
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
-
-                // Sprawdź czy użytkownik ma dostęp do tej transakcji
-                var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
-                if (!canAccess) return this.ApiForbidden("You were not part of this transaction.");
-
-                // Pobierz transakcję, aby znaleźć drugiego użytkownika
-                var transaction = await _transactionService.GetTransactionByIdAsync(id);
-                if (transaction == null) return this.ApiNotFound($"Transaction with ID {id} not found.");
-
-                // Sprawdź czy transakcja jest zakończona
-                if (transaction.Status != TransactionStatus.Completed)
+                if (user == null)
                 {
-                    return this.ApiBadRequest($"Cannot rate a transaction with status '{transaction.Status}'. Only completed transactions can be rated.");
+                    _logger.LogWarning("API RateTransaction UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}. TransactionID: {TransactionId}", 
+                        userIdClaim ?? "N/A", id);
+                    return this.ApiUnauthorized("User not found.");
                 }
 
-                // Sprawdź czy użytkownik już ocenił tę transakcję
+                var transaction = await _transactionService.GetTransactionByIdAsync(id);
+                if (transaction == null)
+                {
+                    _logger.LogWarning("API RateTransaction NOT_FOUND: TransactionID {TransactionId} not found for UserID {UserId}.", id, user.Id);
+                    return this.ApiNotFound($"Transaction with ID {id} not found.");
+                }
+                
+                if (transaction.BuyerId != user.Id && transaction.SellerId != user.Id)
+                {
+                    _logger.LogWarning("API RateTransaction FORBIDDEN: UserID {UserId} was not part of TransactionID {TransactionId}.", user.Id, id);
+                    return this.ApiForbidden("You were not part of this transaction.");
+                }
+
+                if (transaction.Status != TransactionStatus.Completed)
+                {
+                    _logger.LogWarning("API RateTransaction BAD_REQUEST: Cannot rate TransactionID {TransactionId} with status '{Status}'.", id, transaction.Status);
+                    return this.ApiBadRequest($"Cannot rate a transaction with status '{transaction.Status}'. Only completed transactions can be rated.");
+                }
+                
+                int ratedUserId = user.Id == transaction.SellerId ? transaction.BuyerId : transaction.SellerId;
+                // This check ensures user is not rating themselves, which should be covered by BuyerId != SellerId in transaction logic.
+                if (ratedUserId == user.Id) 
+                {
+                     _logger.LogWarning("API RateTransaction BAD_REQUEST: UserID {UserId} attempted to rate themselves in TransactionID {TransactionId}.", user.Id, id);
+                    return this.ApiBadRequest("You cannot rate yourself.");
+                }
+
+                // Check if user already rated the other party for this transaction
                 var existingRating = await _unitOfWork.Ratings.FirstOrDefaultAsync(r => 
-                    r.TransactionId == id && r.RaterId == user.Id);
+                    r.TransactionId == id && r.RaterId == user.Id && r.RatedEntityId == ratedUserId && r.RatedEntityType == RatedEntityType.User);
                     
                 if (existingRating != null)
                 {
-                    return this.ApiBadRequest("You have already rated this transaction.");
+                    _logger.LogWarning("API RateTransaction BAD_REQUEST: UserID {UserId} already rated the other party (UserID {RatedUserId}) in TransactionID {TransactionId}.", 
+                        user.Id, ratedUserId, id);
+                    return this.ApiBadRequest("You have already rated the other party for this transaction.");
                 }
 
-                // Przygotuj DTO dla serwisu ocen
                 var ratingCreateDto = new RatingCreateDto
                 {
                     Value = ratingDto.Value,
                     Comment = ratingDto.Comment,
                     RaterId = user.Id,
-                    // Oceniamy drugą osobę w transakcji
-                    RatedEntityId = user.Id == transaction.SellerId ? transaction.BuyerId : transaction.SellerId,
-                    RatedEntityType = RatedEntityType.User, // Zakładamy, że RatedEntityType istnieje
-                    TransactionId = id // Powiąż ocenę z transakcją
+                    RatedEntityId = ratedUserId, 
+                    RatedEntityType = RatedEntityType.User, 
+                    TransactionId = id 
                 };
 
-                // Stwórz ocenę
                 var ratingId = await _ratingService.AddRatingAsync(ratingCreateDto);
-                
-                // Pobierz utworzoną ocenę
                 var createdRating = await _ratingService.GetRatingByIdAsync(ratingId);
+
                 if (createdRating == null)
                 {
-                    _logger.LogError("Rating submitted (ID: {RatingId}) but could not be retrieved for transaction {TransactionId}.", ratingId, id);
+                    _logger.LogError("API RateTransaction ERROR: Rating submitted (ID: {RatingId}) but could not be retrieved for TransactionID {TransactionId}.", ratingId, id);
                     return this.ApiInternalError("Rating submitted but could not be retrieved.");
                 }
-
-                // Zwróć Created (201) z nowym zasobem
+                _logger.LogInformation("API RateTransaction SUCCESS. New RatingID: {RatingId} for TransactionID: {TransactionId} by UserID: {UserId}, RatedUserID: {RatedUserId}", 
+                    ratingId, id, user.Id, ratedUserId);
                 return this.ApiCreatedAtAction(
                     createdRating,
-                    nameof(GetTransaction), // Action method for retrieving a transaction
-                    "Transactions",         // Controller name
-                    new { id },             // Route values
-                    "Rating submitted successfully");
+                    nameof(GetTransaction), // Or a specific GetRating endpoint if available
+                    this.ControllerContext.ActionDescriptor.ControllerName,        
+                    new { id = id }, // Route values for GetTransaction, as it contains ratings
+                    "Rating submitted successfully."
+                );
             }
-            catch (KeyNotFoundException ex) { return this.ApiNotFound(ex.Message); }
-            catch (UnauthorizedAccessException ex) { return this.ApiForbidden(ex.Message); }
-            catch (InvalidOperationException ex) { return this.ApiBadRequest(ex.Message); }
+            catch (KeyNotFoundException ex) 
+            {
+                 _logger.LogWarning(ex, "API RateTransaction NOT_FOUND: TransactionID {TransactionId} or related entity not found for UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiNotFound(ex.Message); 
+            }
+            catch (UnauthorizedAccessException ex) 
+            {
+                _logger.LogWarning(ex, "API RateTransaction FORBIDDEN: UserID Claim {UserIdClaim} not authorized for TransactionID {TransactionId}", 
+                    userIdClaim ?? "N/A", id);
+                return this.ApiForbidden(ex.Message); 
+            }
+            catch (InvalidOperationException ex) 
+            {
+                _logger.LogWarning(ex, "API RateTransaction BAD_REQUEST (Invalid Op) for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiBadRequest(ex.Message); 
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error rating transaction. TransactionId: {TransactionId}", id);
-                return this.ApiInternalError("Error rating transaction", ex);
+                _logger.LogError(ex, "API RateTransaction ERROR for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error rating transaction.", ex);
             }
         }
         
-        // GET: api/transactions/{id:int}/ratings
+        /// <summary>
+        /// Retrieves ratings associated with a specific transaction.
+        /// The authenticated user must be a party to the transaction.
+        /// </summary>
+        /// <param name="id">The ID of the transaction.</param>
+        /// <returns>A list of ratings for the transaction.</returns>
+        /// <response code="200">Successfully retrieved transaction ratings.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not a party to this transaction.</response>
+        /// <response code="404">If the transaction is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpGet("{id:int}/ratings")]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<RatingDto>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetTransactionRatings(int id)
         {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API GetTransactionRatings START for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", id, userIdClaim ?? "N/A");
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
+                if (user == null)
+                {
+                    _logger.LogWarning("API GetTransactionRatings UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}. TransactionID: {TransactionId}", 
+                        userIdClaim ?? "N/A", id);
+                    return this.ApiUnauthorized("User not found.");
+                }
 
-                // Verify user has access to this transaction
                 var canAccess = await _transactionService.CanUserAccessTransactionAsync(id, user.Id);
-                if (!canAccess) return this.ApiForbidden("You are not authorized to view ratings for this transaction.");
+                if (!canAccess)
+                {
+                    _logger.LogWarning("API GetTransactionRatings FORBIDDEN: UserID {UserId} not authorized for TransactionID {TransactionId}.", user.Id, id);
+                    return this.ApiForbidden("You are not authorized to view ratings for this transaction.");
+                }
 
-                // Check if transaction exists
-                var transaction = await _transactionService.GetTransactionByIdAsync(id);
-                if (transaction == null) return this.ApiNotFound($"Transaction with ID {id} not found.");
+                var transactionExists = await _transactionService.GetTransactionByIdAsync(id); 
+                if (transactionExists == null)
+                {
+                    _logger.LogWarning("API GetTransactionRatings NOT_FOUND: TransactionID {TransactionId} not found for UserID {UserId}.", id, user.Id);
+                    return this.ApiNotFound($"Transaction with ID {id} not found.");
+                }
 
-                // Get ratings using repository
                 var ratings = await _unitOfWork.Ratings.FindAsync(r => r.TransactionId == id);
                 var ratingDtos = _mapper.Map<List<RatingDto>>(ratings);
                 
-                // Return OK with empty list if none found
-                return this.ApiOk(ratingDtos);
+                _logger.LogInformation("API GetTransactionRatings SUCCESS for TransactionID: {TransactionId}, UserID: {UserId}. Rating count: {Count}", 
+                    id, user.Id, ratingDtos?.Count ?? 0);
+                return this.ApiOk(ratingDtos); 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving transaction ratings. TransactionId: {TransactionId}", id);
-                return this.ApiInternalError("Error retrieving transaction ratings", ex);
+                _logger.LogError(ex, "API GetTransactionRatings ERROR for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error retrieving transaction ratings.", ex);
             }
         }
         
-        // POST: api/transactions/{id:int}/confirm
+        /// <summary>
+        /// Confirms completion of a transaction step by the authenticated user (buyer or seller).
+        /// </summary>
+        /// <param name="id">The ID of the transaction to confirm.</param>
+        /// <returns>A 200 OK response with a message indicating the confirmation status.</returns>
+        /// <response code="200">Confirmation recorded successfully. Message indicates if transaction is now complete or awaiting other party.</response>
+        /// <response code="400">If transaction ID is invalid or transaction is not in a confirmable state.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not a party to this transaction.</response>
+        /// <response code="404">If the transaction is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpPost("{id:int}/confirm")]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -446,62 +854,79 @@ namespace LeafLoop.Api
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ConfirmTransaction(int id)
         {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API ConfirmTransaction START for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", id, userIdClaim ?? "N/A");
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return this.ApiUnauthorized("User not found.");
-
-                // Get transaction to determine user's role and current state
-                var transaction = await _transactionService.GetTransactionByIdAsync(id);
-                if (transaction == null)
+                if (user == null)
                 {
-                    return this.ApiNotFound($"Transaction with ID {id} not found");
+                    _logger.LogWarning("API ConfirmTransaction UNAUTHORIZED: User not found for UserID claim: {UserIdClaim}. TransactionID: {TransactionId}", 
+                        userIdClaim ?? "N/A", id);
+                    return this.ApiUnauthorized("User not found.");
                 }
 
-                // Verify user is authorized (either buyer or seller)
+                var transaction = await _transactionService.GetTransactionByIdAsync(id); // Get the transaction to check its current state
+                if (transaction == null)
+                {
+                    _logger.LogWarning("API ConfirmTransaction NOT_FOUND: TransactionID {TransactionId} not found for UserID {UserId}.", id, user.Id);
+                    return this.ApiNotFound($"Transaction with ID {id} not found.");
+                }
+
                 if (transaction.BuyerId != user.Id && transaction.SellerId != user.Id)
                 {
+                    _logger.LogWarning("API ConfirmTransaction FORBIDDEN: UserID {UserId} is not a party to TransactionID {TransactionId}.", user.Id, id);
                     return this.ApiForbidden("You are not authorized to confirm this transaction.");
                 }
 
-                // Verify transaction is in correct state
                 if (transaction.Status != TransactionStatus.InProgress)
                 {
+                     _logger.LogWarning("API ConfirmTransaction BAD_REQUEST: Cannot confirm TransactionID {TransactionId} with status '{Status}'.", id, transaction.Status);
                     return this.ApiBadRequest($"Cannot confirm a transaction with status '{transaction.Status}'. Only transactions with status 'InProgress' can be confirmed.");
                 }
 
-                // Process the confirmation
+                // The service method should handle the logic of updating the confirmation status for the current user
+                // and potentially changing the overall transaction status if both parties have confirmed.
+                // TODO: The ITransactionService.ConfirmTransactionCompletionAsync should ideally return a more structured result 
+                // (e.g., an object with flags like IsNowCompleted, AwaitingOtherParty) or the updated TransactionDto.
                 await _transactionService.ConfirmTransactionCompletionAsync(id, user.Id);
+                _logger.LogInformation("API ConfirmTransaction: Confirmation processed for TransactionID: {TransactionId}, UserID: {UserId}", id, user.Id);
 
-                // Return success
-                bool isUserBuyer = (transaction.BuyerId == user.Id);
-                bool otherPartyConfirmed = isUserBuyer ? transaction.SellerConfirmed : transaction.BuyerConfirmed;
-                
-                if (otherPartyConfirmed)
+                // Re-fetch or use updated data from service to provide a more accurate message.
+                // For simplicity here, we'll use a generic message or a slightly more informed one if possible.
+                var updatedTransaction = await _transactionService.GetTransactionByIdAsync(id); // Re-fetch to get latest status
+                if (updatedTransaction?.Status == TransactionStatus.Completed)
                 {
                     return this.ApiOk("Transaction has been completed successfully. Both parties have confirmed.");
                 }
                 else
                 {
-                    return this.ApiOk("Your confirmation has been recorded. The transaction will be completed when the other party confirms, or automatically after 14 days.");
+                    return this.ApiOk("Your confirmation has been recorded. The transaction will be completed when the other party confirms, or automatically after a set period.");
                 }
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException) // Should be caught by GetTransactionByIdAsync if transaction disappears
             {
-                return this.ApiNotFound($"Transaction with ID {id} not found");
+                _logger.LogWarning("API ConfirmTransaction NOT_FOUND: TransactionID {TransactionId} not found during confirmation for UserID Claim: {UserIdClaim}.", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiNotFound($"Transaction with ID {id} not found.");
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException) // If service layer performs additional auth checks
             {
+                _logger.LogWarning("API ConfirmTransaction FORBIDDEN (service level): UserID Claim {UserIdClaim} not authorized for TransactionID {TransactionId}.", 
+                    userIdClaim ?? "N/A", id);
                 return this.ApiForbidden("You are not authorized to confirm this transaction.");
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException ex) // If transaction is not in a confirmable state as per service logic
             {
+                _logger.LogWarning(ex, "API ConfirmTransaction BAD_REQUEST (Invalid Op) for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
                 return this.ApiBadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error confirming transaction. TransactionId: {TransactionId}", id);
-                return this.ApiInternalError("Error confirming transaction", ex);
+                _logger.LogError(ex, "API ConfirmTransaction ERROR for TransactionID: {TransactionId}, UserID Claim: {UserIdClaim}", 
+                    id, userIdClaim ?? "N/A");
+                return this.ApiInternalError("Error confirming transaction.", ex);
             }
         }
     }

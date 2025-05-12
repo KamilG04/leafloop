@@ -60,9 +60,29 @@
               "target": "Package",
               "version": "[3.3.0, )"
             },
+            "Microsoft.AspNetCore.Authentication": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.Abstractions": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.Cookies": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.Core": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.OpenIdConnect": {
+              "target": "Package",
+              "version": "[8.0.8, )"
             },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
@@ -96,6 +116,18 @@
               "target": "Package",
               "version": "[8.0.2, )"
             },
+            "Swagger-Net": {
+              "target": "Package",
+              "version": "[8.5.12.1, )"
+            },
+            "Swagger.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[1.6.1, )"
+            },
+            "SwaggerAPIDocumentation": {
+              "target": "Package",
+              "version": "[1.1.5, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[8.1.0, )"
@@ -103,6 +135,18 @@
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
               "version": "[8.9.0, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.9.3, )"
+            },
+            "xunit.core": {
+              "target": "Package",
+              "version": "[2.9.3, )"
+            },
+            "xunit.extensibility.execution": {
+              "target": "Package",
+              "version": "[2.9.3, )"
             }
           },
           "imports": [
