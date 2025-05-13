@@ -3,88 +3,117 @@
     ViewData["Title"] = "Home";
 }
 
-<!-- Hero Section with Featured Items Carousel -->
-<section class="hero-section mb-5">
-    <div class="container-fluid px-0">
-        @if (Model.FeaturedItems.Any())
-        {
-            <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-indicators">
-                    @for (int i = 0; i < Model.FeaturedItems.Count; i++)
+<!-- Hero Section with animated content -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-6 fade-in-section">
+                <h1 class="hero-title">Daj przedmiotom drugie życie</h1>
+                <p class="hero-subtitle">Wymieniaj, oddawaj i zdobywaj potrzebne rzeczy w duchu zrównoważonego rozwoju.</p>
+                <div class="d-flex gap-3 mt-4">
+                    @if (User.Identity?.IsAuthenticated != true)
                     {
-                        <button type="button" data-bs-target="#featuredCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")"
-                                aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i+1)"></button>
+                        <a href="/Account/Register" class="btn btn-light btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Dołącz do nas
+                        </a>
                     }
+                    <a href="/Items" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-search me-2"></i>Przeglądaj przedmioty
+                    </a>
                 </div>
-                <div class="carousel-inner">
-                    @for (int i = 0; i < Model.FeaturedItems.Count; i++)
-                    {
-                        var item = Model.FeaturedItems[i];
-                        <div class="carousel-item @(i == 0 ? "active" : "")" style="max-height: 500px; overflow: hidden;">
-                            <img src="@(item.MainPhotoPath ?? "/img/placeholder.jpg")" class="d-block w-100" alt="@item.Name" 
-                                 style="object-fit: cover; height: 500px; filter: brightness(0.7);">
-                            <div class="carousel-caption d-none d-md-block">
-                                <h2>@item.Name</h2>
-                                <p>@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</p>
-                                <a href="/Items/Details/@item.Id" class="btn btn-success">Zobacz szczegóły</a>
-                            </div>
-                        </div>
-                    }
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
             </div>
-        }
-        else
-        {
-            <div class="bg-light p-5 text-center">
-                <h2>Witaj w LeafLoop!</h2>
-                <p class="lead">Platforma wymiany i recyklingu przedmiotów</p>
-                <a href="/Items" class="btn btn-success">Przeglądaj przedmioty</a>
+            <div class="col-lg-6 d-none d-lg-block fade-in-section" style="animation-delay: 0.3s;">
+                <img src="/img/hero-illustration.svg" alt="LeafLoop - Sustainable Exchange" class="img-fluid"
+                     style="filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));">
             </div>
-        }
+        </div>
+    </div>
+
+    <!-- Animated Waves at the bottom of the hero section -->
+    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden" style="height: 60px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none"
+             style="height: 100%; width: 100%;">
+            <path fill="#ffffff" fill-opacity="1"
+                  d="M0,96L48,106.7C96,117,192,139,288,149.3C384,160,480,160,576,138.7C672,117,768,75,864,80C960,85,1056,139,1152,138.7C1248,139,1344,85,1392,58.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+            </path>
+        </svg>
     </div>
 </section>
 
-<!-- Welcome Section with Stats -->
-<section class="welcome-section mb-5">
+<!-- Stats Section with counters -->
+<section class="py-5 bg-light fade-in-section">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h2 class="mb-4">Witaj w LeafLoop</h2>
-                <p class="lead">LeafLoop to platforma, która łączy ludzi chcących wymieniać się przedmiotami w duchu zrównoważonego rozwoju.</p>
-                <p>Wymieniaj, oddawaj, zyskuj punkty EcoScore i przyczyniaj się do zmniejszenia ilości odpadów.</p>
-                <a href="/Account/Register" class="btn btn-success me-2">Dołącz do nas</a>
-                <a href="/Items/Create" class="btn btn-outline-success">Dodaj przedmiot</a>
+        <div class="row text-center">
+            <div class="col-md-3 mb-4 mb-md-0">
+                <div class="counter-value" data-target="@Model.Stats.TotalUsers">@Model.Stats.TotalUsers</div>
+                <p class="text-muted mb-0">Użytkowników</p>
             </div>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title text-center mb-4">Nasze statystyki</h5>
-                        <div class="row text-center">
-                            <div class="col-6 mb-3">
-                                <div class="display-4 text-success">@Model.Stats.TotalUsers</div>
-                                <div class="text-muted">Użytkowników</div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="display-4 text-success">@Model.Stats.TotalItems</div>
-                                <div class="text-muted">Przedmiotów</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="display-4 text-success">@Model.Stats.CompletedTransactions</div>
-                                <div class="text-muted">Transakcji</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="display-4 text-success">@Model.Stats.TotalEvents</div>
-                                <div class="text-muted">Wydarzeń</div>
-                            </div>
+            <div class="col-md-3 mb-4 mb-md-0">
+                <div class="counter-value" data-target="@Model.Stats.TotalItems">@Model.Stats.TotalItems</div>
+                <p class="text-muted mb-0">Przedmiotów</p>
+            </div>
+            <div class="col-md-3 mb-4 mb-md-0">
+                <div class="counter-value" data-target="@Model.Stats.CompletedTransactions">@Model.Stats.CompletedTransactions</div>
+                <p class="text-muted mb-0">Transakcji</p>
+            </div>
+            <div class="col-md-3">
+                <div class="counter-value" data-target="@Model.Stats.TotalEvents">@Model.Stats.TotalEvents</div>
+                <p class="text-muted mb-0">Wydarzeń</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5 fade-in-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="mb-3">Jak działa LeafLoop?</h2>
+            <p class="lead text-muted mb-0">Proste kroki do zrównoważonej wymiany</p>
+        </div>
+
+        <div class="row g-4 mt-3">
+            <div class="col-md-4 fade-in-section" style="transition-delay: 0.1s;">
+                <div class="card h-100 border-0 hover-card">
+                    <div class="card-body text-center">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 100px; height: 100px;">
+                            <i class="bi bi-box-seam text-success" style="font-size: 2.5rem;"></i>
                         </div>
+                        <h4>1. Dodaj przedmioty</h4>
+                        <p class="text-muted">Zrób zdjęcia i opisz przedmioty, których już nie potrzebujesz.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 text-center">
+                        <a href="/Items/Create" class="btn btn-sm btn-outline-success">Dodaj przedmiot</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 fade-in-section" style="transition-delay: 0.2s;">
+                <div class="card h-100 border-0 hover-card">
+                    <div class="card-body text-center">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 100px; height: 100px;">
+                            <i class="bi bi-chat-dots text-success" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4>2. Połącz się</h4>
+                        <p class="text-muted">Kontaktuj się z innymi użytkownikami poprzez bezpieczny system wiadomości.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 text-center">
+                        <a href="/Items" class="btn btn-sm btn-outline-success">Przeglądaj</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 fade-in-section" style="transition-delay: 0.3s;">
+                <div class="card h-100 border-0 hover-card">
+                    <div class="card-body text-center">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 100px; height: 100px;">
+                            <i class="bi bi-award text-success" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4>3. Zdobywaj punkty</h4>
+                        <p class="text-muted">Zdobywaj EcoScore i odznaki za każdą udaną transakcję.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 text-center">
+                        <a href="/Profile" class="btn btn-sm btn-outline-success">Profil</a>
                     </div>
                 </div>
             </div>
@@ -93,42 +122,82 @@
 </section>
 
 <!-- Recent Items Section -->
-<section class="recent-items-section mb-5">
+<section class="py-5 bg-light fade-in-section">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">Ostatnio dodane przedmioty</h2>
-            <a href="/Items" class="btn btn-outline-success">Zobacz wszystkie</a>
+            <a href="/Items" class="btn btn-outline-success">
+                <i class="bi bi-grid-3x3-gap me-1"></i>Zobacz wszystkie
+            </a>
         </div>
-        
-        <div class="row">
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 stagger-container">
             @foreach (var item in Model.RecentItems)
             {
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div style="height: 200px; overflow: hidden;">
-                            @if (!string.IsNullOrEmpty(item.MainPhotoPath))
+                <div class="col stagger-item">
+                    <div class="card h-100 item-card shadow-sm">
+                        <div class="item-badges">
+                            @if (item.IsAvailable)
                             {
-                                <img src="@item.MainPhotoPath" class="card-img-top" alt="@item.Name"
-                                     style="object-fit: cover; height: 200px; width: 100%;">
+                                <span class="badge bg-success">Dostępny</span>
                             }
                             else
                             {
-                                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span class="badge bg-secondary">Niedostępny</span>
+                            }
+                        </div>
+
+                        @if (item.IsForExchange)
+                        {
+                            <div class="item-price">
+                                <i class="bi bi-arrow-left-right me-1"></i>Wymiana
+                            </div>
+                        }
+                        else if (item.ExpectedValue > 0)
+                        {
+                            <div class="item-price">@item.ExpectedValue.ToString("0.00") PLN</div>
+                        }
+                        else
+                        {
+                            <div class="item-price"><i class="bi bi-gift me-1"></i>Za darmo</div>
+                        }
+
+                        <div class="item-image">
+                            @if (!string.IsNullOrEmpty(item.MainPhotoPath))
+                            {
+                                <img src="@item.MainPhotoPath" class="card-img-top" alt="@item.Name"
+                                     loading="lazy" data-src="@item.MainPhotoPath">
+                            }
+                            else
+                            {
+                                <div class="bg-light d-flex align-items-center justify-content-center h-100">
                                     <i class="bi bi-image text-secondary" style="font-size: 3rem;"></i>
                                 </div>
                             }
                         </div>
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">@item.Name</h5>
-                            <p class="card-text text-muted small mb-2">
-                                @(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-info me-2">@item.Condition</span>
+                                <small class="text-muted ms-auto">@item.CategoryName</small>
+                            </div>
+                            <h5 class="card-title text-truncate mb-1">@item.Name</h5>
+                            <p class="card-text small text-muted mb-3">
+                                @if (item.Description?.Length > 80)
+                                {
+                                    @(item.Description.Substring(0, 80) + "...")
+                                }
+                                else
+                                {
+                                    @item.Description
+                                }
                             </p>
-                            <div class="mt-auto">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="badge bg-success">@(item.IsAvailable ? "Dostępny" : "Niedostępny")</span>
-                                    <small class="text-muted">@item.CategoryName</small>
-                                </div>
-                                <a href="/Items/Details/@item.Id" class="btn btn-sm btn-outline-success w-100">Zobacz szczegóły</a>
+                            <div class="d-flex mt-auto align-items-center">
+                                <small class="text-muted">
+                                    <i class="bi bi-person-circle me-1"></i>@item.UserName
+                                </small>
+                                <a href="/Items/Details/@item.Id" class="btn btn-sm btn-outline-success ms-auto">
+                                    Zobacz
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -139,34 +208,38 @@
 </section>
 
 <!-- Top Users Section -->
-<section class="top-users-section mb-5 bg-light py-5">
+<section class="py-5 fade-in-section">
     <div class="container">
-        <h2 class="text-center mb-4">Najlepsi użytkownicy</h2>
-        <div class="row justify-content-center">
+        <div class="text-center mb-5">
+            <h2 class="mb-2">Najlepsi użytkownicy</h2>
+            <p class="lead text-muted">Poznaj najbardziej aktywnych członków społeczności</p>
+        </div>
+
+        <div class="row justify-content-center stagger-container">
             @foreach (var user in Model.TopUsers)
             {
-                <div class="col-md-4 col-lg-2 mb-4">
-                    <div class="card h-100 text-center border-0 shadow-sm">
+                <div class="col-6 col-md-4 col-lg-2 mb-4 stagger-item">
+                    <div class="card text-center h-100 border-0 shadow-sm">
                         <div class="card-body">
                             @if (!string.IsNullOrEmpty(user.AvatarPath))
                             {
-                                <img src="@user.AvatarPath" class="rounded-circle mb-3" alt="@user.FirstName @user.LastName"
-                                     style="width: 80px; height: 80px; object-fit: cover;">
+                                <img src="@user.AvatarPath" class="rounded-circle mb-3 hover-zoom" alt="@user.FirstName @user.LastName"
+                                     style="width: 90px; height: 90px; object-fit: cover; border: 3px solid var(--leaf-primary)" loading="lazy">
                             }
                             else
                             {
-                                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-3"
-                                     style="width: 80px; height: 80px;">
-                                    <span class="h4 mb-0">@user.FirstName?.Substring(0, 1)@user.LastName?.Substring(0, 1)</span>
+                                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-3 hover-zoom"
+                                     style="width: 90px; height: 90px; border: 3px solid var(--leaf-primary)">
+                                    <span class="h3 mb-0">@user.FirstName?.Substring(0, 1)@user.LastName?.Substring(0, 1)</span>
                                 </div>
                             }
-                            <h5 class="card-title">@user.FirstName @user.LastName</h5>
-                            <div class="d-flex justify-content-center mb-2">
-                                <span class="badge bg-success p-2">
+                            <h5 class="card-title mb-1">@user.FirstName @user.LastName</h5>
+                            <div class="d-flex justify-content-center mb-3">
+                                <span class="badge bg-success px-3 py-2">
                                     <i class="bi bi-award me-1"></i> EcoScore: @user.EcoScore
                                 </span>
                             </div>
-                            <a href="/Profile/Index/@user.Id" class="btn btn-sm btn-outline-success">Zobacz profil</a>
+                            <a href="/Profile/Index/@user.Id" class="stretched-link"></a>
                         </div>
                     </div>
                 </div>
@@ -178,36 +251,49 @@
 <!-- Upcoming Events Section -->
 @if (Model.UpcomingEvents.Any())
 {
-    <section class="events-section mb-5">
+    <section class="py-5 bg-light fade-in-section">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Nadchodzące wydarzenia</h2>
-                <a href="/Events" class="btn btn-outline-success">Zobacz wszystkie</a>
+                <a href="/Events" class="btn btn-outline-success">
+                    <i class="bi bi-calendar-event me-1"></i>Zobacz wszystkie
+                </a>
             </div>
-            
-            <div class="row">
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 stagger-container">
                 @foreach (var evt in Model.UpcomingEvents)
                 {
-                    <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="col stagger-item">
                         <div class="card h-100 shadow-sm">
                             <div class="card-header bg-success text-white">
-                                <h5 class="card-title mb-0">@evt.Name</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0 text-truncate">@evt.Name</h5>
+                                    <span class="badge bg-light text-dark">
+                                        <i class="bi bi-calendar-event me-1"></i>
+                                        @evt.StartDate.ToString("dd.MM")
+                                    </span>
+                                </div>
                             </div>
                             <div class="card-body">
-                                <p class="card-text">@(evt.Description?.Length > 100 ? evt.Description.Substring(0, 100) + "..." : evt.Description)</p>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <small>
-                                        <i class="bi bi-calendar me-1"></i>
-                                        @evt.StartDate.ToString("dd.MM.yyyy")
-                                    </small>
-                                    <small>
+                                <p class="card-text">
+                                    @if (evt.Description?.Length > 100)
+                                    {
+                                        @(evt.Description.Substring(0, 100) + "...")
+                                    }
+                                    else
+                                    {
+                                        @evt.Description
+                                    }
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
                                         <i class="bi bi-people me-1"></i>
                                         @evt.CurrentParticipantsCount/@evt.ParticipantsLimit
                                     </small>
+                                    <a href="/Events/Details/@evt.Id" class="btn btn-sm btn-outline-success">
+                                        Szczegóły
+                                    </a>
                                 </div>
-                            </div>
-                            <div class="card-footer bg-white">
-                                <a href="/Events/Details/@evt.Id" class="btn btn-sm btn-outline-success w-100">Szczegóły</a>
                             </div>
                         </div>
                     </div>
@@ -218,32 +304,55 @@
 }
 
 <!-- Call to Action Section -->
-<section class="cta-section bg-success text-white text-center py-5 mb-5">
-    <div class="container">
-        <h2 class="mb-3">Gotowy, by dołączyć do ruchu zero waste?</h2>
-        <p class="lead mb-4">Daj przedmiotom drugie życie i pomagaj innym robić to samo!</p>
-        <a href="/Account/Register" class="btn btn-lg btn-light me-2">Zarejestruj się</a>
-        <a href="/Items" class="btn btn-lg btn-outline-light">Przeglądaj przedmioty</a>
+<section class="py-5 bg-success text-white text-center fade-in-section">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="mb-3 display-5 fw-bold">Gotowy, by dołączyć do ruchu zero waste?</h2>
+                <p class="lead mb-4">Daj przedmiotom drugie życie i pomagaj innym robić to samo!</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    @if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <a href="/Account/Register" class="btn btn-lg btn-light px-4 py-3">
+                            <i class="bi bi-person-plus-fill me-2"></i>Załóż konto
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/Items/Create" class="btn btn-lg btn-light px-4 py-3">
+                            <i class="bi bi-plus-circle-fill me-2"></i>Dodaj przedmiot
+                        </a>
+                    }
+                    <a href="/Items" class="btn btn-lg btn-outline-light px-4 py-3">
+                        <i class="bi bi-search me-2"></i>Przeglądaj przedmioty
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- Add CSS for the home page in a style tag or in site.css -->
-<style>
-    .card {
-        transition: transform 0.3s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .hero-section .carousel-item {
-        position: relative;
-    }
-    
-    .hero-section .carousel-caption {
-        background-color: rgba(0, 0, 0, 0.5);
-        border-radius: 10px;
-        padding: 20px;
-    }
-</style>
+@section Scripts {
+    <!-- If we need any page-specific scripts, they would go here -->
+    <script>
+        // Create a placeholder for the hero illustration if it doesn't exist
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if the hero illustration exists
+            const heroImg = document.querySelector('.hero-section img');
+            if (heroImg && !heroImg.complete) {
+                // Create placeholder until image loads
+                heroImg.style.display = 'none';
+                const placeholder = document.createElement('div');
+                placeholder.className = 'bg-success bg-opacity-25 rounded d-flex align-items-center justify-content-center';
+                placeholder.style.height = '400px';
+                placeholder.innerHTML = '<i class="bi bi-image text-success" style="font-size: 4rem;"></i>';
+                heroImg.parentNode.appendChild(placeholder);
+
+                heroImg.onload = function() {
+                    heroImg.style.display = 'block';
+                    placeholder.remove();
+                }
+            }
+        });
+    </script>
+}

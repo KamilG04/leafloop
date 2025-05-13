@@ -1,88 +1,191 @@
-﻿<!DOCTYPE html>
-<html lang="pl">
+﻿@{
+    string pageTitle = ViewData["Title"]?.ToString() ?? "LeafLoop";
+}
+<!DOCTYPE html>
+<html lang="pl" data-bs-theme="light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - LeafLoop</title>
+    <title>@pageTitle - LeafLoop | Zrównoważona wymiana przedmiotów</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <!-- Google Fonts - Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/dark-mode.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/LeafLoop.styles.css" asp-append-version="true" />
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/wwwroot/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="/LeafLoop.styles.css" asp-append-version="true" />
+
+    <!-- Script importmap -->
     <script type="importmap"></script>
 </head>
 <body>
+<!-- Page loader animation -->
+<div id="page-loader" class="position-fixed top-0 start-0 w-100 h-100 bg-white d-flex justify-content-center align-items-center" style="z-index: 9999; transition: opacity 0.5s ease;">
+    <div class="spinner-grow text-success" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<!-- Header with enhanced navbar -->
 <header>
-    <nav class="navbar navbar-expand-sm navbar-light border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-lg navbar-light border-bottom">
         <div class="container">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                <i class="bi bi-recycle text-success me-2"></i>LeafLoop
+            <!-- Logo and brand -->
+            <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                <span class="logo-icon me-2"><i class="bi bi-recycle text-success fs-3"></i></span>
+                <span>LeafLoop</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+
+            <!-- Mobile toggle button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
+
+            <!-- Navbar content -->
+            <div class="navbar-collapse collapse d-lg-flex justify-content-between">
+                <!-- Main navigation -->
+                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Items" asp-action="Index">Przedmioty</a>
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Items" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                           asp-controller="Items" asp-action="Index">
+                            <i class="bi bi-grid-3x3-gap me-1"></i> Przeglądaj
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Events" asp-action="Index">Wydarzenia</a>
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Events" ? "active" : "")"
+                           asp-controller="Events" asp-action="Index">
+                            <i class="bi bi-calendar-event me-1"></i> Wydarzenia
+                        </a>
                     </li>
-                    @if (User.Identity.IsAuthenticated)
+
+                    @if (User.Identity?.IsAuthenticated == true)
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Items" asp-action="MyItems">Moje przedmioty</a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Items" && ViewContext.RouteData.Values["Action"]?.ToString() == "MyItems" ? "active" : "")"
+                               asp-controller="Items" asp-action="MyItems">
+                                <i class="bi bi-collection me-1"></i> Moje przedmioty
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Transactions" asp-action="Index">Transakcje</a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Transactions" ? "active" : "")"
+                               asp-controller="Transactions" asp-action="Index">
+                                <i class="bi bi-arrow-left-right me-1"></i> Transakcje
+                            </a>
                         </li>
+
+                        <!-- Admin dropdown -->
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")"
+                                   href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-gear me-1"></i> Admin
+                                </a>
+                                <ul class="dropdown-menu shadow-sm" aria-labelledby="adminDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Manage Users</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Items">Manage Items</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reports">Reports</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="AdminLogs">Admin Logs</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="SystemSettings">System Settings</a></li>
+                                </ul>
+                            </li>
+                        }
                     }
                 </ul>
+
+                <!-- Right side actions -->
                 <ul class="navbar-nav">
+                    <!-- Search form in navbar -->
+                    <li class="nav-item d-none d-lg-block me-2">
+                        <form class="d-flex" action="/Items" method="get">
+                            <div class="input-group">
+                                <input class="form-control" type="search" name="searchTerm" placeholder="Szukaj przedmiotów..."
+                                       aria-label="Search" style="min-width: 200px;">
+                                <button class="btn btn-outline-success" type="submit">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+
                     <!-- Theme toggle button -->
                     <li class="nav-item">
-                        <button id="theme-toggle" class="btn btn-link nav-link">
+                        <button id="theme-toggle" class="btn btn-link nav-link" aria-label="Toggle dark mode">
                             <i class="bi bi-moon-stars"></i>
                         </button>
                     </li>
+
+                    <!-- Login partial -->
                     <partial name="_LoginPartial" />
                 </ul>
             </div>
         </div>
     </nav>
 </header>
-<main role="main" class="pb-3">
+
+<!-- Main content -->
+<main role="main" class="page-transition-wrapper pb-5">
     @RenderBody()
 </main>
 
-<footer class="border-top footer text-muted">
-    <div class="container py-4">
+<!-- Enhanced Footer -->
+<footer class="border-top mt-5">
+    <div class="container py-5">
         <div class="row">
-            <div class="col-md-4 mb-3">
-                <h5 class="text-success">LeafLoop</h5>
-                <p class="text-muted">Platforma wymiany i recyklingu przedmiotów. Daj przedmiotom drugie życie!</p>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="footer-logo d-flex align-items-center">
+                    <i class="bi bi-recycle me-2"></i>LeafLoop
+                </div>
+                <p class="text-muted mb-3">Platforma dla zrównoważonej wymiany i recyklingu przedmiotów. Daj przedmiotom drugie życie!</p>
+                <div class="mt-3">
+                        <span class="badge bg-success p-2 me-2">
+                            <i class="bi bi-tree"></i> Promujemy zrównoważony rozwój
+                        </span>
+                    <span class="badge bg-success p-2">
+                            <i class="bi bi-people"></i> Budujemy społeczność
+                        </span>
+                </div>
             </div>
-            <div class="col-md-2 mb-3">
-                <h6>Nawigacja</h6>
+
+            <div class="col-md-2 col-6 mb-3">
+                <h6 class="fw-bold mb-3">Nawigacja</h6>
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" href="/">Strona główna</a></li>
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" href="/Items">Przedmioty</a></li>
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" href="/Events">Wydarzenia</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link p-0 text-muted" href="/">Strona główna</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link p-0 text-muted" href="/Items">Przedmioty</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link p-0 text-muted" href="/Events">Wydarzenia</a></li>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item mb-2"><a class="nav-link p-0 text-muted" href="/Profile">Mój profil</a></li>
+                    }
                 </ul>
             </div>
-            <div class="col-md-2 mb-3">
-                <h6>Informacje</h6>
+
+            <div class="col-md-2 col-6 mb-3">
+                <h6 class="fw-bold mb-3">Informacje</h6>
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" href="/Home/Privacy">Polityka prywatności</a></li>
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" href="/Home/About">O nas</a></li>
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" href="/Home/Contact">Kontakt</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link p-0 text-muted" href="/Home/About">O nas</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link p-0 text-muted" href="/Home/Contact">Kontakt</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link p-0 text-muted" href="/Home/Privacy">Polityka prywatności</a></li>
                 </ul>
             </div>
+
             <div class="col-md-4 mb-3">
-                <h6>Dołącz do nas</h6>
-                <p class="text-muted">Śledź nas w mediach społecznościowych</p>
+                <h6 class="fw-bold mb-3">Dołącz do nas</h6>
+                <p class="text-muted mb-3">Śledź nas w mediach społecznościowych</p>
                 <div class="d-flex gap-3">
                     <a href="#" class="text-success fs-4"><i class="bi bi-facebook"></i></a>
                     <a href="#" class="text-success fs-4"><i class="bi bi-instagram"></i></a>
@@ -90,18 +193,23 @@
                 </div>
             </div>
         </div>
+
         <div class="d-flex justify-content-between pt-4 mt-4 border-top">
-            <p>&copy; 2025 - LeafLoop - Wszystkie prawa zastrzeżone</p>
-            <p>Made with <i class="bi bi-heart-fill text-danger"></i> for the planet</p>
+            <p class="text-muted">&copy; @DateTime.Now.Year - LeafLoop - Wszystkie prawa zastrzeżone</p>
+            <p class="text-muted">Made with <i class="bi bi-heart-fill text-danger"></i> for the planet</p>
         </div>
     </div>
 </footer>
 
+<!-- JavaScript Libraries -->
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JavaScript -->
 <script src="~/js/site.js" asp-append-version="true" type="module"></script>
-<!-- Add near the end of _Layout.cshtml, before </body> -->
-@if (User.Identity.IsAuthenticated)
+
+<!-- Authentication check scripts (from your existing layout) -->
+@if (User.Identity?.IsAuthenticated == true)
 {
     <script>
         console.log("User is authenticated according to server-side check");
@@ -122,37 +230,97 @@ else
         console.log("Has JWT cookie:", hasJwtCookie);
 
         // If logged in but no cookie, might indicate a problem
-        const isLoggedIn = @(User.Identity.IsAuthenticated ? "true" : "false");
+        const isLoggedIn = @(User.Identity?.IsAuthenticated == true ? "true" : "false");
         if (isLoggedIn && !hasJwtCookie) {
             console.warn("Server thinks user is logged in but no JWT cookie found!");
         }
     });
 </script>
-@if (Context.Request.Cookies["jwt_token"] != null || User.Identity.IsAuthenticated)
+
+<!-- Conditional token check scripts -->
+@if (Context.Request.Cookies["jwt_token"] != null || User.Identity?.IsAuthenticated == true)
 {
     <script src="~/js/token-test.js" asp-append-version="true"></script>
 }
-@if (User.Identity.IsAuthenticated)
+
+@if (User.Identity?.IsAuthenticated == true)
 {
     <script src="~/js/auth-test.js"></script>
 }
-@if (User.IsInRole("Admin"))
-{
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-gear"></i> Admin
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a></li>
-            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Manage Users</a></li>
-            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Items">Manage Items</a></li>
-            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reports">Reports</a></li>
-            <li><a class="dropdown-item" asp-controller="Admin" asp-action="AdminLogs">Admin Logs</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" asp-controller="Admin" asp-action="SystemSettings">System Settings</a></li>
-        </ul>
-    </li>
-}
+
+<!-- Add animations and scroll effects -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hide page loader
+        const pageLoader = document.getElementById('page-loader');
+        if (pageLoader) {
+            setTimeout(() => {
+                pageLoader.style.opacity = '0';
+                setTimeout(() => {
+                    pageLoader.remove();
+                }, 500);
+            }, 300);
+        }
+
+        // Initialize fade-in sections
+        const fadeElements = document.querySelectorAll('.fade-in-section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        fadeElements.forEach(el => {
+            observer.observe(el);
+        });
+
+        // Initialize staggered animations
+        const staggerContainers = document.querySelectorAll('.stagger-container');
+        const staggerObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const items = entry.target.querySelectorAll('.stagger-item');
+                    items.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.classList.add('is-visible');
+                        }, 100 * index);
+                    });
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        staggerContainers.forEach(container => {
+            staggerObserver.observe(container);
+        });
+
+        // Initialize navbar scroll effect
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+
+            // Check initial scroll position
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            }
+        }
+    });
+</script>
+
+<!-- Render additional scripts -->
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

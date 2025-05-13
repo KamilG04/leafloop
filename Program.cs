@@ -194,7 +194,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(15); // ale synchronizacja sie jbe albo to rozkminiac albo co
     options.SlidingExpiration = true;
 
     options.Cookie.HttpOnly = true;

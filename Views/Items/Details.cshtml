@@ -1,29 +1,244 @@
-@* Pełna ścieżka: Views/Items/Details.cshtml *@
 @{
     ViewData["Title"] = "Szczegóły przedmiotu";
     var itemId = ViewBag.ItemId ?? 0; // Pobierz ID przekazane z kontrolera
 }
 
-<div class="container mt-4">
-    <nav aria-label="breadcrumb">
+<div class="container py-4">
+    <!-- Breadcrumb navigation -->
+    <nav aria-label="breadcrumb" class="mb-4 fade-in-section">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Items">Przedmioty</a></li>
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="/Items" class="text-decoration-none">Przedmioty</a></li>
             <li class="breadcrumb-item active" aria-current="page">Szczegóły</li>
         </ol>
     </nav>
 
-    @* Ten div będzie kontenerem dla komponentu React ItemDetails *@
-    @* Przekazujemy ID przedmiotu przez atrybut data-* *@
+    <!-- This div will be replaced by the React component -->
     <div id="react-item-details-container" data-item-id="@itemId">
-        <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
-            <div class="spinner-border text-success" role="status">
+        <!-- Loading spinner -->
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
                 <span class="visually-hidden">Ładowanie szczegółów przedmiotu...</span>
             </div>
+        </div>
+    </div>
+
+    <!-- Design Template - Will be rendered by React - Added here for reference only -->
+    <div id="item-details-template" class="d-none">
+        <div class="row g-4">
+            <!-- Left Column: Images -->
+            <div class="col-lg-7 mb-4 fade-in-section">
+                <div class="item-detail-carousel">
+                    <div id="itemCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                            <button type="button" data-bs-target="#itemCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        </div>
+                        <div class="carousel-inner rounded">
+                            <!-- Main image -->
+                            <div class="carousel-item active" style="height: 500px; background-color: #f8f9fa;">
+                                <img src="/path/to/image.jpg" class="d-block w-100 h-100"
+                                     style="object-fit: contain;" alt="Item name">
+                            </div>
+                            <!-- Additional images would go here -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#itemCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+
+                    <!-- Thumbnail navigation -->
+                    <div class="d-flex justify-content-center mt-3 gap-2">
+                        <button class="btn btn-sm p-0 border-0 rounded overflow-hidden" style="width: 70px; height: 70px;">
+                            <img src="/path/to/thumbnail1.jpg" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail 1">
+                        </button>
+                        <button class="btn btn-sm p-0 border-0 rounded overflow-hidden" style="width: 70px; height: 70px;">
+                            <img src="/path/to/thumbnail2.jpg" class="w-100 h-100" style="object-fit: cover;" alt="Thumbnail 2">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Item description section -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Opis</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel elit euismod, finibus nisl at, dignissim orci. Morbi efficitur diam eget quam congue, id eleifend felis varius.</p>
+
+                        <!-- Tags -->
+                        <div class="mt-3">
+                            <span class="item-tag">Tag 1</span>
+                            <span class="item-tag">Tag 2</span>
+                            <span class="item-tag">Tag 3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Item Info -->
+            <div class="col-lg-5 fade-in-section" style="transition-delay: 0.2s;">
+                <div class="card shadow-sm sticky-lg-top" style="top: 100px; z-index: 100;">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                            <h3 class="mb-0 me-2">Item Name</h3>
+                            <span class="badge bg-success fs-6">Dostępny</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Price/Value section -->
+                        <div class="mb-4">
+                            <h4 class="text-primary mb-2">50.00 PLN</h4>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-info me-2">Używany</span>
+                                <span class="category-badge">
+                                    <i class="bi bi-tag"></i>Kategoria
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Owner information -->
+                        <div class="d-flex align-items-center mb-4">
+                            <img src="/path/to/avatar.jpg" alt="Owner Name"
+                                 class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                            <div>
+                                <a href="/Profile/1" class="text-decoration-none fw-bold">Owner Name</a>
+                                <div class="d-flex align-items-center">
+                                    <div class="rating me-2">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star text-warning"></i>
+                                    </div>
+                                    <span class="small text-muted">EcoScore: 130</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Key details -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-3">Szczegóły</h6>
+                            <div class="row mb-2">
+                                <div class="col-5 text-muted">Data dodania:</div>
+                                <div class="col-7">01.12.2023</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-5 text-muted">Lokalizacja:</div>
+                                <div class="col-7">Warszawa</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-5 text-muted">Stan:</div>
+                                <div class="col-7">Używany</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-5 text-muted">Wymiana:</div>
+                                <div class="col-7">Dostępna</div>
+                            </div>
+                        </div>
+
+                        <!-- Action buttons -->
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg">
+                                <i class="bi bi-chat-dots me-2"></i>Chcę to! (Rozpocznij transakcję)
+                            </button>
+                            <button class="btn btn-outline-primary">
+                                <i class="bi bi-heart me-2"></i>Dodaj do obserwowanych
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                <i class="bi bi-flag me-2"></i>Zgłoś przedmiot
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Similar Items Section -->
+        <h4 class="mt-5 mb-4 fade-in-section">Podobne przedmioty</h4>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 stagger-container">
+            <!-- Item cards would go here -->
         </div>
     </div>
 </div>
 
 @section Scripts {
-    @* Ładuje zbudowany plik dla szczegółów przedmiotu *@
+    <!-- Load the React component to render item details -->
     <script src="~/js/dist/itemDetails.bundle.js" asp-append-version="true"></script>
+
+    <script>
+        // Add this script to enhance the React component with animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // After React renders the content, initialize fade effects
+            const setupFadeEffects = () => {
+                // Find all elements with fade-in-section class 
+                // (these might be added by React)
+                const fadeElements = document.querySelectorAll('.fade-in-section:not(.is-visible)');
+
+                // Create an observer for animation
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+
+                // Observe each fade element
+                fadeElements.forEach(el => {
+                    observer.observe(el);
+                });
+
+                // Set up staggered animations for similar items
+                const staggerContainers = document.querySelectorAll('.stagger-container');
+                staggerContainers.forEach(container => {
+                    const staggerItems = container.querySelectorAll('.stagger-item:not(.is-visible)');
+
+                    const staggerObserver = new IntersectionObserver((entries) => {
+                        if (entries[0].isIntersecting) {
+                            staggerItems.forEach((item, index) => {
+                                setTimeout(() => {
+                                    item.classList.add('is-visible');
+                                }, 100 * index);
+                            });
+                            staggerObserver.unobserve(container);
+                        }
+                    }, {
+                        threshold: 0.1
+                    });
+
+                    if (staggerItems.length > 0) {
+                        staggerObserver.observe(container);
+                    }
+                });
+            };
+
+            // Set up mutation observer to detect when React adds content
+            const reactContainer = document.getElementById('react-item-details-container');
+            if (reactContainer) {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                            // Wait a moment for React to finish rendering
+                            setTimeout(setupFadeEffects, 300);
+                        }
+                    });
+                });
+
+                observer.observe(reactContainer, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        });
+    </script>
 }
