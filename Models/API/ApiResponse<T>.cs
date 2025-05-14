@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace LeafLoop.Models.API;
 
-public class ApiResponse<T> // Na razie bez dziedziczenia dla prostoty
+public class ApiResponse<T> // For now without inheritance, so it's not that complicated
 {
     /// <summary>
     /// Indicates if the operation was successful.
@@ -11,19 +11,19 @@ public class ApiResponse<T> // Na razie bez dziedziczenia dla prostoty
 
     public string Message { get; set; } = string.Empty;
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Ignoruj Data jeśli jest null
-    public T? Data { get; set; } // T? pozwala na null dla typów referencyjnych i nullable value types
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Ignore Data if it's null
+    public T? Data { get; set; } // T? allows null for reference types and nullable value types
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Ignoruj jeśli null
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Ignore if it's null
     public int? TotalItems { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Ignoruj jeśli null
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Ignore if it's null
     public int? TotalPages { get; set; }
 
     /// <summary>
     /// The current page number (used for pagination). Null if not applicable.
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Ignoruj jeśli null
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Ignore if it's null
     public int? CurrentPage { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
