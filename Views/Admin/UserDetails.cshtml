@@ -1,0 +1,80 @@
+@model LeafLoop.Services.DTOs.UserManagementDto
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<div class="container-fluid">
+    <h1>User Details</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>@Model.FirstName @Model.LastName</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-3">User ID</dt>
+                        <dd class="col-sm-9">@Model.UserId</dd>
+                        
+                        <dt class="col-sm-3">Email</dt>
+                        <dd class="col-sm-9">@Model.Email</dd>
+                        
+                        <dt class="col-sm-3">Status</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </dd>
+                        
+                        <dt class="col-sm-3">Created Date</dt>
+                        <dd class="col-sm-9">@Model.CreatedDate.ToString("f")</dd>
+                        
+                        <dt class="col-sm-3">Last Activity</dt>
+                        <dd class="col-sm-9">@Model.LastActivity.ToString("f")</dd>
+                        
+                        <dt class="col-sm-3">Eco Score</dt>
+                        <dd class="col-sm-9">@Model.EcoScore</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h4>User Roles</h4>
+                    <form asp-action="UpdateUserRoles" asp-route-id="@Model.UserId" method="post">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="roles" value="Admin" 
+                                       @(Model.Roles.Contains("Admin") ? "checked" : "")>
+                                <label class="form-check-label">Admin</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="roles" value="Moderator" 
+                                       @(Model.Roles.Contains("Moderator") ? "checked" : "")>
+                                <label class="form-check-label">Moderator</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="roles" value="User" 
+                                       @(Model.Roles.Contains("User") ? "checked" : "")>
+                                <label class="form-check-label">User</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Roles</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <form asp-action="ToggleUserStatus" asp-route-id="@Model.UserId" method="post" class="d-inline">
+                    <button type="submit" class="btn @(Model.IsActive ? "btn-danger" : "btn-success")">
+                        @(Model.IsActive ? "Deactivate User" : "Activate User")
+                    </button>
+                </form>
+                <a href="@Url.Action("Users")" class="btn btn-secondary">Back to List</a>
+            </div>
+        </div>
+    </div>
+</div>

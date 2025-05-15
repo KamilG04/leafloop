@@ -27,6 +27,9 @@ namespace LeafLoop.Repositories.Interfaces
         ISubscriptionRepository Subscriptions { get; }
         ISavedSearchRepository SavedSearches { get; }
         
+        // Add this property to IUnitOfWork interface
+        IAdminRepository AdminLogs { get; }
+        
         // Generic entity methods (for entities without specific repositories)
         Task<T> GetEntityByIdAsync<T>(int id) where T : class;
         Task<IEnumerable<T>> GetAllEntitiesAsync<T>() where T : class;

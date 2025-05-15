@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using LeafLoop.Models; // Dla TransactionStatus, TransactionType
+using LeafLoop.Models; 
 
 namespace LeafLoop.Services.DTOs
 {
-    // TransactionDto (bez zmian)
-    public class TransactionDto { /* ... jak poprzednio ... */
+
+    public class TransactionDto { 
          public int Id { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
@@ -19,10 +19,12 @@ namespace LeafLoop.Services.DTOs
         public int ItemId { get; set; }
         public string ItemName { get; set; }
         public string ItemPhotoPath { get; set; }
+        public bool BuyerConfirmed { get; set; }
+        public bool SellerConfirmed { get; set; }   
      }
 
-    // TransactionWithDetailsDto (bez zmian)
-    public class TransactionWithDetailsDto : TransactionDto { /* ... jak poprzednio ... */
+
+    public class TransactionWithDetailsDto : TransactionDto { 
         public UserDto Seller { get; set; }
         public UserDto Buyer { get; set; }
         public ItemDto Item { get; set; }
@@ -30,7 +32,7 @@ namespace LeafLoop.Services.DTOs
         public List<RatingDto> Ratings { get; set; }
      }
 
-    // TransactionCreateDto (POPRAWIONE)
+
     public class TransactionCreateDto
     {
         [Required]
@@ -40,12 +42,12 @@ namespace LeafLoop.Services.DTOs
         public TransactionType Type { get; set; } // Typ jest wymagany
 
         // Usunięto: public string InitialMessage { get; set; }
-        // Opcjonalnie dodaj Offer, jeśli dodałeś do modelu Transaction
+        
         // public string? Offer { get; set; }
     }
 
-    // TransactionStatusUpdateDto (bez zmian)
-    public class TransactionStatusUpdateDto { /* ... jak poprzednio ... */
+
+    public class TransactionStatusUpdateDto { 
           [Required]
         public TransactionStatus Status { get; set; }
      }
@@ -58,11 +60,13 @@ namespace LeafLoop.Services.DTOs
     }
 
     // TransactionRatingDto (bez zmian)
-    public class TransactionRatingDto { /* ... jak poprzednio ... */
-         [Required]
-        [Range(1, 5)]
+    public class TransactionRatingDto
+    {
+        [Required]
+        [Range(1, 5, ErrorMessage = "Ocena musi być wartością od 1 do 5")]
         public int Value { get; set; }
-        [MaxLength(500)]
-        public string? Comment { get; set; }
+        
+        [MaxLength(500, ErrorMessage = "Komentarz nie może być dłuższy niż 500 znaków")]
+        public string Comment { get; set; }
     }
 }

@@ -17,5 +17,7 @@ namespace LeafLoop.Services.Interfaces
         Task CompleteTransactionAsync(int id, int userId);
         Task CancelTransactionAsync(int id, int userId);
         Task<bool> CanUserAccessTransactionAsync(int transactionId, int userId);
+        Task ConfirmTransactionCompletionAsync(int id, int userId);
+        Task CheckAndAutoCompleteTransactionsAsync();
     }
 }

@@ -1,0 +1,1184 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LeafLoop</name>
+    </assembly>
+    <members>
+        <member name="T:LeafLoop.Api.ApiControllerExtensions">
+            <summary>
+            Provides extension methods for <see cref="T:Microsoft.AspNetCore.Mvc.ControllerBase"/> to create standardized API responses.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiOk``1(Microsoft.AspNetCore.Mvc.ControllerBase,``0,System.String)">
+            <summary>
+            Creates a successful (200 OK) API response with data.
+            </summary>
+            <typeparam name="T">The type of the data in the response.</typeparam>
+            <param name="controller">The controller instance.</param>
+            <param name="data">The data to include in the response.</param>
+            <param name="message">An optional success message.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 200 OK response with an <see cref="T:LeafLoop.Models.API.ApiResponse`1"/>.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiOk(Microsoft.AspNetCore.Mvc.ControllerBase,System.String)">
+            <summary>
+            Creates a successful (200 OK) API response without specific data.
+            </summary>
+            <param name="controller">The controller instance.</param>
+            <param name="message">An optional success message.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 200 OK response with a non-generic <see cref="T:LeafLoop.Models.API.ApiResponse"/>.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiOkWithPagination``1(Microsoft.AspNetCore.Mvc.ControllerBase,``0,System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Creates a successful (200 OK) API response with paginated data.
+            </summary>
+            <typeparam name="T">The type of the paginated data in the response.</typeparam>
+            <param name="controller">The controller instance.</param>
+            <param name="data">The paginated data to include in the response.</param>
+            <param name="totalItems">The total number of items available.</param>
+            <param name="totalPages">The total number of pages available.</param>
+            <param name="currentPage">The current page number.</param>
+            <param name="message">An optional success message.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 200 OK response with an <see cref="T:LeafLoop.Models.API.ApiResponse`1"/> including pagination details.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiCreated``1(Microsoft.AspNetCore.Mvc.ControllerBase,``0,System.String,System.Object,System.String)">
+            <summary>
+            Creates a Created (201) API response using a route name for location header.
+            </summary>
+            <typeparam name="T">The type of the created resource data.</typeparam>
+            <param name="controller">The controller instance.</param>
+            <param name="data">The data of the created resource.</param>
+            <param name="routeName">The name of the route to generate the location URL.</param>
+            <param name="routeValues">The route values to generate the location URL.</param>
+            <param name="message">An optional message indicating success.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 201 Created response with an <see cref="T:LeafLoop.Models.API.ApiResponse`1"/>.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiCreatedAtAction``1(Microsoft.AspNetCore.Mvc.ControllerBase,``0,System.String,System.String,System.Object,System.String)">
+            <summary>
+            Creates a Created (201) API response using action and controller names for location header.
+            </summary>
+            <typeparam name="T">The type of the created resource data.</typeparam>
+            <param name="controller">The controller instance.</param>
+            <param name="data">The data of the created resource.</param>
+            <param name="actionName">The name of the action method.</param>
+            <param name="controllerName">The name of the controller.</param>
+            <param name="routeValues">The route values to generate the location URL.</param>
+            <param name="message">An optional message indicating success.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 201 Created response with an <see cref="T:LeafLoop.Models.API.ApiResponse`1"/>.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiNoContent(Microsoft.AspNetCore.Mvc.ControllerBase)">
+            <summary>
+            Creates a standard HTTP 204 No Content response.
+            </summary>
+            <param name="controller">The controller instance.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 204 No Content response.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiError(Microsoft.AspNetCore.Mvc.ControllerBase,System.Int32,System.String,System.Object)">
+            <summary>
+            Creates a generic error API response with a specified status code.
+            </summary>
+            <param name="controller">The controller instance.</param>
+            <param name="statusCode">The HTTP status code for the error.</param>
+            <param name="message">The primary error message.</param>
+            <param name="errors">Optional details about the errors (e.g., validation errors).</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing the specified error status code with a non-generic <see cref="T:LeafLoop.Models.API.ApiResponse"/>.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiBadRequest(Microsoft.AspNetCore.Mvc.ControllerBase,System.String,System.Object)">
+            <summary>
+            Creates a BadRequest (400) API response.
+            </summary>
+            <param name="controller">The controller instance.</param>
+            <param name="message">The error message for the bad request.</param>
+            <param name="errors">Optional details about the errors.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 400 Bad Request response with a non-generic <see cref="T:LeafLoop.Models.API.ApiResponse"/>.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiBadRequest(Microsoft.AspNetCore.Mvc.ControllerBase,Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary)">
+            <summary>
+            Creates a BadRequest (400) API response from a <see cref="T:Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary"/>.
+            </summary>
+            <param name="controller">The controller instance.</param>
+            <param name="modelState">The model state containing validation errors.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 400 Bad Request response with validation errors from model state.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiNotFound(Microsoft.AspNetCore.Mvc.ControllerBase,System.String)">
+            <summary>
+            Creates a NotFound (404) API response.
+            </summary>
+            <param name="controller">The controller instance.</param>
+            <param name="message">An optional message indicating the resource was not found.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 404 Not Found response with a non-generic <see cref="T:LeafLoop.Models.API.ApiResponse"/>.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiForbidden(Microsoft.AspNetCore.Mvc.ControllerBase,System.String)">
+            <summary>
+            Creates a Forbidden (403) API response.
+            </summary>
+            <param name="controller">The controller instance.</param>
+            <param name="message">An optional message indicating access is forbidden.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 403 Forbidden response with a non-generic <see cref="T:LeafLoop.Models.API.ApiResponse"/>.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiUnauthorized(Microsoft.AspNetCore.Mvc.ControllerBase,System.String)">
+            <summary>
+            Creates an Unauthorized (401) API response.
+            </summary>
+            <param name="controller">The controller instance.</param>
+            <param name="message">An optional message indicating authentication is required.</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 401 Unauthorized response with a non-generic <see cref="T:LeafLoop.Models.API.ApiResponse"/>.</returns>
+        </member>
+        <member name="M:LeafLoop.Api.ApiControllerExtensions.ApiInternalError(Microsoft.AspNetCore.Mvc.ControllerBase,System.String,System.Exception)">
+            <summary>
+            Creates an Internal Server Error (500) API response.
+            Logs the error and optionally includes exception details in DEBUG mode.
+            </summary>
+            <param name="controller">The controller instance.</param>
+            <param name="message">A user-friendly message for the internal server error.</param>
+            <param name="exception">The exception that occurred (optional).</param>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> representing a 500 Internal Server Error response with a non-generic <see cref="T:LeafLoop.Models.API.ApiResponse"/>.</returns>
+        </member>
+        <member name="T:LeafLoop.Api.AuthController">
+            <summary>
+            Handles authentication processes such as user registration, login, and password management.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.AuthController.GetTokenForSpa">
+            <summary>
+            Retrieves the JWT for an authenticated user (typically for SPAs after cookie-based auth).
+            </summary>
+            <remarks>
+            This endpoint is intended for Single Page Applications that might need direct access to the JWT
+            after the user has been authenticated via an HttpOnly cookie mechanism.
+            The user must already be authenticated via the 'ApiAuthPolicy'.
+            </remarks>
+            <returns>
+            An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> containing the JWT if found, or a 404 Not Found response.
+            </returns>
+            <response code="200">Returns the JWT.</response>
+            <response code="401">If the user is not authenticated (handled by Authorize attribute).</response>
+            <response code="404">If the 'auth_token' cookie is not found despite authorization.</response>
+        </member>
+        <member name="M:LeafLoop.Api.AuthController.Register(LeafLoop.Services.DTOs.UserRegistrationDto)">
+            <summary>
+            Registers a new user.
+            </summary>
+            <param name="registrationDto">The user registration data.</param>
+            <returns>
+            An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> containing the JWT and user details upon successful registration,
+            or an error response.
+            </returns>
+            <response code="200">User registered successfully. Returns JWT and user details.</response>
+            <response code="400">If registration data is invalid or passwords do not match.</response>
+            <response code="409">If the email is already registered.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.AuthController.Login(LeafLoop.Services.DTOs.Auth.LoginDto)">
+            <summary>
+            Logs in an existing user.
+            </summary>
+            <param name="loginDto">The user login data.</param>
+            <returns>
+            An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> containing the JWT and user details upon successful login,
+            or an error response.
+            </returns>
+            <response code="200">Login successful. Returns JWT and user details.</response>
+            <response code="400">If login data is incomplete.</response>
+            <response code="401">If login attempt is invalid (wrong credentials, inactive account).</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.AuthController.ForgotPassword(LeafLoop.Services.DTOs.Auth.ForgotPasswordDto)">
+            <summary>
+            Initiates the password reset process for a user.
+            </summary>
+            <param name="forgotPasswordDto">The DTO containing the user's email.</param>
+            <returns>
+            A 200 OK response indicating that if the email is registered, instructions will be sent.
+            This is done to prevent email enumeration.
+            </returns>
+            <response code="200">Password reset initiated (or appears to be, to prevent email enumeration).</response>
+            <response code="400">If the email is not provided.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="T:LeafLoop.Api.CategoriesController">
+            <summary>
+            Manages categories for items.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.CategoriesController.GetAllCategories">
+            <summary>
+            Retrieves all categories.
+            </summary>
+            <returns>A list of all categories.</returns>
+            <response code="200">Returns the list of categories.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.CategoriesController.GetCategory(System.Int32)">
+            <summary>
+            Retrieves a specific category by its ID.
+            </summary>
+            <param name="id">The ID of the category to retrieve.</param>
+            <returns>The category with the specified ID.</returns>
+            <response code="200">Returns the requested category.</response>
+            <response code="400">If the category ID is invalid.</response>
+            <response code="404">If the category with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.CategoriesController.CreateCategory(LeafLoop.Services.DTOs.CategoryCreateDto)">
+            <summary>
+            Creates a new category. Requires Admin role.
+            </summary>
+            <param name="categoryDto">The data for the new category.</param>
+            <returns>The newly created category.</returns>
+            <response code="201">Returns the newly created category and its location.</response>
+            <response code="400">If the category data is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not an Admin.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.CategoriesController.UpdateCategory(System.Int32,LeafLoop.Services.DTOs.CategoryUpdateDto)">
+            <summary>
+            Updates an existing category. Requires Admin role.
+            </summary>
+            <param name="id">The ID of the category to update.</param>
+            <param name="categoryDto">The updated category data.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Category updated successfully.</response>
+            <response code="400">If the category data is invalid or ID mismatch.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not an Admin.</response>
+            <response code="404">If the category with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.CategoriesController.DeleteCategory(System.Int32)">
+            <summary>
+            Deletes a category by its ID. Requires Admin role.
+            </summary>
+            <param name="id">The ID of the category to delete.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Category deleted successfully.</response>
+            <response code="400">If the category ID is invalid or if the category cannot be deleted (e.g., in use).</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not an Admin.</response>
+            <response code="404">If the category with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="T:LeafLoop.Api.EventsController">
+            <summary>
+            Manages community events.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.GetAllEvents">
+            <summary>
+            Retrieves all events.
+            </summary>
+            <returns>A list of all events.</returns>
+            <response code="200">Returns the list of events.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.GetUpcomingEvents(System.Int32)">
+            <summary>
+            Retrieves upcoming events.
+            </summary>
+            <param name="count">The maximum number of upcoming events to retrieve. Defaults to 10.</param>
+            <returns>A list of upcoming events.</returns>
+            <response code="200">Returns the list of upcoming events.</response>
+            <response code="400">If the count parameter is invalid.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.GetPastEvents(System.Int32)">
+            <summary>
+            Retrieves past events.
+            </summary>
+            <param name="count">The maximum number of past events to retrieve. Defaults to 10.</param>
+            <returns>A list of past events.</returns>
+            <response code="200">Returns the list of past events.</response>
+            <response code="400">If the count parameter is invalid.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.GetEvent(System.Int32)">
+            <summary>
+            Retrieves a specific event by its ID, including details.
+            </summary>
+            <param name="id">The ID of the event to retrieve.</param>
+            <returns>The event with the specified ID.</returns>
+            <response code="200">Returns the requested event details.</response>
+            <response code="400">If the event ID is invalid.</response>
+            <response code="404">If the event with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.GetEventParticipants(System.Int32)">
+            <summary>
+            Retrieves participants for a specific event.
+            </summary>
+            <param name="id">The ID of the event.</param>
+            <returns>A list of participants for the event.</returns>
+            <response code="200">Returns the list of event participants.</response>
+            <response code="400">If the event ID is invalid.</response>
+            <response code="404">If the event with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.CreateEvent(LeafLoop.Services.DTOs.EventCreateDto)">
+            <summary>
+            Creates a new event. Requires authentication.
+            The organizer will be the authenticated user.
+            </summary>
+            <param name="eventDto">The data for the new event.</param>
+            <returns>The newly created event details.</returns>
+            <response code="201">Returns the newly created event and its location.</response>
+            <response code="400">If the event data is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.UpdateEvent(System.Int32,LeafLoop.Services.DTOs.EventUpdateDto)">
+            <summary>
+            Updates an existing event. Requires authentication and user must be the organizer or an Admin.
+            </summary>
+            <param name="id">The ID of the event to update.</param>
+            <param name="eventDto">The updated event data.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Event updated successfully.</response>
+            <response code="400">If the event data is invalid or ID mismatch.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to update this event.</response>
+            <response code="404">If the event with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.DeleteEvent(System.Int32)">
+            <summary>
+            Deletes an event. Requires authentication and user must be the organizer or an Admin.
+            </summary>
+            <param name="id">The ID of the event to delete.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Event deleted successfully.</response>
+            <response code="400">If the event ID is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to delete this event.</response>
+            <response code="404">If the event with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.RegisterForEvent(System.Int32)">
+            <summary>
+            Registers the authenticated user for an event.
+            </summary>
+            <param name="id">The ID of the event to register for.</param>
+            <returns>A 204 No Content response if successful registration.</returns>
+            <response code="204">Successfully registered for the event.</response>
+            <response code="400">If the event ID is invalid or registration is not possible (e.g., event full, past).</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="404">If the event with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.CancelEventRegistration(System.Int32)">
+            <summary>
+            Cancels the authenticated user's registration for an event.
+            </summary>
+            <param name="id">The ID of the event to cancel registration for.</param>
+            <returns>A 204 No Content response if successful cancellation.</returns>
+            <response code="204">Successfully cancelled registration for the event.</response>
+            <response code="400">If the event ID is invalid or cancellation is not possible.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="404">If the event with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.EventsController.UpdateParticipationStatus(System.Int32,System.Int32,LeafLoop.Services.DTOs.ParticipationStatusUpdateDto)">
+            <summary>
+            Updates the participation status of a user for an event. Requires Admin role.
+            </summary>
+            <param name="eventId">The ID of the event.</param>
+            <param name="userId">The ID of the user whose participation status is to be updated.</param>
+            <param name="statusUpdateDto">The DTO containing the new participation status.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Participation status updated successfully.</response>
+            <response code="400">If IDs are invalid, DTO is invalid, or status is invalid.</response>
+            <response code="401">If the admin is not authenticated.</response>
+            <response code="403">If the authenticated user is not an Admin.</response>
+            <response code="404">If the event or participant is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="T:LeafLoop.Api.ItemsController">
+            <summary>
+            Manages items (listings) in the application.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.ItemsController.GetItems(LeafLoop.Services.DTOs.ItemSearchDto)">
+            <summary>
+            Retrieves a paginated list of items based on search criteria.
+            </summary>
+            <param name="searchDto">The search parameters for filtering and pagination.</param>
+            <returns>A paginated list of items.</returns>
+            <response code="200">Returns the paginated list of items.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.ItemsController.GetItem(System.Int32)">
+            <summary>
+            Retrieves a specific item by its ID, including details.
+            </summary>
+            <param name="id">The ID of the item to retrieve.</param>
+            <returns>The item with the specified ID.</returns>
+            <response code="200">Returns the requested item details.</response>
+            <response code="400">If the item ID is invalid.</response>
+            <response code="404">If the item with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.ItemsController.GetCurrentUserItems">
+            <summary>
+            Retrieves items listed by the currently authenticated user.
+            </summary>
+            <returns>A list of items owned by the current user.</returns>
+            <response code="200">Returns the list of user's items.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.ItemsController.CreateItem(LeafLoop.Services.DTOs.ItemCreateDto)">
+            <summary>
+            Creates a new item. Requires authentication.
+            </summary>
+            <param name="itemDto">The data for the new item.</param>
+            <returns>The newly created item.</returns>
+            <response code="201">Returns the newly created item and its location.</response>
+            <response code="400">If the item data is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.ItemsController.UpdateItem(System.Int32,LeafLoop.Services.DTOs.ItemUpdateDto)">
+            <summary>
+            Updates an existing item. Requires authentication and user must be the owner.
+            </summary>
+            <param name="id">The ID of the item to update.</param>
+            <param name="itemDto">The updated item data.</param>
+            <returns>A 200 OK response with a success message, or 204 No Content if preferred.</returns>
+            <response code="200">Item updated successfully (returns a message).</response>
+            <response code="400">If the item data is invalid or ID mismatch.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to update this item.</response>
+            <response code="404">If the item with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.ItemsController.DeleteItem(System.Int32)">
+            <summary>
+            Deletes an item. Requires authentication and user must be the owner.
+            </summary>
+            <param name="id">The ID of the item to delete.</param>
+            <returns>A 200 OK response with a success message, or 204 No Content if preferred.</returns>
+            <response code="200">Item deleted successfully (returns a message).</response>
+            <response code="400">If the item ID is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to delete this item.</response>
+            <response code="404">If the item with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.ItemsController.UploadPhoto(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Uploads a photo for a specific item. Requires authentication and user must be the owner of the item.
+            </summary>
+            <param name="id">The ID of the item to associate the photo with.</param>
+            <param name="photo">The photo file to upload. Must be a valid image (JPG, PNG, WEBP) and under 5MB.</param>
+            <returns>Details of the uploaded photo.</returns>
+            <response code="200">Photo uploaded successfully. Returns photo details.</response>
+            <response code="400">If item ID is invalid, no photo is provided, or photo is invalid (type/size).</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to upload photos for this item.</response>
+            <response code="404">If the item with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.ItemsController.DeletePhoto(System.Int32,System.Int32)">
+            <summary>
+            Deletes a photo associated with an item. Requires authentication and user must be the owner of the item.
+            </summary>
+            <param name="itemId">The ID of the item the photo belongs to.</param>
+            <param name="photoId">The ID of the photo to delete.</param>
+            <returns>A 200 OK response with a success message, or 204 No Content if preferred.</returns>
+            <response code="200">Photo deleted successfully (returns a message).</response>
+            <response code="400">If item or photo ID is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to delete this photo.</response>
+            <response code="404">If the item or photo is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="T:LeafLoop.Api.NotificationsController">
+            <summary>
+            Manages user notifications. All endpoints require authentication.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.NotificationsController.GetUserNotifications">
+            <summary>
+            Retrieves all notifications for the authenticated user.
+            </summary>
+            <returns>A list of notifications for the user.</returns>
+            <response code="200">Returns the list of notifications.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.NotificationsController.GetUnreadNotificationsCount">
+            <summary>
+            Retrieves the count of unread notifications for the authenticated user.
+            </summary>
+            <returns>The count of unread notifications.</returns>
+            <response code="200">Returns the count of unread notifications.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.NotificationsController.MarkNotificationAsRead(System.Int32)">
+            <summary>
+            Marks a specific notification as read for the authenticated user.
+            </summary>
+            <param name="id">The ID of the notification to mark as read.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Notification marked as read successfully.</response>
+            <response code="400">If the notification ID is invalid.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="403">If the user is not authorized to access this notification.</response>
+            <response code="404">If the notification with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.NotificationsController.MarkAllNotificationsAsRead">
+            <summary>
+            Marks all notifications as read for the authenticated user.
+            </summary>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">All notifications marked as read successfully.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.NotificationsController.CreateSystemNotification(LeafLoop.Services.DTOs.SystemNotificationDto)">
+            <summary>
+            Creates a system-wide notification or a notification for specific users. Requires Admin role.
+            </summary>
+            <param name="notificationDto">The system notification data, including type, content, and optional user IDs.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">System notification created successfully.</response>
+            <response code="400">If the notification data is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not an Admin.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="T:LeafLoop.Api.PreferencesController">
+            <summary>
+            Manages user preferences. All endpoints require authentication.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.PreferencesController.GetUserPreferences">
+            <summary>
+            Retrieves the preferences for the authenticated user.
+            </summary>
+            <returns>The user's preferences. Returns default preferences if none are set.</returns>
+            <response code="200">Returns the user's preferences.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.PreferencesController.UpdateUserPreferences(LeafLoop.Models.PreferencesData)">
+            <summary>
+            Updates the preferences for the authenticated user.
+            </summary>
+            <param name="preferencesDto">The new preferences data.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Preferences updated successfully.</response>
+            <response code="400">If the preferences data is invalid.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs or update fails.</response>
+        </member>
+        <member name="M:LeafLoop.Api.PreferencesController.UpdateTheme(LeafLoop.Services.DTOs.Preferences.ThemeUpdateDto)">
+            <summary>
+            Updates the theme preference for the authenticated user.
+            </summary>
+            <param name="themeUpdateDto">The DTO containing the new theme preference.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Theme updated successfully.</response>
+            <response code="400">If the theme data is invalid.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs or update fails.</response>
+        </member>
+        <member name="M:LeafLoop.Api.PreferencesController.UpdateEmailNotifications(LeafLoop.Services.DTOs.Preferences.EmailNotificationsUpdateDto)">
+            <summary>
+            Updates the email notification preference for the authenticated user.
+            </summary>
+            <param name="emailNotificationsUpdateDto">The DTO containing the new email notification preference.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Email notification setting updated successfully.</response>
+            <response code="400">If the request data is invalid.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs or update fails.</response>
+        </member>
+        <member name="M:LeafLoop.Api.PreferencesController.UpdateLanguage(LeafLoop.Services.DTOs.Preferences.LanguageUpdateDto)">
+            <summary>
+            Updates the language preference for the authenticated user.
+            </summary>
+            <param name="languageUpdateDto">The DTO containing the new language preference.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Language preference updated successfully.</response>
+            <response code="400">If the language data is invalid.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs or update fails.</response>
+        </member>
+        <member name="M:LeafLoop.Api.PreferencesController.GetTheme">
+            <summary>
+            Retrieves the theme preference for the authenticated user.
+            </summary>
+            <returns>The user's current theme preference.</returns>
+            <response code="200">Returns the user's theme preference.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="T:LeafLoop.Api.TransactionsController">
+            <summary>
+            Manages transactions between users for items.
+            All actions require authentication according to the 'ApiAuthPolicy'.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.InitiateTransaction(LeafLoop.Services.DTOs.TransactionCreateDto)">
+            <summary>
+            Initiates a new transaction for an item (e.g., a user expresses intent to buy/borrow).
+            </summary>
+            <param name="transactionCreateDto">The data for the new transaction, including ItemId and Type.</param>
+            <returns>The newly created transaction details if successful.</returns>
+            <response code="201">Transaction initiated successfully. Returns the created transaction and its location.</response>
+            <response code="400">If the transaction data is invalid (e.g., invalid type, item not available for transaction, self-transaction).</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="404">If the item specified in the DTO is not found.</response>
+            <response code="500">If an internal server error occurs during transaction initiation.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.GetUserTransactions(System.Boolean)">
+            <summary>
+            Retrieves transactions for the authenticated user, either as a buyer or a seller.
+            </summary>
+            <param name="asSeller">If true, retrieves transactions where the user is the seller. If false (default), retrieves transactions where the user is the buyer.</param>
+            <returns>A list of the user's transactions.</returns>
+            <response code="200">Successfully retrieved transactions.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.GetTransaction(System.Int32)">
+            <summary>
+            Retrieves a specific transaction by its ID, including detailed information.
+            The authenticated user must be a party to the transaction (buyer or seller).
+            </summary>
+            <param name="id">The ID of the transaction to retrieve.</param>
+            <returns>The detailed information for the specified transaction.</returns>
+            <response code="200">Successfully retrieved transaction details.</response>
+            <response code="400">If the transaction ID is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not a party to this transaction.</response>
+            <response code="404">If the transaction with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.UpdateTransactionStatus(System.Int32,LeafLoop.Services.DTOs.TransactionStatusUpdateDto)">
+            <summary>
+            Updates the status of a transaction (e.g., accept, decline, ship).
+            The authenticated user must be a party to the transaction and authorized to perform the status change.
+            </summary>
+            <param name="id">The ID of the transaction to update.</param>
+            <param name="statusUpdateDto">The DTO containing the new status.</param>
+            <returns>A 200 OK response with a success message indicating the new status.</returns>
+            <response code="200">Transaction status updated successfully.</response>
+            <response code="400">If the transaction ID or new status is invalid, or the status transition is not allowed.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to update this transaction's status.</response>
+            <response code="404">If the transaction is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.CompleteTransaction(System.Int32)">
+            <summary>
+            Marks a transaction as completed by the authenticated user.
+            This might involve one or both parties confirming completion depending on the transaction flow.
+            </summary>
+            <param name="id">The ID of the transaction to complete.</param>
+            <returns>A 200 OK response with a message indicating the outcome of the completion attempt.</returns>
+            <response code="200">Transaction completion process initiated/confirmed successfully.</response>
+            <response code="400">If the transaction ID is invalid or the transaction cannot be completed at this stage.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to complete this transaction.</response>
+            <response code="404">If the transaction is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.CancelTransaction(System.Int32)">
+            <summary>
+            Cancels a transaction by the authenticated user.
+            Applicable if the transaction is in a state that allows cancellation by one of the parties.
+            </summary>
+            <param name="id">The ID of the transaction to cancel.</param>
+            <returns>A 200 OK response with a success message.</returns>
+            <response code="200">Transaction cancelled successfully.</response>
+            <response code="400">If the transaction ID is invalid or the transaction cannot be cancelled at this stage.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to cancel this transaction.</response>
+            <response code="404">If the transaction is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.GetTransactionMessages(System.Int32)">
+            <summary>
+            Retrieves messages for a specific transaction.
+            The authenticated user must be a party to the transaction.
+            </summary>
+            <param name="id">The ID of the transaction.</param>
+            <returns>A list of messages for the transaction.</returns>
+            <response code="200">Successfully retrieved transaction messages.</response>
+            <response code="400">If the transaction ID is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not a party to this transaction.</response>
+            <response code="404">If the transaction is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.SendTransactionMessage(System.Int32,LeafLoop.Services.DTOs.TransactionMessageDto)">
+            <summary>
+            Sends a message related to a specific transaction.
+            The authenticated user must be a party to the transaction.
+            </summary>
+            <param name="id">The ID of the transaction.</param>
+            <param name="messageDto">The DTO containing the message content.</param>
+            <returns>The details of the sent message if successfully retrieved, otherwise a success confirmation.</returns>
+            <response code="200">Message sent successfully. May return message details or a simple success message.</response>
+            <response code="400">If transaction ID is invalid, message content is empty, or transaction is not in a state to accept messages.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not authorized to send messages for this transaction.</response>
+            <response code="404">If the transaction is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.RateTransaction(System.Int32,LeafLoop.Services.DTOs.TransactionRatingDto)">
+            <summary>
+            Submits a rating for a completed transaction by the authenticated user for the other party in the transaction.
+            </summary>
+            <param name="id">The ID of the transaction to rate.</param>
+            <param name="ratingDto">The rating data (value and optional comment).</param>
+            <returns>The newly created rating details.</returns>
+            <response code="201">Rating submitted successfully. Returns the created rating and its location.</response>
+            <response code="400">If transaction ID is invalid, rating data is invalid, transaction not completed, or user has already rated this transaction for the other party.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user was not part of this transaction or is attempting to rate themselves.</response>
+            <response code="404">If the transaction is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.GetTransactionRatings(System.Int32)">
+            <summary>
+            Retrieves ratings associated with a specific transaction.
+            The authenticated user must be a party to the transaction.
+            </summary>
+            <param name="id">The ID of the transaction.</param>
+            <returns>A list of ratings for the transaction.</returns>
+            <response code="200">Successfully retrieved transaction ratings.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not a party to this transaction.</response>
+            <response code="404">If the transaction is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.TransactionsController.ConfirmTransaction(System.Int32)">
+            <summary>
+            Confirms completion of a transaction step by the authenticated user (buyer or seller).
+            </summary>
+            <param name="id">The ID of the transaction to confirm.</param>
+            <returns>A 200 OK response with a message indicating the confirmation status.</returns>
+            <response code="200">Confirmation recorded successfully. Message indicates if transaction is now complete or awaiting other party.</response>
+            <response code="400">If transaction ID is invalid or transaction is not in a confirmable state.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user is not a party to this transaction.</response>
+            <response code="404">If the transaction is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="T:LeafLoop.Api.UsersController">
+            <summary>
+            Manages user profiles, addresses, avatars, and related user data.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.GetUser(System.Int32)">
+            <summary>
+            Retrieves detailed information for a specific user by their ID.
+            Requires authentication. The authenticated user can view their own details, or an Admin can view any user's details.
+            </summary>
+            <param name="id">The ID of the user to retrieve.</param>
+            <returns>The detailed information for the specified user.</returns>
+            <response code="200">Successfully retrieved user details.</response>
+            <response code="400">If the user ID is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the authenticated user is not authorized to view this user's details.</response>
+            <response code="404">If the user with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.GetCurrentUser">
+            <summary>
+            Retrieves basic information for the currently authenticated user.
+            </summary>
+            <returns>The basic information for the current user.</returns>
+            <response code="200">Successfully retrieved current user's details.</response>
+            <response code="401">If the user is not authenticated or cannot be identified.</response>
+            <response code="404">If the current user's details could not be found (should be rare if authenticated).</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.UpdateUserProfile(System.Int32,LeafLoop.Services.DTOs.UserUpdateDto)">
+            <summary>
+            Updates the profile information (e.g., name) for a specific user.
+            Requires authentication. The authenticated user can update their own profile, or an Admin can update any user's profile.
+            </summary>
+            <param name="id">The ID of the user whose profile is to be updated.</param>
+            <param name="userUpdateDto">The DTO containing the updated profile information.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">User profile updated successfully.</response>
+            <response code="400">If the user ID in the URL does not match the ID in the DTO, or if the DTO is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the authenticated user is not authorized to update this profile.</response>
+            <response code="404">If the user with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.UpdateUserAddress(System.Int32,LeafLoop.Services.DTOs.AddressDto)">
+            <summary>
+            Updates the address for a specific user.
+            Requires authentication. The authenticated user can update their own address, or an Admin can update any user's address.
+            </summary>
+            <param name="id">The ID of the user whose address is to be updated.</param>
+            <param name="addressDto">The DTO containing the new address information.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">User address updated successfully.</response>
+            <response code="400">If the user ID is invalid or the address DTO is invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the authenticated user is not authorized to update this address.</response>
+            <response code="404">If the user with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.ChangePassword(System.Int32,LeafLoop.Services.DTOs.Auth.PasswordChangeDto)">
+            <summary>
+            Changes the password for the authenticated user.
+            </summary>
+            <param name="id">The ID of the user whose password is to be changed. Must match the authenticated user's ID.</param>
+            <param name="passwordDto">The DTO containing the current and new passwords.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">Password changed successfully.</response>
+            <response code="400">If the user ID is invalid, DTO is invalid, or password change fails (e.g., current password incorrect, new password weak).</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the user attempts to change password for another user.</response>
+            <response code="404">If the user is not found (should be rare if authenticated).</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.GetTopEcoUsers(System.Int32)">
+            <summary>
+            Retrieves a list of top users based on their EcoScore.
+            This endpoint is publicly accessible.
+            </summary>
+            <param name="count">The number of top users to retrieve. Defaults to 10, max 50.</param>
+            <returns>A list of users sorted by EcoScore in descending order.</returns>
+            <response code="200">Successfully retrieved top eco users.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.GetUserBadges(System.Int32)">
+            <summary>
+            Retrieves badges for a specific user.
+            This endpoint is publicly accessible.
+            </summary>
+            <param name="id">The ID of the user whose badges are to be retrieved.</param>
+            <returns>A list of badges for the specified user.</returns>
+            <response code="200">Successfully retrieved user badges.</response>
+            <response code="400">If the user ID is invalid.</response>
+            <response code="404">If the user with the specified ID is not found (if service throws KeyNotFoundException).</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.GetUserItems(System.Int32)">
+            <summary>
+            Retrieves items listed by a specific user.
+            This endpoint is publicly accessible.
+            </summary>
+            <param name="id">The ID of the user whose items are to be retrieved.</param>
+            <returns>A list of items for the specified user.</returns>
+            <response code="200">Successfully retrieved user items.</response>
+            <response code="400">If the user ID is invalid.</response>
+            <response code="404">If the user with the specified ID is not found (if service throws KeyNotFoundException).</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.DeactivateUser(System.Int32)">
+            <summary>
+            Deactivates a user account.
+            Requires authentication. The authenticated user can deactivate their own account, or an Admin can deactivate any user's account.
+            </summary>
+            <param name="id">The ID of the user to deactivate.</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">User deactivated successfully.</response>
+            <response code="400">If the user ID is invalid or deactivation fails (e.g., user already inactive).</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the authenticated user is not authorized to deactivate this account.</response>
+            <response code="404">If the user with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.UploadAvatar(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Uploads or updates the avatar for a specific user.
+            Requires authentication. The authenticated user can update their own avatar, or an Admin can update any user's avatar.
+            </summary>
+            <param name="id">The ID of the user whose avatar is to be updated.</param>
+            <param name="avatar">The avatar image file (JPG, PNG, WEBP; max 2MB).</param>
+            <returns>An object containing the relative path to the uploaded avatar.</returns>
+            <response code="200">Avatar uploaded successfully. Returns an object with the 'path' to the new avatar.</response>
+            <response code="400">If user ID is invalid, no file is provided, or file is invalid (type/size).</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the authenticated user is not authorized to change this avatar.</response>
+            <response code="404">If the user with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs during upload or DB update.</response>
+        </member>
+        <member name="T:LeafLoop.Middleware.EnhancedErrorHandlingMiddleware">
+            <summary>
+            Middleware for handling exceptions in a standardized way across the application.
+            Returns JSON ApiResponse for API requests and redirects to an error page for MVC requests.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Middleware.EnhancedErrorHandlingMiddleware.IsApiRequest(Microsoft.AspNetCore.Http.HttpRequest)">
+            <summary>
+            Determines if the request is likely an API request.
+            Checks for "/api" path prefix or "application/json" in Accept header
+            while not primarily accepting "text/html".
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Middleware.EnhancedErrorHandlingMiddleware.GetStatusCodeForException(System.Exception)">
+            <summary>
+            Maps an exception type to an appropriate HTTP status code.
+            </summary>
+        </member>
+        <member name="T:LeafLoop.Middleware.EnhancedErrorHandlingMiddlewareExtensions">
+            <summary>
+            Extension method to register the <see cref="T:LeafLoop.Middleware.EnhancedErrorHandlingMiddleware"/> in the request pipeline.
+            </summary>
+        </member>
+        <member name="T:LeafLoop.Migrations.InitialCreateIdentityFix">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.InitialCreateIdentityFix.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.InitialCreateIdentityFix.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.InitialCreateIdentityFix.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.Initial">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.Initial.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.Initial.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.Initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.AddUserSessionAndPreferences">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddUserSessionAndPreferences.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddUserSessionAndPreferences.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddUserSessionAndPreferences.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.AddLastUpdateDateToTransactions">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddLastUpdateDateToTransactions.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddLastUpdateDateToTransactions.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddLastUpdateDateToTransactions.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.AddAdminLogsTable">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminLogsTable.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminLogsTable.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminLogsTable.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.AddAdminseeder">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminseeder.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminseeder.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminseeder.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.AddAdminseeder1">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminseeder1.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminseeder1.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminseeder1.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.AddAdminseeder2">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminseeder2.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminseeder2.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddAdminseeder2.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.AddTransactionLastUpdateDate">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddTransactionLastUpdateDate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddTransactionLastUpdateDate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddTransactionLastUpdateDate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Migrations.AddBuyerAndSellerConfirmationToTransaction">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddBuyerAndSellerConfirmationToTransaction.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddBuyerAndSellerConfirmationToTransaction.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.AddBuyerAndSellerConfirmationToTransaction.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:LeafLoop.Models.API.ApiResponse">
+            <summary>
+            Represents a standard, non-generic API response structure, typically used for
+            success messages without data payload or for error responses.
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Models.API.ApiResponse.Success">
+            <summary>
+            Indicates if the operation was successful.
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Models.API.ApiResponse.Message">
+            <summary>
+            A user-friendly message describing the result of the operation.
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Models.API.ApiResponse.Errors">
+            <summary>
+            Contains specific error details, such as validation errors.
+            Null if there are no errors or if Success is true.
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Models.API.ApiResponse.DevDetails">
+            <summary>
+            Contains additional developer-specific details (e.g., stack trace).
+            Populated only in Development environment for error responses.
+            Should be ignored during JSON serialization if null.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Models.API.ApiResponse.SuccessResponse(System.String)">
+            <summary>
+            Creates a successful API response instance.
+            </summary>
+            <param name="message">Optional success message.</param>
+            <returns>A new successful ApiResponse instance.</returns>
+        </member>
+        <member name="M:LeafLoop.Models.API.ApiResponse.ErrorResponse(System.String,System.Object,System.Object)">
+            <summary>
+            Creates an error API response instance.
+            </summary>
+            <param name="message">The primary error message.</param>
+            <param name="errors">Optional specific error details (e.g., validation errors).</param>
+            <param name="devDetails">Optional developer details (only populated in Development).</param>
+            <returns>A new error ApiResponse instance.</returns>
+        </member>
+        <member name="P:LeafLoop.Models.API.ApiResponse`1.Success">
+            <summary>
+            Indicates if the operation was successful.
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Models.API.ApiResponse`1.CurrentPage">
+            <summary>
+            The current page number (used for pagination). Null if not applicable.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Repositories.Interfaces.IItemRepository.SearchItemsAsync(LeafLoop.Services.DTOs.ItemSearchDto)">
+            <summary>
+            Searches for items based on the provided search criteria DTO.
+            Implementacja powinna obsługiwać filtrowanie, sortowanie i paginację.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Repositories.Interfaces.IItemRepository.CountAsync(LeafLoop.Services.DTOs.ItemSearchDto)">
+            <summary>
+            Counts items based on the provided search criteria DTO.
+            Implementacja powinna stosować te same filtry co SearchItemsAsync.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Repositories.ItemRepository.GetItemWithDetailsAsync(System.Int32)">
+            <summary>
+            Gets an item with its details (User, Category, Photos, Tags).
+            Uses AsNoTracking for read-only query optimization.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Repositories.ItemRepository.GetItemsByCategoryAsync(System.Int32)">
+            <summary>
+            Gets available items for a specific category, ordered by date, including the first photo.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Repositories.ItemRepository.GetItemsByUserWithRelationsAsync(System.Int32)">
+            <summary>
+            Gets all items for a specific user, ordered by date, including category and the first photo.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Repositories.ItemRepository.GetAvailableItemsAsync(System.Int32)">
+            <summary>
+            Gets a specified number of the most recent available items, including category and the first photo.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Repositories.ItemRepository.GetRecentItemsByUserWithCategoryAsync(System.Int32,System.Int32)">
+            <summary>
+            Gets a specified number of the most recent items listed by a specific user,
+            including their category and first photo information.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Repositories.ItemRepository.SearchItemsAsync(LeafLoop.Services.DTOs.ItemSearchDto)">
+            <summary>
+            Searches for available items based on various criteria provided in the search DTO,
+            including filtering, sorting, and pagination. Includes category and first photo.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Repositories.ItemRepository.CountAsync(LeafLoop.Services.DTOs.ItemSearchDto)">
+            <summary>
+            Counts available items based on the provided search criteria.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Services.TransactionService.ConfirmTransactionCompletionAsync(System.Int32,System.Int32)">
+            <summary>
+            Confirms the completion of a transaction by a user in a two-step process.
+            When both buyer and seller confirm, the transaction is completed.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Services.TransactionService.CheckAndAutoCompleteTransactionsAsync">
+            <summary>
+            Checks if any transactions should be auto-completed because one party confirmed
+            more than 14 days ago.
+            </summary>
+            <remarks>
+            This would be called by a background job or schedule (e.g., Hangfire, Quartz.NET)
+            </remarks>
+        </member>
+    </members>
+</doc>

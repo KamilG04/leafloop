@@ -1,7 +1,7 @@
 using LeafLoop.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LeafLoop.Controllers;
+namespace LeafLoop.Controllers; //ale baza
 
 public abstract class BaseController : Controller
 {

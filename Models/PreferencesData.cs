@@ -6,9 +6,8 @@ namespace LeafLoop.Models
     [NotMapped] // This tells EF Core not to treat this class as an entity
     public class PreferencesData
     {
-        // Ustawienia wyglądu
-        public string Theme { get; set; } = "light"; // light, dark, system
-        public string PrimaryColor { get; set; } = "green"; // Główny kolor aplikacji
+        public string Theme { get; set; } = "light"; 
+        public string PrimaryColor { get; set; } = "green"; 
         
         // Ustawienia powiadomień
         public bool EmailNotifications { get; set; } = true;

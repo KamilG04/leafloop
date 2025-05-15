@@ -1,54 +1,52 @@
 using System;
-using System.Collections.Generic; // Potrzebne dla List<T>
-using System.Linq; // Potrzebne dla metod LINQ (jeśli używane gdzie indziej)
-using System.Security.Claims; // Potrzebne dla User.FindFirstValue
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using AutoMapper; // Potrzebne dla _mapper
-using LeafLoop.Models; // Dla User, TransactionStatus
-using LeafLoop.Repositories.Interfaces; // Dla IUnitOfWork (w BaseController)
-using LeafLoop.Services.DTOs; // Dla DTOs (ItemDto, UserWithDetailsDto, AddressDto, BadgeDto)
-using LeafLoop.Services.Interfaces; // Dla serwisów (IUserService, IItemService)
-using LeafLoop.ViewModels.Profile; // Dla ProfileViewModel
-using LeafLoop.ViewModels; // Dla ErrorViewModel (jeśli tam jest)
+using AutoMapper;
+using LeafLoop.Models; 
+using LeafLoop.Repositories.Interfaces; 
+using LeafLoop.Services.DTOs;
+using LeafLoop.Services.Interfaces; 
+using LeafLoop.ViewModels.Profile; 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity; // Dla UserManager
+using Microsoft.AspNetCore.Identity; 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Potrzebne dla CountAsync w UoW
-using Microsoft.Extensions.Logging;
+
 
 namespace LeafLoop.Controllers
 {
-    [Authorize] // Cały kontroler wymaga autoryzacji
-    public class ProfileController : BaseController // Zakładając, że BaseController udostępnia IUnitOfWork
+    [Authorize] // Entire controller requires authorization
+    public class ProfileController : BaseController // Assuming BaseController provides IUnitOfWork
     {
         private readonly UserManager<User> _userManager;
         private readonly IUserService _userService;
-        private readonly IItemService _itemService; // Serwis przedmiotów
-        // private readonly IUnitOfWork _unitOfWork; // Już jest w BaseController
+        private readonly IItemService _itemService;
+        // private readonly IUnitOfWork _unitOfWork; // Already available via BaseController property
         private readonly IMapper _mapper;
         private readonly ILogger<ProfileController> _logger;
 
         public ProfileController(
-            IUnitOfWork unitOfWork, // Nadal potrzebne dla BaseController
+            IUnitOfWork unitOfWork, // Still needed for BaseController constructor
             UserManager<User> userManager,
             IUserService userService,
-            IItemService itemService, // Wstrzyknięty
+            IItemService itemService,
             IMapper mapper,
             ILogger<ProfileController> logger)
-            : base(unitOfWork) // Przekaż UoW do bazy
+            : base(unitOfWork) // Pass UoW to base
         {
-            _userManager = userManager;
-            _userService = userService;
-            _itemService = itemService; // Przypisany
-            _mapper = mapper;
-            _logger = logger;
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // GET: /Profile lub /Profile/Index
+        // GET: /Profile or /Profile/Index
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            ProfileViewModel viewModel = new ProfileViewModel(); // Inicjalizuj ViewModel na początku
+            ProfileViewModel viewModel = new ProfileViewModel(); // Initialize ViewModel at the start
 
             try
             {
@@ -56,28 +54,28 @@ namespace LeafLoop.Controllers
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
                 {
                     _logger.LogError("Profile Index: Could not identify user ID from claims.");
-                    return Challenge();
+                    return Challenge(); // Or return an appropriate error view/redirect
                 }
 
                 _logger.LogInformation("Profile Index: Attempting to load profile for UserID: {UserId}", userId);
 
-                // 1. Pobierz szczegóły użytkownika
+                // 1. Fetch user details via service
                 var userDetailsDto = await _userService.GetUserWithDetailsAsync(userId);
                 if (userDetailsDto == null)
                 {
                     _logger.LogWarning("Profile Index: UserWithDetailsDto not found for UserID: {UserId}", userId);
-                    return NotFound($"User profile with ID {userId} not found.");
+                    return NotFound($"User profile with ID {userId} not found."); // Consider a user-friendly 'Not Found' view
                 }
-                _mapper.Map(userDetailsDto, viewModel); // Mapuj DTO na ViewModel
+                _mapper.Map(userDetailsDto, viewModel); // Map DTO to ViewModel
 
-                // === POPRAWIONE POBIERANIE PRZEDMIOTÓW ===
-                // 2. Pobierz ostatnie przedmioty użytkownika (np. 5) przez serwis
-                var recentItemsDto = await _itemService.GetRecentItemsByUserAsync(userId, 5); // Wywołaj metodę serwisu
-                viewModel.RecentItems = recentItemsDto?.ToList() ?? new List<ItemDto>(); // Przypisz do ViewModelu
-                // === KONIEC POPRAWKI ===
+                // 2. Fetch recent items via service
+                var recentItemsDto = await _itemService.GetRecentItemsByUserAsync(userId, 5); // Example: Get 5 recent items
+                viewModel.RecentItems = recentItemsDto?.ToList() ?? new List<ItemDto>(); // Assign to ViewModel
 
-                // 3. Pobierz liczniki (przez UoW jest OK, bo to proste CountAsync)
-                // Upewnij się, że TransactionStatus jest poprawnym enumem
+                // 3. Fetch counts
+                // TODO: Consider moving the logic for calculating TotalItemsCount and TotalTransactionsCount
+                // into the IUserService or a dedicated statistics service to keep data access logic out of the controller,
+                // improving separation of concerns. For now, direct UoW access is used for simplicity / geyness 900 lines apis XD GREAT WORK
                 viewModel.TotalItemsCount = await _unitOfWork.Items.CountAsync(i => i.UserId == userId);
                 int sellingCount = await _unitOfWork.Transactions.CountAsync(t => t.SellerId == userId && t.Status == TransactionStatus.Completed);
                 int buyingCount = await _unitOfWork.Transactions.CountAsync(t => t.BuyerId == userId && t.Status == TransactionStatus.Completed);
@@ -85,13 +83,14 @@ namespace LeafLoop.Controllers
 
                 _logger.LogInformation("Profile Index: Successfully loaded data for UserID: {UserId}", userId);
 
-                // 4. Przekaż ViewModel do widoku
+                // 4. Pass ViewModel to the view
                 return View(viewModel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while loading profile for UserID: {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
-                return View("Error", new ErrorViewModel { Message = "An error occurred while loading the profile. Please try again later." });
+                var userIdForErrorLog = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown";
+                _logger.LogError(ex, "Error occurred while loading profile for UserID: {UserId}", userIdForErrorLog);
+                return View("Error", new ErrorViewModel { Message = "An error occurred while loading your profile. Please try again later." });
             }
         }
 
@@ -99,22 +98,34 @@ namespace LeafLoop.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit()
         {
-             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
             {
                 _logger.LogError("Profile Edit (GET): Could not identify user ID from claims.");
                 return Challenge();
             }
-             _logger.LogInformation("Serving Edit Profile view for UserID: {UserId}", userId);
-             ViewBag.UserId = userId; // Przekaż ID do widoku dla Reacta
-            return View(); // Zwraca Views/Profile/Edit.cshtml
+
+            _logger.LogInformation("Serving Edit Profile view for UserID: {UserId}", userId);
+            ViewBag.UserId = userId; // Pass UserId for rekt 
+
+            return View(); // Returns Views/Profile/Edit.cshtml
         }
 
-        // Zakomentowana akcja POST Edit bez zmian
+        // Placeholder for the missing POST action, CURRENTLY IN API 
         /*
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(ProfileEditViewModel model) { ... }
+        public async Task<IActionResult> Edit(ProfileEditViewModel model)
+        {
+             // TODO: Implement profile update logic here:
+             // 1. Validate ModelState.
+             // 2. Get current userId.
+             // 3. Map ProfileEditViewModel to a suitable DTO or User object.
+             // 4. Call _userService.UpdateProfileAsync(userId, dto/user).
+             // 5. Handle success: Redirect to Index, show success message.
+             // 6. Handle failure: Return View(model) with errors, log issue.
+             throw new NotImplementedException();
+        }
         */
     }
 }

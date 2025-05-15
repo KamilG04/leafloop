@@ -1,15 +1,10 @@
-using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using LeafLoop.Models;
 using LeafLoop.Repositories.Interfaces;
 using LeafLoop.Services.Interfaces;
 using LeafLoop.ViewModels.Home;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-
 namespace LeafLoop.Controllers
 {
     public class HomeController : BaseController

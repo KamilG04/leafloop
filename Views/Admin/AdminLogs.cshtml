@@ -1,0 +1,40 @@
+@model IEnumerable<LeafLoop.Services.DTOs.AdminLogDto>
+@{
+    ViewData["Title"] = "Admin Activity Logs";
+}
+
+<div class="container-fluid">
+    <h1>Admin Activity Logs</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Admin</th>
+                    <th>Action</th>
+                    <th>Entity Type</th>
+                    <th>Entity ID</th>
+                    <th>Details</th>
+                    <th>IP Address</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr>
+                        <td>@log.ActionDate.ToString("g")</td>
+                        <td>@log.AdminUserName</td>
+                        <td>@log.Action</td>
+                        <td>@log.EntityType</td>
+                        <td>@log.EntityId</td>
+                        <td>@log.Details</td>
+                        <td>@log.IPAddress</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

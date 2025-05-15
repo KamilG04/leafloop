@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization; // Potrzebne dla JsonIgnore
+using System.Text.Json.Serialization; // Needed for JsonIgnore
 
 namespace LeafLoop.Models.API
 {
@@ -11,7 +11,7 @@ namespace LeafLoop.Models.API
         /// <summary>
         /// Indicates if the operation was successful.
         /// </summary>
-        public bool Success { get; protected set; } // Użyj protected set, aby ustawiać tylko w metodach fabrycznych
+        public bool Success { get; protected set; } // Use 'protected set', so it can be only set in factory methods
 
         /// <summary>
         /// A user-friendly message describing the result of the operation.
@@ -33,7 +33,7 @@ namespace LeafLoop.Models.API
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public object? DevDetails { get; protected set; } // Nullable object
 
-        // Prywatny konstruktor, aby wymusić użycie metod fabrycznych
+        // Private constructor, so usage of factory methods is forced
         protected ApiResponse() { }
 
         /// <summary>

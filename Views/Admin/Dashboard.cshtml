@@ -1,0 +1,178 @@
+@model LeafLoop.Services.DTOs.AdminDashboardDto
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid">
+    <h1>Admin Dashboard</h1>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h2>@Model.Statistics.TotalUsers</h2>
+                    <p class="mb-0">Active: @Model.Statistics.ActiveUsers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Items</h5>
+                    <h2>@Model.Statistics.TotalItems</h2>
+                    <p class="mb-0">Available: @Model.Statistics.ActiveItems</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Transactions</h5>
+                    <h2>@Model.Statistics.TotalTransactions</h2>
+                    <p class="mb-0">Completed: @Model.Statistics.CompletedTransactions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Reports</h5>
+                    <h2>@Model.Statistics.PendingReports</h2>
+                    <p class="mb-0">Need Review</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Activity -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Today's Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>New Users</h6>
+                            <h3>@Model.Statistics.UsersToday</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>New Items</h6>
+                            <h3>@Model.Statistics.ItemsToday</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>New Transactions</h6>
+                            <h3>@Model.Statistics.TransactionsToday</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Users -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Users</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentUsers != null && Model.RecentUsers.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var user in Model.RecentUsers)
+                            {
+                                <a href="@Url.Action("UserDetails", new { id = user.Id })" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="mb-1">@user.FirstName @user.LastName</h6>
+                                        <small>@user.CreatedDate.ToString("g")</small>
+                                    </div>
+                                    <p class="mb-1">@user.Email</p>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>No recent users.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Items -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Items</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentItems != null && Model.RecentItems.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var item in Model.RecentItems)
+                            {
+                                <a href="@Url.Action("Details", "Items", new { id = item.Id })" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="mb-1">@item.Name</h6>
+                                        <small>@item.DateAdded.ToString("g")</small>
+                                    </div>
+                                    <p class="mb-1">By: @item.UserName</p>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>No recent items.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Admin Actions -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Admin Actions</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentAdminActions != null && Model.RecentAdminActions.Any())
+                    {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Admin</th>
+                                    <th>Action</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var action in Model.RecentAdminActions)
+                                {
+                                    <tr>
+                                        <td>@action.ActionDate.ToString("g")</td>
+                                        <td>@action.AdminUserName</td>
+                                        <td>@action.Action</td>
+                                        <td>@action.Details</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No recent admin actions.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,463 +1,471 @@
 {
   "Files": [
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/obj/Debug/net8.0/scopedcss/projectbundle/LeafLoop.bundle.scp.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/obj/Debug/net8.0/scopedcss/projectbundle/LeafLoop.bundle.scp.css",
       "PackagePath": "staticwebassets/LeafLoop.5wxvdamobd.bundle.scp.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/dark-mode.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/css/dark-mode.css",
       "PackagePath": "staticwebassets/css/dark-mode.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/css/site.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/css/site.css",
       "PackagePath": "staticwebassets/css/site.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/favicon.ico",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/favicon.ico",
       "PackagePath": "staticwebassets/favicon.ico"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/img/placeholder-item.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/img/placeholder-item.png",
       "PackagePath": "staticwebassets/img/placeholder-item.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/auth-test.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/auth-test.js",
       "PackagePath": "staticwebassets/js/auth-test.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/DarkModeToggle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/DarkModeToggle.js",
       "PackagePath": "staticwebassets/js/components/DarkModeToggle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/DarkModeToggleComponent.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/DarkModeToggleComponent.js",
       "PackagePath": "staticwebassets/js/components/DarkModeToggleComponent.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/ErrorFeedback.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/ErrorFeedback.js",
       "PackagePath": "staticwebassets/js/components/ErrorFeedback.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/MyItemList.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/MyItemList.js",
       "PackagePath": "staticwebassets/js/components/MyItemList.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/ProfileEditForm.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/ProfileEditForm.js",
       "PackagePath": "staticwebassets/js/components/ProfileEditForm.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/TransactionDetails.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/TransactionDetails.js",
       "PackagePath": "staticwebassets/js/components/TransactionDetails.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/TransactionForm.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/TransactionForm.js",
       "PackagePath": "staticwebassets/js/components/TransactionForm.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemCreateForm.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/itemCreateForm.js",
       "PackagePath": "staticwebassets/js/components/itemCreateForm.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemDetails.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/itemDetails.js",
       "PackagePath": "staticwebassets/js/components/itemDetails.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemEditForm.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/itemEditForm.js",
       "PackagePath": "staticwebassets/js/components/itemEditForm.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/itemList.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/itemList.js",
       "PackagePath": "staticwebassets/js/components/itemList.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/myTransactionsList.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/myTransactionsList.js",
       "PackagePath": "staticwebassets/js/components/myTransactionsList.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/components/userProfile.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/components/userProfile.js",
       "PackagePath": "staticwebassets/js/components/userProfile.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/api.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/api.bundle.js",
       "PackagePath": "staticwebassets/js/dist/api.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemCreateForm.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/itemCreateForm.bundle.js",
       "PackagePath": "staticwebassets/js/dist/itemCreateForm.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemCreateForm.bundle.js.LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/itemCreateForm.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/itemCreateForm.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemDetails.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/itemDetails.bundle.js",
       "PackagePath": "staticwebassets/js/dist/itemDetails.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemDetails.bundle.js.LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/itemDetails.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/itemDetails.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemEditForm.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/itemEditForm.bundle.js",
       "PackagePath": "staticwebassets/js/dist/itemEditForm.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemEditForm.bundle.js.LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/itemEditForm.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/itemEditForm.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemList.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/itemList.bundle.js",
       "PackagePath": "staticwebassets/js/dist/itemList.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/itemList.bundle.js.LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/itemList.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/itemList.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myItemList.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/myItemList.bundle.js",
       "PackagePath": "staticwebassets/js/dist/myItemList.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myItemList.bundle.js.LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/myItemList.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/myItemList.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myTransactionsList.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/myTransactionsList.bundle.js",
       "PackagePath": "staticwebassets/js/dist/myTransactionsList.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/myTransactionsList.bundle.js.LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/myTransactionsList.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/myTransactionsList.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/profileEditForm.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/profileEditForm.bundle.js",
       "PackagePath": "staticwebassets/js/dist/profileEditForm.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/profileEditForm.bundle.js.LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/profileEditForm.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/profileEditForm.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/transactionDetails.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/transactionDetails.bundle.js",
       "PackagePath": "staticwebassets/js/dist/transactionDetails.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/transactionDetails.bundle.js.LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/transactionDetails.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/transactionDetails.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/userProfile.bundle.js",
       "PackagePath": "staticwebassets/js/dist/userProfile.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/dist/userProfile.bundle.js.LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/dist/userProfile.bundle.js.LICENSE.txt",
       "PackagePath": "staticwebassets/js/dist/userProfile.bundle.js.LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/services/api.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/services/api.js",
       "PackagePath": "staticwebassets/js/services/api.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/site.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/site.js",
       "PackagePath": "staticwebassets/js/site.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/token-test.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/token-test.js",
       "PackagePath": "staticwebassets/js/token-test.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/auth.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/utils/auth.js",
       "PackagePath": "staticwebassets/js/utils/auth.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/js/utils/reactHelpers.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/js/utils/reactHelpers.js",
       "PackagePath": "staticwebassets/js/utils/reactHelpers.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/LICENSE",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/LICENSE",
       "PackagePath": "staticwebassets/lib/bootstrap"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.min.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.min.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.min.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.min.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.min.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.min.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.rtl.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.rtl.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.min.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.min.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.min.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.min.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.min.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.min.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.min.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.min.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.min.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.min.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.min.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.min.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.min.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.min.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.rtl.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.rtl.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.min.css",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.min.css",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.rtl.min.css"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.min.css.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.min.css.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.rtl.min.css.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.js",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.bundle.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.js.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.js.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.bundle.js.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.min.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.min.js",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.min.js.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.min.js.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.bundle.min.js.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.js",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.esm.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.js.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.js.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.esm.js.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.min.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.min.js",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.esm.min.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.min.js.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.min.js.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.esm.min.js.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.js",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.js.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.js.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.js.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.min.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.min.js",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.min.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/bootstrap/dist/js/bootstrap.min.js.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/bootstrap/dist/js/bootstrap.min.js.map",
       "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.min.js.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery-validation-unobtrusive/LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery-validation-unobtrusive/LICENSE.txt",
       "PackagePath": "staticwebassets/lib/jquery-validation-unobtrusive/LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js",
       "PackagePath": "staticwebassets/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js",
       "PackagePath": "staticwebassets/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery-validation/LICENSE.md",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery-validation/LICENSE.md",
       "PackagePath": "staticwebassets/lib/jquery-validation/LICENSE.md"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery-validation/dist/additional-methods.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery-validation/dist/additional-methods.js",
       "PackagePath": "staticwebassets/lib/jquery-validation/dist/additional-methods.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery-validation/dist/additional-methods.min.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery-validation/dist/additional-methods.min.js",
       "PackagePath": "staticwebassets/lib/jquery-validation/dist/additional-methods.min.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery-validation/dist/jquery.validate.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery-validation/dist/jquery.validate.js",
       "PackagePath": "staticwebassets/lib/jquery-validation/dist/jquery.validate.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery-validation/dist/jquery.validate.min.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery-validation/dist/jquery.validate.min.js",
       "PackagePath": "staticwebassets/lib/jquery-validation/dist/jquery.validate.min.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery/LICENSE.txt",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery/LICENSE.txt",
       "PackagePath": "staticwebassets/lib/jquery/LICENSE.txt"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery/dist/jquery.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery/dist/jquery.js",
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery/dist/jquery.min.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery/dist/jquery.min.js",
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.min.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery/dist/jquery.min.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery/dist/jquery.min.map",
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.min.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery/dist/jquery.slim.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery/dist/jquery.slim.js",
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.slim.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery/dist/jquery.slim.min.js",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery/dist/jquery.slim.min.js",
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.slim.min.js"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/lib/jquery/dist/jquery.slim.min.map",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/lib/jquery/dist/jquery.slim.min.map",
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.slim.min.map"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png",
       "PackagePath": "staticwebassets/uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/0208243f-a0cb-47eb-a9b8-148ccce17f83_Zrzut ekranu 2025-05-2 o 14.35.21.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/0208243f-a0cb-47eb-a9b8-148ccce17f83_Zrzut ekranu 2025-05-2 o 14.35.21.png",
       "PackagePath": "staticwebassets/uploads/items/0208243f-a0cb-47eb-a9b8-148ccce17f83_Zrzut ekranu 2025-05-2 o 14.35.21.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/1e6ee7c2-8d47-45fc-af18-bfb163011a67_Zrzut ekranu 2025-04-30 o 18.42.27.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/1e6ee7c2-8d47-45fc-af18-bfb163011a67_Zrzut ekranu 2025-04-30 o 18.42.27.png",
       "PackagePath": "staticwebassets/uploads/items/1e6ee7c2-8d47-45fc-af18-bfb163011a67_Zrzut ekranu 2025-04-30 o 18.42.27.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png",
       "PackagePath": "staticwebassets/uploads/items/394125dc-f570-42ba-9be2-d732e860b31e.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png",
       "PackagePath": "staticwebassets/uploads/items/3c35aaa3-9224-4db9-b434-03f72285f375_Zrzut ekranu 2024-09-5 o 21.47.20.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/5aae4af3-cb7e-419c-a5a3-0e394351a768_Zrzut ekranu 2024-12-3 o 23.34.39.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/5667f62f-b573-4504-9d60-59f212c4c646.png",
+      "PackagePath": "staticwebassets/uploads/items/5667f62f-b573-4504-9d60-59f212c4c646.png"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/5aae4af3-cb7e-419c-a5a3-0e394351a768_Zrzut ekranu 2024-12-3 o 23.34.39.png",
       "PackagePath": "staticwebassets/uploads/items/5aae4af3-cb7e-419c-a5a3-0e394351a768_Zrzut ekranu 2024-12-3 o 23.34.39.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/69837384-e359-4422-b62e-19254eba98cb.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/69837384-e359-4422-b62e-19254eba98cb.png",
       "PackagePath": "staticwebassets/uploads/items/69837384-e359-4422-b62e-19254eba98cb.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/81cf02dc-192f-4f78-bba6-966fa939da37_Zrzut ekranu 2025-04-27 o 18.57.48.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/81cf02dc-192f-4f78-bba6-966fa939da37_Zrzut ekranu 2025-04-27 o 18.57.48.png",
       "PackagePath": "staticwebassets/uploads/items/81cf02dc-192f-4f78-bba6-966fa939da37_Zrzut ekranu 2025-04-27 o 18.57.48.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/ade1d15e-f3e1-404d-a9fc-23e778c15529_Zrzut ekranu 2025-04-27 o 17.55.30.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/ade1d15e-f3e1-404d-a9fc-23e778c15529_Zrzut ekranu 2025-04-27 o 17.55.30.png",
       "PackagePath": "staticwebassets/uploads/items/ade1d15e-f3e1-404d-a9fc-23e778c15529_Zrzut ekranu 2025-04-27 o 17.55.30.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/b01fff25-39ec-4b3c-89d5-34ce0f89c92e_Zrzut ekranu 2025-05-1 o 14.59.17.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/b01fff25-39ec-4b3c-89d5-34ce0f89c92e_Zrzut ekranu 2025-05-1 o 14.59.17.png",
       "PackagePath": "staticwebassets/uploads/items/b01fff25-39ec-4b3c-89d5-34ce0f89c92e_Zrzut ekranu 2025-05-1 o 14.59.17.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/b9990ab9-b7db-4b58-a3eb-62e34500fe32_Zrzut ekranu 2024-11-4 o 17.05.03.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/b9990ab9-b7db-4b58-a3eb-62e34500fe32_Zrzut ekranu 2024-11-4 o 17.05.03.png",
       "PackagePath": "staticwebassets/uploads/items/b9990ab9-b7db-4b58-a3eb-62e34500fe32_Zrzut ekranu 2024-11-4 o 17.05.03.png"
     },
     {
-      "Id": "/Users/kamilglowacki/Downloads/LeafLoop-1/wwwroot/uploads/items/de4a3c46-edab-4403-b127-d6b343c54043_Zrzut ekranu 2025-04-30 o 12.03.47.png",
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/ddbe3b7c-c187-47a9-8ad6-cd0f16adcc87.png",
+      "PackagePath": "staticwebassets/uploads/items/ddbe3b7c-c187-47a9-8ad6-cd0f16adcc87.png"
+    },
+    {
+      "Id": "/Users/kamilglowacki/Downloads/leafloopbezcsrf/leafloop/wwwroot/uploads/items/de4a3c46-edab-4403-b127-d6b343c54043_Zrzut ekranu 2025-04-30 o 12.03.47.png",
       "PackagePath": "staticwebassets/uploads/items/de4a3c46-edab-4403-b127-d6b343c54043_Zrzut ekranu 2025-04-30 o 12.03.47.png"
     },
     {

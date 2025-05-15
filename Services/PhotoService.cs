@@ -1,16 +1,9 @@
-// Ścieżka: Services/PhotoService.cs
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq; // Potrzebne dla Contains w SanitizeSubfolder
-using System.Threading.Tasks;
 using AutoMapper;
 using LeafLoop.Models;
 using LeafLoop.Repositories.Interfaces;
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
-using Microsoft.AspNetCore.Hosting; // Potrzebne dla IWebHostEnvironment
-using Microsoft.Extensions.Logging;
+
 
 namespace LeafLoop.Services
 {
@@ -34,7 +27,7 @@ namespace LeafLoop.Services
         }
 
         // --- Metody GetPhotoByIdAsync, GetPhotosByItemAsync, AddPhotoAsync, DeletePhotoAsync (by ID) ---
-        // Pozostają takie same jak w kodzie, który wkleiłeś
+       
         public async Task<PhotoDto> GetPhotoByIdAsync(int id) { /* ... jak poprzednio ... */
              try
             {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using LeafLoop.Data;
+using LeafLoop.Data; // Upewnij się, że to jest poprawny namespace dla Twojego DbContext
 using LeafLoop.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore; // WAŻNE: dla metod asynchronicznych EF Core
 
 namespace LeafLoop.Repositories
 {
@@ -35,6 +35,12 @@ namespace LeafLoop.Repositories
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
+        // DODANA IMPLEMENTACJA METODY:
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
+
         public async Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.SingleOrDefaultAsync(predicate);
@@ -52,16 +58,29 @@ namespace LeafLoop.Repositories
 
         public void Update(T entity)
         {
-            _dbSet.Attach(entity);
-            _context.Entry(entity).State = EntityState.Modified;
+            // Jeśli encja nie jest śledzona, dołącz ją najpierw.
+            // Jeśli jest już śledzona, Attach() nic nie zrobi lub rzuci wyjątek,
+            // w zależności od stanu encji. Bezpieczniej jest sprawdzić stan lub po prostu ustawić.
+            var entry = _context.Entry(entity);
+            if (entry.State == EntityState.Detached)
+            {
+                _dbSet.Attach(entity);
+            }
+            entry.State = EntityState.Modified;
         }
 
         public void UpdateRange(IEnumerable<T> entities)
         {
             foreach (var entity in entities)
             {
-                _dbSet.Attach(entity);
-                _context.Entry(entity).State = EntityState.Modified;
+                // Podobnie jak w Update(T entity)
+                var entry = _context.Entry(entity);
+                if (entry.State == EntityState.Detached)
+                {
+                    _dbSet.Attach(entity);
+                }
+
+                entry.State = EntityState.Modified;
             }
         }
 
@@ -71,12 +90,13 @@ namespace LeafLoop.Repositories
             {
                 _dbSet.Attach(entity);
             }
-            
             _dbSet.Remove(entity);
         }
 
         public void RemoveRange(IEnumerable<T> entities)
         {
+            // Upewnij się, że wszystkie encje są śledzone przed usunięciem, jeśli mogą być rozłączone.
+            // Jednak RemoveRange zazwyczaj radzi sobie z tym, jeśli encje mają klucze.
             _dbSet.RemoveRange(entities);
         }
 

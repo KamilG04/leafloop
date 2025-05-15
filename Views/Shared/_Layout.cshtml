@@ -136,6 +136,23 @@ else
 {
     <script src="~/js/auth-test.js"></script>
 }
+@if (User.IsInRole("Admin"))
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-gear"></i> Admin
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a></li>
+            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Manage Users</a></li>
+            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Items">Manage Items</a></li>
+            <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reports">Reports</a></li>
+            <li><a class="dropdown-item" asp-controller="Admin" asp-action="AdminLogs">Admin Logs</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" asp-controller="Admin" asp-action="SystemSettings">System Settings</a></li>
+        </ul>
+    </li>
+}
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

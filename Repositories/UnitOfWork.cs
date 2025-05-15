@@ -56,7 +56,10 @@ namespace LeafLoop.Repositories
         public ICommentRepository Comments => _commentRepository ??= new CommentRepository(_context);
         public ISubscriptionRepository Subscriptions => _subscriptionRepository ??= new SubscriptionRepository(_context);
         public ISavedSearchRepository SavedSearches => _savedSearchRepository ??= new SavedSearchRepository(_context);
+      
+        private IAdminRepository _adminRepository;
 
+        public IAdminRepository AdminLogs => _adminRepository ??= new AdminRepository(_context);
         // Generic entity methods implementation
         public async Task<T> GetEntityByIdAsync<T>(int id) where T : class
         {

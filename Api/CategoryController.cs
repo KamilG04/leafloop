@@ -1,20 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using LeafLoop.Models;          // Potrzebne, jeśli np. KeyNotFoundException jest specyficzne dla modelu
-using LeafLoop.Models.API;      // Dla ApiResponse<T> i ApiResponse
-using LeafLoop.Services.DTOs;   // Dla DTOs
+using LeafLoop.Models.API; // For ApiResponse and ApiResponse<T>
+using LeafLoop.Services.DTOs; // For CategoryDto, CategoryCreateDto, CategoryUpdateDto
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;      // Dla StatusCodes
+using Microsoft.AspNetCore.Http; // For StatusCodes
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using LeafLoop.Api;             // Dla ApiControllerExtensions
+using System;
+using System.Collections.Generic; // For IEnumerable
+using System.Threading.Tasks; // For Task
 
 namespace LeafLoop.Api
 {
+    /// <summary>
+    /// Manages categories for items.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -28,36 +30,54 @@ namespace LeafLoop.Api
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // GET: api/categories
+        /// <summary>
+        /// Retrieves all categories.
+        /// </summary>
+        /// <returns>A list of all categories.</returns>
+        /// <response code="200">Returns the list of categories.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpGet]
-        // === ZMIANA SYGNATURY ===
-        // Zmieniono Task<ActionResult<IEnumerable<CategoryDto>>> na Task<IActionResult>
+        [AllowAnonymous] // Assuming categories are publicly viewable
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CategoryDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCategories()
         {
+            _logger.LogInformation("API GetAllCategories START");
             try
             {
                 var categories = await _categoryService.GetAllCategoriesAsync();
-                // Użyj ApiOk<T> zwracającego dane
+                _logger.LogInformation("API GetAllCategories SUCCESS. Count: {Count}", categories?.Count() ?? 0);
                 return this.ApiOk(categories);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving categories");
-                // Użyj ApiInternalError
-                return this.ApiInternalError("Error retrieving categories", ex);
+                _logger.LogError(ex, "API GetAllCategories ERROR");
+                return this.ApiInternalError("Error retrieving categories.", ex);
             }
         }
 
-        // GET: api/categories/{id}
-        [HttpGet("{id:int}")] // Dodano :int dla routingu
-        // === ZMIANA SYGNATURY ===
-        // Zmieniono Task<ActionResult<CategoryDto>> na Task<IActionResult>
+        /// <summary>
+        /// Retrieves a specific category by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the category to retrieve.</param>
+        /// <returns>The category with the specified ID.</returns>
+        /// <response code="200">Returns the requested category.</response>
+        /// <response code="400">If the category ID is invalid.</response>
+        /// <response code="404">If the category with the specified ID is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
+        [HttpGet("{id:int}", Name = "GetCategoryById")] // Added Name for CreatedAtAction
+        [AllowAnonymous] // Assuming categories are publicly viewable
+        [ProducesResponseType(typeof(ApiResponse<CategoryDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCategory(int id)
         {
-            // Podstawowa walidacja
+            _logger.LogInformation("API GetCategory START for ID: {CategoryId}", id);
             if (id <= 0)
             {
-                 return this.ApiBadRequest("Invalid Category ID.");
+                _logger.LogWarning("API GetCategory BAD_REQUEST: Invalid Category ID: {CategoryId}", id);
+                return this.ApiBadRequest("Invalid Category ID.");
             }
 
             try
@@ -66,137 +86,172 @@ namespace LeafLoop.Api
 
                 if (category == null)
                 {
-                    // Użyj ApiNotFound
-                    return this.ApiNotFound($"Category with ID {id} not found");
+                    _logger.LogWarning("API GetCategory NOT_FOUND: Category with ID {CategoryId} not found", id);
+                    return this.ApiNotFound($"Category with ID {id} not found.");
                 }
-
-                // Użyj ApiOk<T> zwracającego dane
+                _logger.LogInformation("API GetCategory SUCCESS for ID: {CategoryId}", id);
                 return this.ApiOk(category);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving category. CategoryId: {CategoryId}", id);
-                // Użyj ApiInternalError
-                return this.ApiInternalError("Error retrieving category", ex);
+                _logger.LogError(ex, "API GetCategory ERROR for ID: {CategoryId}", id);
+                return this.ApiInternalError("Error retrieving category.", ex);
             }
         }
 
-        // POST: api/categories
+        /// <summary>
+        /// Creates a new category. Requires Admin role.
+        /// </summary>
+        /// <param name="categoryDto">The data for the new category.</param>
+        /// <returns>The newly created category.</returns>
+        /// <response code="201">Returns the newly created category and its location.</response>
+        /// <response code="400">If the category data is invalid.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not an Admin.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpPost]
-        [Authorize(Roles = "Admin")] // Zakładając, że tylko admin może tworzyć kategorie
-        // === ZMIANA SYGNATURY ===
-        // Zmieniono Task<ActionResult<int>> na Task<IActionResult> (zwrócimy całe DTO, nie tylko ID)
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDto categoryDto) // Zmieniono typ parametru na FromBody
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ApiResponse<CategoryDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDto categoryDto)
         {
-             // Walidacja modelu (jeśli używasz atrybutów w DTO)
-             if (!ModelState.IsValid)
-             {
-                 return this.ApiBadRequest(ModelState);
-             }
+            _logger.LogInformation("API CreateCategory START for Name: {CategoryName}", categoryDto?.Name ?? "N/A");
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("API CreateCategory BAD_REQUEST: Invalid model state. Errors: {@ModelStateErrors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return this.ApiBadRequest(ModelState);
+            }
 
             try
             {
-                // Utwórz kategorię i pobierz ID
                 var categoryId = await _categoryService.CreateCategoryAsync(categoryDto);
-
-                // Pobierz utworzoną kategorię jako DTO, aby zwrócić ją w odpowiedzi
                 var createdCategory = await _categoryService.GetCategoryByIdAsync(categoryId);
-                if(createdCategory == null)
+                if (createdCategory == null)
                 {
-                    // Coś poszło nie tak, jeśli nie możemy odzyskać właśnie utworzonej kategorii
-                    _logger.LogError("Could not retrieve category (ID: {CategoryId}) immediately after creation.", categoryId);
+                    _logger.LogError("API CreateCategory ERROR: Could not retrieve category (ID: {CategoryId}) immediately after creation.", categoryId);
                     return this.ApiInternalError("Failed to retrieve category details after creation.");
                 }
-
-                // Użyj ApiCreatedAtAction zwracającego 201 Created z lokalizacją i danymi
+                _logger.LogInformation("API CreateCategory SUCCESS. New CategoryID: {CategoryId}, Name: {CategoryName}", categoryId, createdCategory.Name);
+                // Corrected call to ApiCreatedAtAction
                 return this.ApiCreatedAtAction(
-                    createdCategory,          // Zwracany obiekt
-                    nameof(GetCategory),      // Nazwa akcji do pobrania zasobu
-                    "Categories",             // Nazwa kontrolera
-                    new { id = categoryId }   // Parametry routingu dla lokalizacji
-                    // Opcjonalny komunikat można dodać na końcu
+                    createdCategory,                                  // data
+                    nameof(GetCategory),                              // actionName
+                    this.ControllerContext.ActionDescriptor.ControllerName, // controllerName
+                    new { id = categoryId },                          // routeValues
+                    "Category created successfully."                  // message
                 );
             }
-            catch (Exception ex) // Złap bardziej specyficzne wyjątki, jeśli możliwe (np. DbUpdateException)
+            catch (Exception ex) 
             {
-                _logger.LogError(ex, "Error creating category with Name: {CategoryName}", categoryDto?.Name);
-                // Użyj ApiInternalError
-                return this.ApiInternalError("Error creating category", ex);
+                _logger.LogError(ex, "API CreateCategory ERROR for Name: {CategoryName}", categoryDto?.Name);
+                return this.ApiInternalError("Error creating category.", ex);
             }
         }
 
-        // PUT: api/categories/{id}
-        [HttpPut("{id:int}")] // Dodano :int
+        /// <summary>
+        /// Updates an existing category. Requires Admin role.
+        /// </summary>
+        /// <param name="id">The ID of the category to update.</param>
+        /// <param name="categoryDto">The updated category data.</param>
+        /// <returns>A 204 No Content response if successful.</returns>
+        /// <response code="204">Category updated successfully.</response>
+        /// <response code="400">If the category data is invalid or ID mismatch.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not an Admin.</response>
+        /// <response code="404">If the category with the specified ID is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
+        [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
-        // Sygnatura już jest poprawna: Task<IActionResult>
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateDto categoryDto) // Zmieniono typ parametru na FromBody
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateDto categoryDto)
         {
-            // Sprawdź zgodność ID
+            _logger.LogInformation("API UpdateCategory START for ID: {CategoryId}, New Name: {CategoryName}", id, categoryDto?.Name ?? "N/A");
             if (id != categoryDto.Id)
             {
-                // Użyj ApiBadRequest
+                _logger.LogWarning("API UpdateCategory BAD_REQUEST: Category ID mismatch in URL ({UrlId}) and body ({BodyId}).", id, categoryDto.Id);
                 return this.ApiBadRequest("Category ID mismatch in URL and body.");
             }
 
-             // Walidacja modelu
             if (!ModelState.IsValid)
             {
-                 return this.ApiBadRequest(ModelState);
+                 _logger.LogWarning("API UpdateCategory BAD_REQUEST: Invalid model state for ID {CategoryId}. Errors: {@ModelStateErrors}", id, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return this.ApiBadRequest(ModelState);
             }
 
             try
             {
-                // UpdateCategoryAsync powinien rzucić KeyNotFoundException, jeśli kategoria nie istnieje
                 await _categoryService.UpdateCategoryAsync(categoryDto);
-                // Użyj ApiNoContent dla sukcesu bez zwracania danych
+                _logger.LogInformation("API UpdateCategory SUCCESS for ID: {CategoryId}", id);
                 return this.ApiNoContent();
             }
-            catch (KeyNotFoundException) // Łapanie specyficznego wyjątku z serwisu
+            catch (KeyNotFoundException)
             {
-                 // Użyj ApiNotFound
-                return this.ApiNotFound($"Category with ID {id} not found");
+                _logger.LogWarning("API UpdateCategory NOT_FOUND: Category with ID {CategoryId} not found for update.", id);
+                return this.ApiNotFound($"Category with ID {id} not found.");
             }
-            catch (Exception ex) // Inne, niespodziewane błędy
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating category. CategoryId: {CategoryId}", id);
-                 // Użyj ApiInternalError
-                return this.ApiInternalError("Error updating category", ex);
+                _logger.LogError(ex, "API UpdateCategory ERROR for ID: {CategoryId}", id);
+                return this.ApiInternalError("Error updating category.", ex);
             }
         }
 
-        // DELETE: api/categories/{id}
-        [HttpDelete("{id:int}")] // Dodano :int
+        /// <summary>
+        /// Deletes a category by its ID. Requires Admin role.
+        /// </summary>
+        /// <param name="id">The ID of the category to delete.</param>
+        /// <returns>A 204 No Content response if successful.</returns>
+        /// <response code="204">Category deleted successfully.</response>
+        /// <response code="400">If the category ID is invalid or if the category cannot be deleted (e.g., in use).</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the user is not an Admin.</response>
+        /// <response code="404">If the category with the specified ID is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
+        [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
-         // Sygnatura już jest poprawna: Task<IActionResult>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-             if (id <= 0)
+            _logger.LogInformation("API DeleteCategory START for ID: {CategoryId}", id);
+            if (id <= 0)
             {
-                 return this.ApiBadRequest("Invalid Category ID.");
+                _logger.LogWarning("API DeleteCategory BAD_REQUEST: Invalid Category ID: {CategoryId}", id);
+                return this.ApiBadRequest("Invalid Category ID.");
             }
 
             try
             {
-                 // DeleteCategoryAsync powinien rzucić KeyNotFoundException lub InvalidOperationException
                 await _categoryService.DeleteCategoryAsync(id);
-                // Użyj ApiNoContent dla sukcesu
+                _logger.LogInformation("API DeleteCategory SUCCESS for ID: {CategoryId}", id);
                 return this.ApiNoContent();
             }
-            catch (KeyNotFoundException) // Kategoria nie znaleziona
+            catch (KeyNotFoundException)
             {
-                // Użyj ApiNotFound
-                return this.ApiNotFound($"Category with ID {id} not found");
+                _logger.LogWarning("API DeleteCategory NOT_FOUND: Category with ID {CategoryId} not found for deletion.", id);
+                return this.ApiNotFound($"Category with ID {id} not found.");
             }
-            catch (InvalidOperationException ex) // Błąd logiki biznesowej (np. nie można usunąć, bo ma powiązane itemy)
+            catch (InvalidOperationException ex) 
             {
-                // Użyj ApiBadRequest, przekazując komunikat z wyjątku
-                return this.ApiBadRequest(ex.Message);
+                _logger.LogWarning(ex, "API DeleteCategory BAD_REQUEST: Cannot delete category ID {CategoryId} due to invalid operation.", id);
+                return this.ApiBadRequest(ex.Message); 
             }
-            catch (Exception ex) // Inne, niespodziewane błędy
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting category. CategoryId: {CategoryId}", id);
-                // Użyj ApiInternalError
-                return this.ApiInternalError("Error deleting category", ex);
+                _logger.LogError(ex, "API DeleteCategory ERROR for ID: {CategoryId}", id);
+                return this.ApiInternalError("Error deleting category.", ex);
             }
         }
     }
