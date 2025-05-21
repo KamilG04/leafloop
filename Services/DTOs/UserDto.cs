@@ -14,6 +14,7 @@ namespace LeafLoop.Services.DTOs
         public int EcoScore { get; set; }
         public string AvatarPath { get; set; }
         public bool IsActive { get; set; }
+        public decimal SearchRadius { get; set; }
     }
 
     public class UserWithDetailsDto : UserDto
@@ -39,5 +40,6 @@ namespace LeafLoop.Services.DTOs
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string AvatarPath { get; set; }
+        public decimal? SearchRadius { get; set; }
     }
 }

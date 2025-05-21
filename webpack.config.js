@@ -15,11 +15,13 @@ module.exports = {
         myTransactionsList: './wwwroot/js/components/MyTransactionsList.js',
         transactionDetails: './wwwroot/js/components/TransactionDetails.js',
         profileEditForm: './wwwroot/js/components/ProfileEditForm.js',
+        initNearbyItemsPage: './wwwroot/js/components/initNearbyItemsPage.js',
     },
     output: {
         path: path.resolve(__dirname, 'wwwroot/js/dist'),
         filename: '[name].bundle.js',
-        clean: true
+        clean: true,
+        assetModuleFilename: 'images/[hash][ext][query]'
     },
     module: {
         rules: [
@@ -35,6 +37,17 @@ module.exports = {
                         ]
                     }
                 }
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    'style-loader', 
+                    'css-loader'    
+                ]
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i, // Obsługuje różne formaty obrazków
+                type: 'asset/resource', // Kopiuje plik do katalogu wyjściowego i eksportuje URL
             }
         ]
     },

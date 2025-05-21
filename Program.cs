@@ -368,18 +368,22 @@ app.UseXfo(options => options.Deny()); // Prevents clickjacking (X-Frame-Options
 app.UseCsp(options => options
     .DefaultSources(s => s.Self())
     .ScriptSources(s => s.Self()
-        .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://unpkg.com")
-        .UnsafeInline()) // FIXME: Strive to remove 'unsafe-inline'.
+        .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://unpkg.com") // unpkg.com is already here for scripts
+        .UnsafeInline()) 
     .StyleSources(s => s.Self()
-        .CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com")
-        .UnsafeInline()) // FIXME: Strive to remove 'unsafe-inline'.
-    .ImageSources(s => s.Self().CustomSources("data:", "blob:")) // 'data:' for inline images, 'blob:' for client-side generated images.
+        .CustomSources(
+            "https://cdn.jsdelivr.net", 
+            "https://cdnjs.cloudflare.com", 
+            "https://unpkg.com" 
+        )
+        .UnsafeInline()) 
+    .ImageSources(s => s.Self().CustomSources("data:", "blob:", "https://unpkg.com", "https://*.tile.openstreetmap.org")) // Added unpkg for leaflet images and openstreetmap for tiles
     .FontSources(s => s.Self().CustomSources("https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"))
-    .FormActions(s => s.Self()) // Restricts where forms can submit to.
-    .FrameAncestors(s => s.None()) // Equivalent to X-Frame-Options: DENY.
-    .ObjectSources(s => s.None()) // Disallows <object>, <embed>, <applet>.
-    .ConnectSources(s => s.Self()) // Restricts AJAX, WebSockets, etc. Add other domains if your API calls them.
-    .UpgradeInsecureRequests() // Converts HTTP requests to HTTPS on the client side.
+    .FormActions(s => s.Self()) 
+    .FrameAncestors(s => s.None()) 
+    .ObjectSources(s => s.None()) 
+    .ConnectSources(s => s.Self().CustomSources("https://nominatim.openstreetmap.org")) // Added Nominatim for reverse geocoding
+    .UpgradeInsecureRequests() 
 );
 
 // Middleware order is critical for security and functionality.

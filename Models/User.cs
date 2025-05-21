@@ -19,6 +19,9 @@ namespace LeafLoop.Models
         public string AvatarPath { get; set; }
         public bool IsActive { get; set; }
         public int? AddressId { get; set; } // Klucz obcy dla opcjonalnego adresu
+        
+        
+        public decimal SearchRadius { get; set; } = 10; 
 
         // --- Relacje ---
 

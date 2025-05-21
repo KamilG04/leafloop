@@ -31,31 +31,43 @@ namespace LeafLoop.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApartmentNumber")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("BuildingNumber")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("City")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Country")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                    b.Property<double>("Latitude")
-                        .HasColumnType("double precision");
+                    b.Property<decimal?>("Latitude")
+                        .HasColumnType("decimal(8, 6)");
 
-                    b.Property<double>("Longitude")
-                        .HasColumnType("double precision");
+                    b.Property<decimal?>("Longitude")
+                        .HasColumnType("decimal(9, 6)");
 
                     b.Property<string>("PostalCode")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Province")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Street")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -714,6 +726,9 @@ namespace LeafLoop.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
+
+                    b.Property<decimal>("SearchRadius")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");

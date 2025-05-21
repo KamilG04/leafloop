@@ -20,5 +20,6 @@ namespace LeafLoop.Services.Interfaces
         Task<IEnumerable<ItemDto>> GetUserItemsAsync(int userId);
         Task<int> GetUserEcoScoreAsync(int userId);
         Task UpdateUserEcoScoreAsync(int userId, int scoreChange);
+        Task UpdateUserLocationAsync(int userId, LocationUpdateDto locationData);
     }
 }

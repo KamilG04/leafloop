@@ -1,82 +1,112 @@
 @model LeafLoop.ViewModels.Profile.ProfileViewModel
 @{
-    ViewData["Title"] = $"Profil użytkownika - {Model.FirstName} {Model.LastName}"; // Użyj danych z VM
+    var fullName = $"{Model.FirstName} {Model.LastName}".Trim();
+    ViewData["Title"] = string.IsNullOrWhiteSpace(fullName) ? "Profil użytkownika" : $"Profil użytkownika - {fullName}";
 }
 
 <div class="container mt-4">
     <div class="row">
-        <div class="col-md-8">
-            <div id="react-user-profile" data-user-id="@Model.UserId">
+        <div class="col-lg-8 mb-4 mb-lg-0">
+            <div id="react-user-profile"
+                 data-user-id="@Model.UserId"
+                 data-profile-vm="@Newtonsoft.Json.JsonConvert.SerializeObject(Model)">
                 <div class="d-flex justify-content-center align-items-center py-5">
-                    <div class="spinner-border text-success" role="status">
+                    <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
                         <span class="visually-hidden">Ładowanie profilu...</span>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-4">
-                <h5>Twoje najnowsze przedmioty (@Model.TotalItemsCount)</h5>
-                <div class="list-group">
+            <div class="mt-4 card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-collection me-2 text-success"></i>
+                        Ostatnio dodane przedmioty (@Model.TotalItemsCount)
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
                     @if (Model.RecentItems != null && Model.RecentItems.Any())
                     {
-                        foreach (var item in Model.RecentItems) // Używamy ItemDto z ViewModelu
+                        foreach (var item in Model.RecentItems)
                         {
-                            <a href="/Items/Details/@item.Id" class="list-group-item list-group-item-action">
+                            <a asp-controller="Items" asp-action="Details" asp-route-id="@item.Id" class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">@item.Name</h6>
+                                    <h6 class="mb-1 text-success">@item.Name</h6>
                                     <small>@item.DateAdded.ToString("dd.MM.yyyy")</small>
                                 </div>
-                                <p class="mb-1 text-truncate">@item.Description</p>
-                                <small class="text-muted">Kategoria: @item.CategoryName</small> </a>
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <p class="mb-1 text-truncate">@item.Description</p>
+                                }
+                                <small class="text-muted">Kategoria: @item.CategoryName</small>
+                            </a>
                         }
                     }
                     else
                     {
                         <div class="list-group-item">
-                            <p class="mb-0 text-muted">Nie masz jeszcze żadnych przedmiotów.</p>
+                            <p class="mb-0 text-muted">Brak przedmiotów do wyświetlenia.</p>
                         </div>
                     }
                 </div>
-                <div class="mt-3">
-                    <a href="/Items/Create" class="btn btn-success">
-                        <i class="bi bi-plus-circle"></i> Dodaj nowy przedmiot
-                    </a>
-                     <a href="/Items/MyItems" class="btn btn-outline-secondary">
-                        <i class="bi bi-list-ul"></i> Zobacz wszystkie (@Model.TotalItemsCount)
-                    </a>
-                </div>
+                @if (Model.IsCurrentUserProfile || (Model.RecentItems != null && Model.RecentItems.Any()))
+                {
+                    <div class="card-footer bg-light text-center">
+                        @if (Model.IsCurrentUserProfile)
+                        {
+                            <a asp-controller="Items" asp-action="Create" class="btn btn-success me-2">
+                                <i class="bi bi-plus-circle"></i> Dodaj nowy przedmiot
+                            </a>
+                        }
+                        <a asp-controller="Items" asp-action="UserItems" asp-route-userId="@Model.UserId" class="btn btn-outline-secondary">
+                            <i class="bi bi-list-ul"></i> Zobacz wszystkie przedmioty użytkownika (@Model.TotalItemsCount)
+                        </a>
+                    </div>
+                }
             </div>
         </div>
 
-        <div class="col-md-4">
-             <div class="card mb-4">
+        <div class="col-lg-4">
+            <div class="card mb-4 shadow-sm">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Szybkie akcje</h5>
+                    <h5 class="mb-0"><i class="bi bi-lightning-charge-fill me-2"></i>Szybkie akcje</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <div class="list-group list-group-flush">
-                        <a href="/Profile/Edit/@Model.UserId" class="list-group-item list-group-item-action"> <i class="bi bi-pencil me-2"></i> Edytuj profil
+                        @if (Model.IsCurrentUserProfile)
+                        {
+                            <a asp-controller="Profile" asp-action="Edit" class="list-group-item list-group-item-action">
+                                <i class="bi bi-pencil-square me-2"></i> Edytuj mój profil
+                            </a>
+                        }
+                        <a asp-controller="Items" asp-action="MyItems" class="list-group-item list-group-item-action @(Model.IsCurrentUserProfile ? "" : "d-none")">
+                            <i class="bi bi-box2-heart me-2"></i> Moje przedmioty
                         </a>
-                        <a href="/Items/MyItems" class="list-group-item list-group-item-action">
-                            <i class="bi bi-box2 me-2"></i> Moje przedmioty
+                        <a asp-controller="Transactions" asp-action="Index" class="list-group-item list-group-item-action @(Model.IsCurrentUserProfile ? "" : "d-none")">
+                            <i class="bi bi-arrow-left-right me-2"></i> Moje transakcje
                         </a>
-                        <a href="/Transactions" class="list-group-item list-group-item-action"> <i class="bi bi-arrow-left-right me-2"></i> Moje transakcje
+                        <a asp-controller="Messages" asp-action="Index" class="list-group-item list-group-item-action @(Model.IsCurrentUserProfile ? "" : "d-none")">
+                            <i class="bi bi-envelope-fill me-2"></i> Wiadomości
                         </a>
-                        <a href="/Messages" class="list-group-item list-group-item-action"> <i class="bi bi-envelope me-2"></i> Wiadomości
-                        </a>
+                        @if (!Model.IsCurrentUserProfile)
+                        {
+                            <a asp-controller="Messages" asp-action="Create" asp-route-receiverId="@Model.UserId" class="list-group-item list-group-item-action">
+                                <i class="bi bi-send-plus-fill me-2"></i> Wyślij wiadomość do @(Model.FirstName ?? "użytkownika")
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Statystyki</h5>
+                    <h5 class="mb-0"><i class="bi bi-bar-chart-line-fill me-2"></i>Statystyki</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             EcoScore
-                            <span class="badge bg-success rounded-pill">@Model.EcoScore</span>
+                            <span class="badge bg-success rounded-pill fs-6">@Model.EcoScore</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Wystawione przedmioty
@@ -86,9 +116,9 @@
                             Zakończone transakcje
                             <span class="badge bg-primary rounded-pill">@Model.TotalTransactionsCount</span>
                         </li>
-                         <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
                             Średnia ocena
-                            <span class="badge bg-warning rounded-pill">@Model.AverageRating.ToString("0.0") / 5.0</span>
+                            <span class="badge bg-warning text-dark rounded-pill">@(Model.AverageRating > 0 ? Model.AverageRating.ToString("0.0") + "/5.0" : "Brak ocen")</span>
                         </li>
                     </ul>
                 </div>
@@ -96,30 +126,28 @@
 
             @if (Model.Badges != null && Model.Badges.Any())
             {
-                <div class="card mt-4">
+                <div class="card mt-4 shadow-sm">
                     <div class="card-header bg-light">
-                        <h5 class="mb-0">Odznaki</h5>
+                        <h5 class="mb-0"><i class="bi bi-trophy-fill me-2 text-success"></i>Odznaki</h5>
                     </div>
-                    <div class="card-body d-flex flex-wrap gap-2 justify-content-center align-items-center"> @* Dodano align-items-center *@
+                    <div class="card-body d-flex flex-wrap gap-2 justify-content-center align-items-center">
                         @foreach (var badge in Model.Badges)
                         {
-                            <span class="badge bg-secondary p-2 d-inline-flex align-items-center" title="@badge.Description"> @* Dodano d-inline-flex align-items-center *@
-                                @* Zamiast <i class="@(badge.IconCssClass ?? "bi bi-trophy") ..."> *@
-                                @* Użyj <img> jeśli IconPath istnieje, inaczej fallback <i> *@
+                            <span class="badge text-bg-secondary p-2 d-inline-flex align-items-center" title="@badge.Description">
                                 @if (!string.IsNullOrEmpty(badge.IconPath))
                                 {
-                                    <img src="@badge.IconPath" alt="@badge.Name" class="me-1" style="height: 1.1em; width: auto; vertical-align: middle;" /> @* Dostosuj style wg potrzeb *@
+                                    <img src="@Url.Content(badge.IconPath)" alt="@badge.Name" class="me-1" style="height: 1.2em; width: 1.2em; vertical-align: middle;" />
                                 }
                                 else
                                 {
-                                    <i class="bi bi-trophy me-1"></i> }
-                                <span style="vertical-align: middle;">@badge.Name</span> @* Opakuj tekst w span dla lepszego wyrównania *@
+                                    <i class="bi bi-trophy-fill me-1"></i>
+                                }
+                                <span style="vertical-align: middle;">@badge.Name</span>
                             </span>
                         }
                     </div>
                 </div>
             }
-
         </div>
     </div>
 </div>

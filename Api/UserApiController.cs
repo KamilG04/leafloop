@@ -1,6 +1,6 @@
 using LeafLoop.Models;
 using LeafLoop.Models.API; // For ApiResponse and ApiResponse<T>
-using LeafLoop.Services.DTOs; // For User DTOs, AddressDto
+using LeafLoop.Services.DTOs; // For User DTOs, AddressDto, LocationUpdateDto
 using LeafLoop.Services.DTOs.Auth; // For PasswordChangeDto
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -10,17 +10,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic; // For IEnumerable
-using System.IO; // For Path.GetFileName
+using System.IO; // For Path.GetFileName (though not directly used in this final version)
 using System.Linq; // For Count() and ModelState error logging
 using System.Security.Claims; // For ClaimTypes
 using System.Threading.Tasks; // For Task
-// Assuming FileValidationHelper might be used, though not explicitly in this version's UploadAvatar
-// using LeafLoop.Helpers; 
 
 namespace LeafLoop.Api
 {
     /// <summary>
-    /// Manages user profiles, addresses, avatars, and related user data.
+    /// Manages user profiles, addresses, avatars, location settings, and related user data.
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -29,7 +27,7 @@ namespace LeafLoop.Api
     {
         private readonly IUserService _userService;
         private readonly UserManager<User> _userManager;
-        private readonly IPhotoService _photoService; 
+        private readonly IPhotoService _photoService;
         private readonly ILogger<UsersController> _logger;
 
         public UsersController(
@@ -56,56 +54,70 @@ namespace LeafLoop.Api
         /// <response code="403">If the authenticated user is not authorized to view this user's details.</response>
         /// <response code="404">If the user with the specified ID is not found.</response>
         /// <response code="500">If an internal server error occurs.</response>
-        [HttpGet("{id:int}", Name = "GetUserById")] 
-        [Authorize(Policy = "ApiAuthPolicy")]
-        [ProducesResponseType(typeof(ApiResponse<UserWithDetailsDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetUser(int id)
+        [HttpGet("{id:int}", Name = "GetUserById")]
+    [Authorize(Policy = "ApiAuthPolicy")] // Wymaga zalogowania, aby wywołać API
+    [ProducesResponseType(typeof(ApiResponse<UserWithDetailsDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    // Usunięcie 403, jeśli teraz pozwalamy na dostęp
+    // [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)] 
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetUser(int id)
+    {
+        var authUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        _logger.LogInformation("API GetUser START for RequestedID: {RequestedId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}",
+            id, authUserIdClaim ?? "N/A");
+
+        if (id <= 0)
         {
-            var authUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation("API GetUser START for RequestedID: {RequestedId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}", 
-                id, authUserIdClaim ?? "N/A");
-
-            if (id <= 0)
-            {
-                _logger.LogWarning("API GetUser BAD_REQUEST: Invalid User ID: {RequestedId}", id);
-                return this.ApiBadRequest("Invalid User ID.");
-            }
-            try
-            {
-                var currentUser = await _userManager.GetUserAsync(User);
-                if (currentUser == null)
-                {
-                    _logger.LogWarning("API GetUser UNAUTHORIZED: Current user could not be identified from token. RequestedID: {RequestedId}", id);
-                    return this.ApiUnauthorized("Could not identify current user.");
-                }
-
-                var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
-                if (currentUser.Id != id && !isAdmin)
-                {
-                    _logger.LogWarning("API GetUser FORBIDDEN: User {CurrentUserId} is not authorized to view details for UserID {RequestedId}.", currentUser.Id, id);
-                    return this.ApiForbidden("You are not authorized to view this user's details.");
-                }
-
-                var userDto = await _userService.GetUserWithDetailsAsync(id);
-                if (userDto == null)
-                {
-                    _logger.LogWarning("API GetUser NOT_FOUND: User with ID {RequestedId} not found.", id);
-                    return this.ApiNotFound($"User with ID {id} not found.");
-                }
-                _logger.LogInformation("API GetUser SUCCESS for RequestedID: {RequestedId}", id);
-                return this.ApiOk(userDto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "API GetUser ERROR for RequestedID: {RequestedId}", id);
-                return this.ApiInternalError("Error retrieving user data.", ex);
-            }
+            _logger.LogWarning("API GetUser BAD_REQUEST: Invalid User ID: {RequestedId}", id);
+            return this.ApiBadRequest("Invalid User ID.");
         }
+
+        try
+        {
+            // Pobierz zalogowanego użytkownika, aby sprawdzić, czy token jest ważny.
+            // Nie jest już potrzebne do decydowania o dostępie, jeśli zmieniamy logikę.
+            var currentlyAuthenticatedUser = await _userManager.GetUserAsync(User);
+            if (currentlyAuthenticatedUser == null)
+            {
+                _logger.LogWarning("API GetUser UNAUTHORIZED: Current authenticated user could not be identified from token. RequestedID: {RequestedId}", id);
+                return this.ApiUnauthorized("Could not identify current authenticated user.");
+            }
+
+            // === ZŁAGODZONA LOGIKA AUTORYZACJI ===
+            // Zakładamy, że jeśli użytkownik jest zalogowany ([Authorize(Policy = "ApiAuthPolicy")] to załatwia),
+            // to może zobaczyć publiczne dane profilowe innego użytkownika.
+            // Jeśli chcesz zachować oryginalne ograniczenie (tylko admin lub właściciel),
+            // to musisz wybrać Opcję B z mojej poprzedniej odpowiedzi (przekazywanie wszystkich danych z MVC do Reacta).
+
+            /* Poprzednia, bardziej restrykcyjna logika:
+            var isAdmin = await _userManager.IsInRoleAsync(currentlyAuthenticatedUser, "Admin");
+            if (currentlyAuthenticatedUser.Id != id && !isAdmin)
+            {
+                _logger.LogWarning("API GetUser FORBIDDEN: User {CurrentUserId} is not authorized to view details for UserID {RequestedId}.", currentlyAuthenticatedUser.Id, id);
+                return this.ApiForbidden("You are not authorized to view this user's details.");
+            }
+            */
+
+            var userDto = await _userService.GetUserWithDetailsAsync(id);
+
+            if (userDto == null)
+            {
+                _logger.LogWarning("API GetUser NOT_FOUND: User with ID {RequestedId} not found.", id);
+                return this.ApiNotFound($"User with ID {id} not found.");
+            }
+
+            _logger.LogInformation("API GetUser SUCCESS for RequestedID: {RequestedId} (viewed by UserID: {ViewerId})", id, currentlyAuthenticatedUser.Id);
+            return this.ApiOk(userDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "API GetUser ERROR for RequestedID: {RequestedId}", id);
+            return this.ApiInternalError("Error retrieving user data.", ex);
+        }
+    }
 
         /// <summary>
         /// Retrieves basic information for the currently authenticated user.
@@ -137,7 +149,7 @@ namespace LeafLoop.Api
                 var userDto = await _userService.GetUserByIdAsync(currentUser.Id);
                 if (userDto == null)
                 {
-                    _logger.LogWarning("API GetCurrentUser NOT_FOUND: Could not find user details for authenticated UserID {UserId} (Claim: {UserIdClaim}).", 
+                    _logger.LogWarning("API GetCurrentUser NOT_FOUND: Could not find user details for authenticated UserID {UserId} (Claim: {UserIdClaim}).",
                         currentUser.Id, userIdClaim ?? "N/A");
                     return this.ApiNotFound("Current user details could not be found.");
                 }
@@ -175,7 +187,7 @@ namespace LeafLoop.Api
         public async Task<IActionResult> UpdateUserProfile(int id, [FromBody] UserUpdateDto userUpdateDto)
         {
             var authUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation("API UpdateUserProfile START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}. DTO: {@UserUpdateDto}", 
+            _logger.LogInformation("API UpdateUserProfile START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}. DTO: {@UserUpdateDto}",
                 id, authUserIdClaim ?? "N/A", userUpdateDto);
 
             if (id != userUpdateDto.Id)
@@ -185,7 +197,7 @@ namespace LeafLoop.Api
             }
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("API UpdateUserProfile BAD_REQUEST: Invalid model state for TargetUserID {TargetUserId}. Errors: {@ModelStateErrors}", 
+                _logger.LogWarning("API UpdateUserProfile BAD_REQUEST: Invalid model state for TargetUserID {TargetUserId}. Errors: {@ModelStateErrors}",
                     id, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return this.ApiBadRequest(ModelState);
             }
@@ -201,8 +213,8 @@ namespace LeafLoop.Api
                 var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
                 if (currentUser.Id != id && !isAdmin)
                 {
-                     _logger.LogWarning("API UpdateUserProfile FORBIDDEN: User {CurrentUserId} is not authorized to update profile for UserID {TargetUserId}.", 
-                        currentUser.Id, id);
+                    _logger.LogWarning("API UpdateUserProfile FORBIDDEN: User {CurrentUserId} is not authorized to update profile for UserID {TargetUserId}.",
+                       currentUser.Id, id);
                     return this.ApiForbidden("You are not authorized to update this profile.");
                 }
 
@@ -215,7 +227,7 @@ namespace LeafLoop.Api
                 _logger.LogWarning(ex, "API UpdateUserProfile NOT_FOUND: User with ID {TargetUserId} not found.", id);
                 return this.ApiNotFound($"User with ID {id} not found.");
             }
-            catch (UnauthorizedAccessException ex) 
+            catch (UnauthorizedAccessException ex)
             {
                 _logger.LogWarning(ex, "API UpdateUserProfile FORBIDDEN (service level) for TargetUserID: {TargetUserId}.", id);
                 return this.ApiForbidden("Authorization error during update.");
@@ -251,7 +263,7 @@ namespace LeafLoop.Api
         public async Task<IActionResult> UpdateUserAddress(int id, [FromBody] AddressDto addressDto)
         {
             var authUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation("API UpdateUserAddress START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}. AddressDTO: {@AddressDto}", 
+            _logger.LogInformation("API UpdateUserAddress START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}. AddressDTO: {@AddressDto}",
                 id, authUserIdClaim ?? "N/A", addressDto);
 
             if (id <= 0)
@@ -261,7 +273,7 @@ namespace LeafLoop.Api
             }
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("API UpdateUserAddress BAD_REQUEST: Invalid model state for TargetUserID {TargetUserId}. Errors: {@ModelStateErrors}", 
+                _logger.LogWarning("API UpdateUserAddress BAD_REQUEST: Invalid model state for TargetUserID {TargetUserId}. Errors: {@ModelStateErrors}",
                     id, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return this.ApiBadRequest(ModelState);
             }
@@ -277,7 +289,7 @@ namespace LeafLoop.Api
                 var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
                 if (currentUser.Id != id && !isAdmin)
                 {
-                    _logger.LogWarning("API UpdateUserAddress FORBIDDEN: User {CurrentUserId} is not authorized to update address for UserID {TargetUserId}.", 
+                    _logger.LogWarning("API UpdateUserAddress FORBIDDEN: User {CurrentUserId} is not authorized to update address for UserID {TargetUserId}.",
                         currentUser.Id, id);
                     return this.ApiForbidden("You are not authorized to update this address.");
                 }
@@ -286,22 +298,22 @@ namespace LeafLoop.Api
                 _logger.LogInformation("API UpdateUserAddress SUCCESS for TargetUserID: {TargetUserId}", id);
                 return this.ApiNoContent();
             }
-            catch (KeyNotFoundException ex) 
+            catch (KeyNotFoundException ex)
             {
                 _logger.LogWarning(ex, "API UpdateUserAddress NOT_FOUND: User with ID {TargetUserId} not found.", id);
                 return this.ApiNotFound($"User with ID {id} not found.");
             }
-            catch (UnauthorizedAccessException ex) 
+            catch (UnauthorizedAccessException ex)
             {
-                 _logger.LogWarning(ex, "API UpdateUserAddress FORBIDDEN (service level) for TargetUserID: {TargetUserId}.", id);
+                _logger.LogWarning(ex, "API UpdateUserAddress FORBIDDEN (service level) for TargetUserID: {TargetUserId}.", id);
                 return this.ApiForbidden("Authorization error during address update.");
             }
-            catch (InvalidOperationException ex) 
+            catch (InvalidOperationException ex)
             {
                 _logger.LogError(ex, "API UpdateUserAddress ERROR (Invalid Operation) for TargetUserID: {TargetUserId}. This might be an attempt to modify a key. AddressDTO: {@AddressDto}", id, addressDto);
-                return this.ApiBadRequest("Invalid operation: " + ex.Message); 
+                return this.ApiBadRequest("Invalid operation: " + ex.Message);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "API UpdateUserAddress ERROR for TargetUserID: {TargetUserId}. AddressDTO: {@AddressDto}", id, addressDto);
                 return this.ApiInternalError("Error updating user address.", ex);
@@ -331,7 +343,7 @@ namespace LeafLoop.Api
         public async Task<IActionResult> ChangePassword(int id, [FromBody] PasswordChangeDto passwordDto)
         {
             var authUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation("API ChangePassword START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}", 
+            _logger.LogInformation("API ChangePassword START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}",
                 id, authUserIdClaim ?? "N/A");
 
             if (id <= 0)
@@ -341,7 +353,7 @@ namespace LeafLoop.Api
             }
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("API ChangePassword BAD_REQUEST: Invalid model state for TargetUserID {TargetUserId}. Errors: {@ModelStateErrors}", 
+                _logger.LogWarning("API ChangePassword BAD_REQUEST: Invalid model state for TargetUserID {TargetUserId}. Errors: {@ModelStateErrors}",
                     id, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return this.ApiBadRequest(ModelState);
             }
@@ -355,7 +367,7 @@ namespace LeafLoop.Api
                 }
                 if (currentUser.Id != id)
                 {
-                    _logger.LogWarning("API ChangePassword FORBIDDEN: User {CurrentUserId} attempted to change password for UserID {TargetUserId}.", 
+                    _logger.LogWarning("API ChangePassword FORBIDDEN: User {CurrentUserId} attempted to change password for UserID {TargetUserId}.",
                         currentUser.Id, id);
                     return this.ApiForbidden("You can only change your own password.");
                 }
@@ -369,7 +381,7 @@ namespace LeafLoop.Api
                 _logger.LogInformation("API ChangePassword SUCCESS for UserID: {UserId}", id);
                 return this.ApiNoContent();
             }
-            catch (KeyNotFoundException ex) 
+            catch (KeyNotFoundException ex)
             {
                 _logger.LogWarning(ex, "API ChangePassword NOT_FOUND: User with ID {TargetUserId} not found.", id);
                 return this.ApiNotFound($"User with ID {id} not found.");
@@ -444,7 +456,7 @@ namespace LeafLoop.Api
                 _logger.LogInformation("API GetUserBadges SUCCESS for UserID: {UserId}. Badge count: {Count}", id, badges?.Count() ?? 0);
                 return this.ApiOk(badges ?? new List<BadgeDto>());
             }
-            catch (KeyNotFoundException ex) 
+            catch (KeyNotFoundException ex)
             {
                 _logger.LogWarning(ex, "API GetUserBadges NOT_FOUND: User with ID {UserId} not found.", id);
                 return this.ApiNotFound($"User with ID {id} not found.");
@@ -486,7 +498,7 @@ namespace LeafLoop.Api
                 _logger.LogInformation("API GetUserItems SUCCESS for UserID: {UserId}. Item count: {Count}", id, items?.Count() ?? 0);
                 return this.ApiOk(items ?? new List<ItemDto>());
             }
-            catch (KeyNotFoundException ex) 
+            catch (KeyNotFoundException ex)
             {
                 _logger.LogWarning(ex, "API GetUserItems NOT_FOUND: User with ID {UserId} not found.", id);
                 return this.ApiNotFound($"User with ID {id} not found.");
@@ -521,7 +533,7 @@ namespace LeafLoop.Api
         public async Task<IActionResult> DeactivateUser(int id)
         {
             var authUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation("API DeactivateUser START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}", 
+            _logger.LogInformation("API DeactivateUser START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}",
                 id, authUserIdClaim ?? "N/A");
 
             if (id <= 0)
@@ -541,7 +553,7 @@ namespace LeafLoop.Api
                 var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
                 if (currentUser.Id != id && !isAdmin)
                 {
-                    _logger.LogWarning("API DeactivateUser FORBIDDEN: User {CurrentUserId} is not authorized to deactivate UserID {TargetUserId}.", 
+                    _logger.LogWarning("API DeactivateUser FORBIDDEN: User {CurrentUserId} is not authorized to deactivate UserID {TargetUserId}.",
                         currentUser.Id, id);
                     return this.ApiForbidden("You are not authorized to deactivate this user.");
                 }
@@ -555,7 +567,7 @@ namespace LeafLoop.Api
                 _logger.LogInformation("API DeactivateUser SUCCESS for TargetUserID: {TargetUserId}", id);
                 return this.ApiNoContent();
             }
-            catch (KeyNotFoundException ex) 
+            catch (KeyNotFoundException ex)
             {
                 _logger.LogWarning(ex, "API DeactivateUser NOT_FOUND: User with ID {TargetUserId} not found.", id);
                 return this.ApiNotFound($"User with ID {id} not found.");
@@ -582,14 +594,14 @@ namespace LeafLoop.Api
         /// <response code="500">If an internal server error occurs during upload or DB update.</response>
         [HttpPost("{id:int}/avatar")]
         [Authorize(Policy = "ApiAuthPolicy")]
-        [Consumes("multipart/form-data")] 
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)] 
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UploadAvatar(int id, IFormFile avatar) // Removed [FromForm]
+        public async Task<IActionResult> UploadAvatar(int id, IFormFile avatar)
         {
             var authUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             _logger.LogInformation("API UploadAvatar START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}. File: {FileName}, Size: {FileSize}, ContentType: {ContentType}",
@@ -609,14 +621,14 @@ namespace LeafLoop.Api
             long maxFileSize = 2 * 1024 * 1024; // 2MB
             if (avatar.Length > maxFileSize)
             {
-                _logger.LogWarning("API UploadAvatar BAD_REQUEST: File size {FileSize} exceeds limit of {MaxFileSize}MB for UserID: {TargetUserId}", 
-                    avatar.Length, maxFileSize / (1024 * 1024) , id);
+                _logger.LogWarning("API UploadAvatar BAD_REQUEST: File size {FileSize} exceeds limit of {MaxFileSize}MB for UserID: {TargetUserId}",
+                    avatar.Length, maxFileSize / (1024 * 1024), id);
                 return this.ApiBadRequest($"File size exceeds limit of {maxFileSize / 1024 / 1024} MB.");
             }
             var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp" };
             if (!allowedTypes.Contains(avatar.ContentType.ToLowerInvariant()))
             {
-                _logger.LogWarning("API UploadAvatar BAD_REQUEST: Invalid file type '{ContentType}' for UserID: {TargetUserId}. Allowed: {AllowedTypes}", 
+                _logger.LogWarning("API UploadAvatar BAD_REQUEST: Invalid file type '{ContentType}' for UserID: {TargetUserId}. Allowed: {AllowedTypes}",
                     avatar.ContentType, id, string.Join(", ", allowedTypes));
                 return this.ApiBadRequest($"Invalid file type. Allowed: {string.Join(", ", allowedTypes)}.");
             }
@@ -633,7 +645,7 @@ namespace LeafLoop.Api
                 var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
                 if (currentUser.Id != id && !isAdmin)
                 {
-                    _logger.LogWarning("API UploadAvatar FORBIDDEN: User {CurrentUserId} is not authorized to change avatar for UserID {TargetUserId}.", 
+                    _logger.LogWarning("API UploadAvatar FORBIDDEN: User {CurrentUserId} is not authorized to change avatar for UserID {TargetUserId}.",
                         currentUser.Id, id);
                     return this.ApiForbidden("You are not authorized to change this avatar.");
                 }
@@ -658,26 +670,120 @@ namespace LeafLoop.Api
 
                 if (!updateResult.Succeeded)
                 {
-                    _logger.LogError("Failed to update user avatar path in DB for UserID: {TargetUserId}. Errors: {Errors}. Attempting to delete uploaded file: {NewPath}", 
+                    _logger.LogError("Failed to update user avatar path in DB for UserID: {TargetUserId}. Errors: {Errors}. Attempting to delete uploaded file: {NewPath}",
                         id, string.Join(", ", updateResult.Errors.Select(e => e.Description)), newRelativePath);
-                    await _photoService.DeletePhotoByPathAsync(newRelativePath); 
+                    // Attempt to delete the newly uploaded file if DB update fails to prevent orphaned files
+                    await _photoService.DeletePhotoByPathAsync(newRelativePath);
                     return this.ApiInternalError("Failed to save avatar information to user profile.");
                 }
                 _logger.LogInformation("Successfully updated avatar path in DB for UserID: {TargetUserId}", id);
 
+                // Delete old avatar if a new one was successfully uploaded and path saved, and it's a different file
                 if (!string.IsNullOrEmpty(oldAvatarRelativePath) && oldAvatarRelativePath != newRelativePath)
                 {
                     _logger.LogInformation("Attempting to delete old avatar file: {OldPath} for UserID: {TargetUserId}", oldAvatarRelativePath, id);
                     var deleted = await _photoService.DeletePhotoByPathAsync(oldAvatarRelativePath);
                     _logger.LogInformation("Deletion of old avatar file {OldPath} for UserID {TargetUserId} result: {Deleted}", oldAvatarRelativePath, id, deleted);
                 }
-                
+
                 return this.ApiOk(new { path = newRelativePath }, "Avatar updated successfully.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "API UploadAvatar ERROR for UserID: {TargetUserId}", id);
                 return this.ApiInternalError("An unexpected error occurred while uploading the avatar.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Updates the geographic coordinates and search radius for a specific user.
+        /// Requires authentication. The authenticated user can update their own location, or an Admin can update any user's location.
+        /// </summary>
+        /// <param name="id">The ID of the user whose location is to be updated.</param>
+        /// <param name="locationData">The DTO containing the new location data (Latitude, Longitude, SearchRadius).</param>
+        /// <returns>A 204 No Content response if successful.</returns>
+        /// <response code="204">User location updated successfully.</response>
+        /// <response code="400">If the user ID is invalid, or the location data is invalid (e.g., missing coordinates, invalid radius).</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="403">If the authenticated user is not authorized to update this location.</response>
+        /// <response code="404">If the user with the specified ID is not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
+        [HttpPut("{id:int}/location")]
+        [Authorize(Policy = "ApiAuthPolicy")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateUserLocation(int id, [FromBody] LocationUpdateDto locationData)
+        {
+            var authUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("API UpdateUserLocation START for TargetUserID: {TargetUserId}, AuthenticatedUserIDClaim: {AuthUserIdClaim}. LocationData: {@LocationData}",
+                id, authUserIdClaim ?? "N/A", locationData);
+
+            if (id <= 0)
+            {
+                _logger.LogWarning("API UpdateUserLocation BAD_REQUEST: Invalid User ID: {TargetUserId}", id);
+                return this.ApiBadRequest("Invalid User ID.");
+            }
+
+            // Explicit validation for locationData properties.
+            // Assumes LocationUpdateDto has Latitude (decimal?), Longitude (decimal?), SearchRadius (decimal).
+            if (locationData == null || !locationData.Latitude.HasValue || !locationData.Longitude.HasValue)
+            {
+                _logger.LogWarning("API UpdateUserLocation BAD_REQUEST: Missing required location data (Latitude/Longitude) for UserID: {TargetUserId}. Provided: {@LocationData}", id, locationData);
+                return this.ApiBadRequest("Location coordinates (Latitude and Longitude) are required.");
+            }
+
+            // Validate SearchRadius range.
+            if (locationData.SearchRadius <= 0 || locationData.SearchRadius > 200) // Max radius currently set to 200km
+            {
+                _logger.LogWarning("API UpdateUserLocation BAD_REQUEST: Invalid search radius: {Radius} for UserID: {TargetUserId}. Must be > 0 and <= 200.",
+                    locationData.SearchRadius, id);
+                return this.ApiBadRequest("Search radius must be greater than 0 and no more than 200 km.");
+            }
+
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    _logger.LogWarning("API UpdateUserLocation UNAUTHORIZED: Could not identify current user. TargetUserID: {TargetUserId}", id);
+                    return this.ApiUnauthorized("Could not identify current user.");
+                }
+
+                var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
+                if (currentUser.Id != id && !isAdmin)
+                {
+                    _logger.LogWarning("API UpdateUserLocation FORBIDDEN: User {CurrentUserId} is not authorized to update location for UserID {TargetUserId}.",
+                        currentUser.Id, id);
+                    return this.ApiForbidden("You are not authorized to update this location.");
+                }
+
+                await _userService.UpdateUserLocationAsync(id, locationData);
+                _logger.LogInformation("API UpdateUserLocation SUCCESS for TargetUserID: {TargetUserId}", id);
+                return this.ApiNoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "API UpdateUserLocation NOT_FOUND: User with ID {TargetUserId} not found.", id);
+                return this.ApiNotFound($"User with ID {id} not found.");
+            }
+            catch (UnauthorizedAccessException ex) // Catch if service layer throws this for any reason.
+            {
+                _logger.LogWarning(ex, "API UpdateUserLocation FORBIDDEN (service level) for TargetUserID: {TargetUserId}.", id);
+                return this.ApiForbidden("Authorization error during location update.");
+            }
+            catch (ArgumentException ex) // Catch invalid arguments passed to service, e.g. invalid lat/lon values
+            {
+                _logger.LogWarning(ex, "API UpdateUserLocation BAD_REQUEST (service level argument) for TargetUserID: {TargetUserId}. Message: {ErrorMessage}", id, ex.Message);
+                return this.ApiBadRequest($"Invalid location data: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "API UpdateUserLocation ERROR for TargetUserID: {TargetUserId}. LocationData: {@LocationData}", id, locationData);
+                return this.ApiInternalError("Error updating user location.", ex);
             }
         }
     }

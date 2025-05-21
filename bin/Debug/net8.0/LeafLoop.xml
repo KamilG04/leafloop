@@ -491,6 +491,50 @@
             <response code="404">If the item or photo is not found.</response>
             <response code="500">If an internal server error occurs.</response>
         </member>
+        <member name="T:LeafLoop.Api.NearbyItemsController">
+            <summary>
+            Controller for handling searches for items near a specific location.
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Api.NearbyItemsController.#ctor(LeafLoop.Services.Interfaces.IItemService,Microsoft.AspNetCore.Identity.UserManager{LeafLoop.Models.User},Microsoft.Extensions.Logging.ILogger{LeafLoop.Api.NearbyItemsController})">
+            <summary>
+            Initializes a new instance of the NearbyItemsController.
+            </summary>
+            <param name="itemService">The item service.</param>
+            <param name="userManager">The user manager.</param>
+            <param name="logger">The logger.</param>
+        </member>
+        <member name="M:LeafLoop.Api.NearbyItemsController.GetNearbyItems(System.Decimal,System.Decimal,System.Decimal,System.Nullable{System.Int32},System.String,System.Int32,System.Int32)">
+            <summary>
+            Retrieves a list of items near the specified location.
+            </summary>
+            <param name="lat">Latitude of the center point.</param>
+            <param name="lon">Longitude of the center point.</param>
+            <param name="radius">Search radius in kilometers (default: 10 km).</param>
+            <param name="categoryId">Optional category ID to filter by.</param>
+            <param name="searchTerm">Optional search term.</param>
+            <param name="page">Page number (1-based, default: 1).</param>
+            <param name="pageSize">Page size (default: 20, max: 100).</param>
+            <returns>A paginated list of items found near the location.</returns>
+            <response code="200">Returns the list of nearby items.</response>
+            <response code="400">If the request parameters are invalid.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
+        <member name="M:LeafLoop.Api.NearbyItemsController.GetItemsNearCurrentUser(System.Nullable{System.Decimal},System.Nullable{System.Int32},System.String,System.Int32,System.Int32)">
+            <summary>
+            Retrieves a list of items near the currently authenticated user's location.
+            </summary>
+            <param name="radius">Optional search radius in kilometers. If not provided, the user's saved search radius is used.</param>
+            <param name="categoryId">Optional category ID to filter by.</param>
+            <param name="searchTerm">Optional search term.</param>
+            <param name="page">Page number (1-based, default: 1).</param>
+            <param name="pageSize">Page size (default: 20, max: 100).</param>
+            <returns>A paginated list of items found near the user's location.</returns>
+            <response code="200">Returns the list of nearby items.</response>
+            <response code="400">If the user has not set their location, or if request parameters are invalid.</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="500">If an internal server error occurs.</response>
+        </member>
         <member name="T:LeafLoop.Api.NotificationsController">
             <summary>
             Manages user notifications. All endpoints require authentication.
@@ -771,7 +815,7 @@
         </member>
         <member name="T:LeafLoop.Api.UsersController">
             <summary>
-            Manages user profiles, addresses, avatars, and related user data.
+            Manages user profiles, addresses, avatars, location settings, and related user data.
             </summary>
         </member>
         <member name="M:LeafLoop.Api.UsersController.GetUser(System.Int32)">
@@ -904,6 +948,21 @@
             <response code="403">If the authenticated user is not authorized to change this avatar.</response>
             <response code="404">If the user with the specified ID is not found.</response>
             <response code="500">If an internal server error occurs during upload or DB update.</response>
+        </member>
+        <member name="M:LeafLoop.Api.UsersController.UpdateUserLocation(System.Int32,LeafLoop.Services.DTOs.LocationUpdateDto)">
+            <summary>
+            Updates the geographic coordinates and search radius for a specific user.
+            Requires authentication. The authenticated user can update their own location, or an Admin can update any user's location.
+            </summary>
+            <param name="id">The ID of the user whose location is to be updated.</param>
+            <param name="locationData">The DTO containing the new location data (Latitude, Longitude, SearchRadius).</param>
+            <returns>A 204 No Content response if successful.</returns>
+            <response code="204">User location updated successfully.</response>
+            <response code="400">If the user ID is invalid, or the location data is invalid (e.g., missing coordinates, invalid radius).</response>
+            <response code="401">If the user is not authenticated.</response>
+            <response code="403">If the authenticated user is not authorized to update this location.</response>
+            <response code="404">If the user with the specified ID is not found.</response>
+            <response code="500">If an internal server error occurs.</response>
         </member>
         <member name="T:LeafLoop.Middleware.EnhancedErrorHandlingMiddleware">
             <summary>
@@ -1060,6 +1119,33 @@
         <member name="M:LeafLoop.Migrations.AddBuyerAndSellerConfirmationToTransaction.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:LeafLoop.Migrations.mapa">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.mapa.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.mapa.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.mapa.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="P:LeafLoop.Models.Address.Users">
+            <summary>
+            Users associated with this address (e.g., residents, registered at this address).
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Models.Address.Companies">
+            <summary>
+            Companies located at or associated with this address.
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Models.Address.Events">
+            <summary>
+            Events taking place at or associated with this address.
+            </summary>
+        </member>
         <member name="T:LeafLoop.Models.API.ApiResponse">
             <summary>
             Represents a standard, non-generic API response structure, typically used for
@@ -1118,52 +1204,139 @@
         <member name="M:LeafLoop.Repositories.Interfaces.IItemRepository.SearchItemsAsync(LeafLoop.Services.DTOs.ItemSearchDto)">
             <summary>
             Searches for items based on the provided search criteria DTO.
-            Implementacja powinna obsługiwać filtrowanie, sortowanie i paginację.
+            Implementation should handle filtering, sorting, and pagination.
             </summary>
         </member>
         <member name="M:LeafLoop.Repositories.Interfaces.IItemRepository.CountAsync(LeafLoop.Services.DTOs.ItemSearchDto)">
             <summary>
             Counts items based on the provided search criteria DTO.
-            Implementacja powinna stosować te same filtry co SearchItemsAsync.
+            Implementation should apply the same filters as SearchItemsAsync.
             </summary>
         </member>
-        <member name="M:LeafLoop.Repositories.ItemRepository.GetItemWithDetailsAsync(System.Int32)">
+        <member name="M:LeafLoop.Repositories.Interfaces.IItemRepository.GetItemsNearLocationAsync(System.Decimal,System.Decimal,System.Decimal,System.Nullable{System.Int32},System.String,System.Int32,System.Int32)">
             <summary>
-            Gets an item with its details (User, Category, Photos, Tags).
-            Uses AsNoTracking for read-only query optimization.
+            Gets a list of items near a given location with pagination and optional filters.
+            </summary>
+            <param name="latitude">Latitude of the center point.</param>
+            <param name="longitude">Longitude of the center point.</param>
+            <param name="radiusKm">Search radius in kilometers.</param>
+            <param name="categoryId">Optional category ID to filter by.</param>
+            <param name="searchTerm">Optional search term to filter by item name or description.</param>
+            <param name="pageNumber">Page number for pagination (starting from 1).</param>
+            <param name="pageSize">Number of items per page.</param>
+            <returns>A list of items found within the specified radius from the center point.</returns>
+        </member>
+        <member name="M:LeafLoop.Repositories.Interfaces.IItemRepository.CountItemsNearLocationAsync(System.Decimal,System.Decimal,System.Decimal,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Gets the count of items near a given location with optional filters.
+            </summary>
+            <param name="latitude">Latitude of the center point.</param>
+            <param name="longitude">Longitude of the center point.</param>
+            <param name="radiusKm">Search radius in kilometers.</param>
+            <param name="categoryId">Optional category ID to filter by.</param>
+            <param name="searchTerm">Optional search term to filter by item name or description.</param>
+            <returns>The total number of items found within the specified radius matching the criteria.</returns>
+        </member>
+        <member name="T:LeafLoop.Services.DTOs.ItemSummaryDto">
+            <summary>
+            Represents a summary of an item, typically used in lists or search results.
             </summary>
         </member>
-        <member name="M:LeafLoop.Repositories.ItemRepository.GetItemsByCategoryAsync(System.Int32)">
+        <member name="T:LeafLoop.Services.DTOs.LocationUpdateDto">
             <summary>
-            Gets available items for a specific category, ordered by date, including the first photo.
+            Data Transfer Object for updating a user's location.
             </summary>
         </member>
-        <member name="M:LeafLoop.Repositories.ItemRepository.GetItemsByUserWithRelationsAsync(System.Int32)">
+        <member name="P:LeafLoop.Services.DTOs.LocationUpdateDto.Latitude">
             <summary>
-            Gets all items for a specific user, ordered by date, including category and the first photo.
+            Geographic latitude.
+            Must be between -90 and 90.
             </summary>
         </member>
-        <member name="M:LeafLoop.Repositories.ItemRepository.GetAvailableItemsAsync(System.Int32)">
+        <member name="P:LeafLoop.Services.DTOs.LocationUpdateDto.Longitude">
             <summary>
-            Gets a specified number of the most recent available items, including category and the first photo.
+            Geographic longitude.
+            Must be between -180 and 180.
             </summary>
         </member>
-        <member name="M:LeafLoop.Repositories.ItemRepository.GetRecentItemsByUserWithCategoryAsync(System.Int32,System.Int32)">
+        <member name="P:LeafLoop.Services.DTOs.LocationUpdateDto.SearchRadius">
             <summary>
-            Gets a specified number of the most recent items listed by a specific user,
-            including their category and first photo information.
+            Search radius in kilometers.
+            Must be between 1 and 200 km. Defaults to 10 km if not provided.
             </summary>
         </member>
-        <member name="M:LeafLoop.Repositories.ItemRepository.SearchItemsAsync(LeafLoop.Services.DTOs.ItemSearchDto)">
+        <member name="P:LeafLoop.Services.DTOs.LocationUpdateDto.LocationName">
             <summary>
-            Searches for available items based on various criteria provided in the search DTO,
-            including filtering, sorting, and pagination. Includes category and first photo.
+            Optional: Name of the location (e.g., "City Park", "User's Home").
+            This could be provided by the user or potentially auto-populated by reverse geocoding
+            on the backend if such functionality is implemented.
             </summary>
         </member>
-        <member name="M:LeafLoop.Repositories.ItemRepository.CountAsync(LeafLoop.Services.DTOs.ItemSearchDto)">
+        <member name="T:LeafLoop.Services.DTOs.PagedResult`1">
             <summary>
-            Counts available items based on the provided search criteria.
+            Klasa generyczna reprezentująca stronicowany wynik
             </summary>
+            <typeparam name="T">Typ elementów w wynikach</typeparam>
+        </member>
+        <member name="P:LeafLoop.Services.DTOs.PagedResult`1.Items">
+            <summary>
+            Lista elementów na aktualnej stronie
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Services.DTOs.PagedResult`1.TotalCount">
+            <summary>
+            Całkowita liczba dostępnych elementów
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Services.DTOs.PagedResult`1.PageNumber">
+            <summary>
+            Aktualny numer strony (od 1)
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Services.DTOs.PagedResult`1.PageSize">
+            <summary>
+            Rozmiar strony
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Services.DTOs.PagedResult`1.TotalPages">
+            <summary>
+            Całkowita liczba stron
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Services.DTOs.PagedResult`1.HasPreviousPage">
+            <summary>
+            Czy istnieje poprzednia strona
+            </summary>
+        </member>
+        <member name="P:LeafLoop.Services.DTOs.PagedResult`1.HasNextPage">
+            <summary>
+            Czy istnieje następna strona
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Services.DTOs.PagedResult`1.#ctor(System.Collections.Generic.IEnumerable{`0},System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Tworzy nowy stronicowany wynik
+            </summary>
+            <param name="items">Elementy na aktualnej stronie</param>
+            <param name="totalCount">Całkowita liczba dostępnych elementów</param>
+            <param name="pageNumber">Aktualny numer strony (od 1)</param>
+            <param name="pageSize">Rozmiar strony</param>
+        </member>
+        <member name="M:LeafLoop.Services.Interfaces.IItemService.GetItemsNearLocationAsync(System.Decimal,System.Decimal,System.Decimal,System.Nullable{System.Int32},System.String,System.Int32,System.Int32)">
+            <summary>
+            Gets a paginated list of item summaries near a specified location.
+            </summary>
+            <param name="latitude">Latitude of the center point.</param>
+            <param name="longitude">Longitude of the center point.</param>
+            <param name="radiusKm">Search radius in kilometers.</param>
+            <param name="categoryId">Optional category ID to filter by.</param>
+            <param name="searchTerm">Optional search term.</param>
+            <param name="pageNumber">Current page number (1-based).</param>
+            <param name="pageSize">Number of items per page.</param>
+            <returns>A PagedResult containing item summaries.</returns>
+        </member>
+        <member name="M:LeafLoop.Services.ItemService.GetItemsNearLocationAsync(System.Decimal,System.Decimal,System.Decimal,System.Nullable{System.Int32},System.String,System.Int32,System.Int32)">
+            <inheritdoc/>
         </member>
         <member name="M:LeafLoop.Services.TransactionService.ConfirmTransactionCompletionAsync(System.Int32,System.Int32)">
             <summary>
@@ -1179,6 +1352,20 @@
             <remarks>
             This would be called by a background job or schedule (e.g., Hangfire, Quartz.NET)
             </remarks>
+        </member>
+        <member name="M:LeafLoop.Services.UserService.UpdateUserLocationAsync(System.Int32,LeafLoop.Services.DTOs.LocationUpdateDto)">
+            <inheritdoc/>
+        </member>
+        <member name="T:LeafLoop.ViewModels.Profile.ProfileViewModel">
+            <summary>
+            ViewModel representing the data needed to display a user's profile page.
+            </summary>
+        </member>
+        <member name="P:LeafLoop.ViewModels.Profile.ProfileViewModel.IsCurrentUserProfile">
+            <summary>
+            Indicates if the profile being viewed belongs to the currently authenticated user.
+            This allows the view to show/hide certain elements (e.g., "Edit Profile" button).
+            </summary>
         </member>
     </members>
 </doc>
