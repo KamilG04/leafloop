@@ -1,0 +1,45 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=38c93895_002D2e56_002D45a8_002D84a1_002D91841f2a8d33/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;LeafLoop.Tests.Unit&amp;gt; #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Or&gt;
+    &lt;Not&gt;
+      &lt;Or&gt;
+        &lt;And&gt;
+          &lt;TestAncestor&gt;
+            &lt;TestId&gt;xUnit::5FEF6908-39A9-4E88-B3BD-AF6020F2C911::net8.0::LeafLoop.Tests.Unit.Services.JwtTokenServiceTests.ValidateToken_ExpiredToken_ShouldReturnNullAndLogError&lt;/TestId&gt;
+          &lt;/TestAncestor&gt;
+          &lt;Or&gt;
+            &lt;Test&gt;
+              &lt;TestId&gt;xUnit::5FEF6908-39A9-4E88-B3BD-AF6020F2C911::net8.0::LeafLoop.Tests.Unit.Services.JwtTokenServiceTests&lt;/TestId&gt;
+              &lt;TestId&gt;xUnit::5FEF6908-39A9-4E88-B3BD-AF6020F2C911::net8.0::LeafLoop.Tests.Unit.Services.JwtTokenServiceTests.ValidateToken_ExpiredToken_ShouldReturnNullAndLogError&lt;/TestId&gt;
+              &lt;TestId&gt;xUnit::5FEF6908-39A9-4E88-B3BD-AF6020F2C911::net8.0::LeafLoop.Tests.Unit.Services.JwtTokenServiceTests.ValidateToken_InvalidSignature_ShouldReturnNullAndLogError&lt;/TestId&gt;
+            &lt;/Test&gt;
+            &lt;Nothing /&gt;
+            &lt;Nothing /&gt;
+          &lt;/Or&gt;
+        &lt;/And&gt;
+        &lt;And&gt;
+          &lt;TestAncestor&gt;
+            &lt;TestId&gt;xUnit::5FEF6908-39A9-4E88-B3BD-AF6020F2C911::net8.0::LeafLoop.Tests.Unit.Services.JwtTokenServiceTests.ValidateToken_InvalidSignature_ShouldReturnNullAndLogError&lt;/TestId&gt;
+          &lt;/TestAncestor&gt;
+          &lt;Or&gt;
+            &lt;Test&gt;
+              &lt;TestId&gt;xUnit::5FEF6908-39A9-4E88-B3BD-AF6020F2C911::net8.0::LeafLoop.Tests.Unit.Services.JwtTokenServiceTests&lt;/TestId&gt;
+              &lt;TestId&gt;xUnit::5FEF6908-39A9-4E88-B3BD-AF6020F2C911::net8.0::LeafLoop.Tests.Unit.Services.JwtTokenServiceTests.ValidateToken_InvalidSignature_ShouldReturnNullAndLogError&lt;/TestId&gt;
+            &lt;/Test&gt;
+            &lt;Nothing /&gt;
+            &lt;Nothing /&gt;
+          &lt;/Or&gt;
+        &lt;/And&gt;
+      &lt;/Or&gt;
+    &lt;/Not&gt;
+    &lt;ProjectFile&gt;5FEF6908-39A9-4E88-B3BD-AF6020F2C911/d:Services/f:JWTTokenService.cs&lt;/ProjectFile&gt;
+    &lt;ProjectFolder&gt;5FEF6908-39A9-4E88-B3BD-AF6020F2C911/d:Services&lt;/ProjectFolder&gt;
+  &lt;/Or&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=81700317_002Dfe37_002D4359_002D8f82_002Ddc10cb9933c3/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from &amp;lt;LeafLoop.Tests.Unit&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/LeafLoop.Tests.Unit/LeafLoop.Tests.Unit" Presentation="&amp;lt;LeafLoop.Tests.Unit&amp;gt;" /&gt;
+&lt;/SessionState&gt;</s:String>
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f6d814d3_002Dacb5_002D4e02_002Da821_002D1df3acd1bae7/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from CategoryServiceTest.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;ProjectFile&gt;5FEF6908-39A9-4E88-B3BD-AF6020F2C911/d:Services/f:CategoryServiceTest.cs&lt;/ProjectFile&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
