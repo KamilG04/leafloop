@@ -2,7 +2,7 @@
   "Files": [
     {
       "Id": "/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/scopedcss/projectbundle/LeafLoop.bundle.scp.css",
-      "PackagePath": "staticwebassets/LeafLoop.5wxvdamobd.bundle.scp.css"
+      "PackagePath": "staticwebassets/LeafLoop.bundle.scp.css"
     },
     {
       "Id": "/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/wwwroot/css/dark-mode.css",
@@ -457,6 +457,10 @@
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.slim.min.map"
     },
     {
+      "Id": "/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/wwwroot/uploads/avatars/40f06c53-1c18-4627-9e6a-4d280b3dc5ec.png",
+      "PackagePath": "staticwebassets/uploads/avatars/40f06c53-1c18-4627-9e6a-4d280b3dc5ec.png"
+    },
+    {
       "Id": "/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/wwwroot/uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png",
       "PackagePath": "staticwebassets/uploads/avatars/b44ceb67-4935-432f-a80e-54f05d218793.png"
     },
@@ -511,10 +515,6 @@
     {
       "Id": "/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/wwwroot/uploads/items/de4a3c46-edab-4403-b127-d6b343c54043_Zrzut ekranu 2025-04-30 o 12.03.47.png",
       "PackagePath": "staticwebassets/uploads/items/de4a3c46-edab-4403-b127-d6b343c54043_Zrzut ekranu 2025-04-30 o 12.03.47.png"
-    },
-    {
-      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.LeafLoop.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
-      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
     },
     {
       "Id": "obj/Debug/net8.0/staticwebassets/msbuild.LeafLoop.Microsoft.AspNetCore.StaticWebAssets.props",

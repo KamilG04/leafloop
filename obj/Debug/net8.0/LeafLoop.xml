@@ -1131,6 +1131,18 @@
         <member name="M:LeafLoop.Migrations.mapa.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:LeafLoop.Migrations.NienawidzeKurwaTestow">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.NienawidzeKurwaTestow.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.NienawidzeKurwaTestow.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:LeafLoop.Migrations.NienawidzeKurwaTestow.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="P:LeafLoop.Models.Address.Users">
             <summary>
             Users associated with this address (e.g., residents, registered at this address).

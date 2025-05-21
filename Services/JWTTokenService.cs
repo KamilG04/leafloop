@@ -54,12 +54,16 @@ public class JwtTokenService : IJwtTokenService
                 Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            // --- Plan Naprawczy: Czas ważności tokenów & Poprawa Bezpieczeństwa Ciasteczek ---
-            // Use ExpiryInMinutes from configuration for the token itself
-            var expiryInMinutes = Convert.ToDouble(_configuration["JwtSettings:ExpiryInMinutes"]);
-            var expiry = DateTime.UtcNow.AddMinutes(expiryInMinutes); // Changed from DateTime.Now and AddDays
-            // --- Koniec: Czas ważności tokenów & Poprawa Bezpieczeństwa Ciasteczek ---
-
+          
+            var expiryInMinutesText = _configuration["JwtSettings:ExpiryInMinutes"];
+            if (string.IsNullOrEmpty(expiryInMinutesText) || 
+                !double.TryParse(expiryInMinutesText, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var expiryInMinutesValue))
+            {
+                _logger.LogError("ExpiryInMinutes is missing from JwtSettings or is not a valid double: '{ExpiryValue}'", expiryInMinutesText);
+                throw new ArgumentException("ExpiryInMinutes configuration is invalid or missing.", "JwtSettings:ExpiryInMinutes");
+            }
+            var expiry = DateTime.UtcNow.AddMinutes(expiryInMinutesValue);
+           
             var token = new JwtSecurityToken(
                 _configuration["JwtSettings:Issuer"],
                 _configuration["JwtSettings:Audience"],
@@ -94,18 +98,28 @@ public class JwtTokenService : IJwtTokenService
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = _configuration["JwtSettings:Issuer"],
                 ValidAudience = _configuration["JwtSettings:Audience"],
-                IssuerSigningKey = key
-                // ClockSkew = TimeSpan.Zero // Optional: if you want to be strict about expiry
+                IssuerSigningKey = key,
+                ClockSkew = TimeSpan.Zero 
             };
 
             SecurityToken validatedToken;
             var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
+            _logger.LogInformation("Token validated successfully for principal: {Name}", principal?.Identity?.Name ?? "Unknown");
             return principal;
         }
-        catch (Exception ex)
+        catch (SecurityTokenExpiredException ex) // Łap konkretny wyjątek dla wygasłego tokenu
         {
-            _logger.LogError(ex, "Error validating token");
+            _logger.LogWarning(ex, "Token validation failed: Token expired.");
+            return null;
+        }
+        catch (SecurityTokenInvalidSignatureException ex) // Łap konkretny wyjątek dla nieprawidłowego podpisu
+        {
+            _logger.LogWarning(ex, "Token validation failed: Invalid signature.");
+            return null;
+        }
+        catch (Exception ex) // Ogólny catch dla innych błędów walidacji
+        {
+            _logger.LogError(ex, "Error validating token (general exception).");
             return null;
         }
     }

@@ -1,16 +1,9 @@
-// Services/AdminService.cs
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using LeafLoop.Models;
 using LeafLoop.Repositories.Interfaces;
 using LeafLoop.Services.DTOs;
-using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 
 namespace LeafLoop.Services
 {
@@ -269,8 +262,6 @@ namespace LeafLoop.Services
         {
             try
             {
-                // Here you would update your system settings in the database
-                // This is a placeholder implementation
                 await Task.CompletedTask;
                 return true;
             }

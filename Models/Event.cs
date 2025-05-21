@@ -25,7 +25,7 @@ namespace LeafLoop.Models
         
         public int ParticipantsLimit { get; set; }
         
-        public int AddressId { get; set; }
+        public int? AddressId { get; set; }
         
         public int OrganizerId { get; set; }
         

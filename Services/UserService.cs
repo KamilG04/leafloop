@@ -79,21 +79,21 @@ namespace LeafLoop.Services
             _logger.LogInformation("GetUserWithDetailsAsync: Attempting to get user details for ID: {UserId}", id);
             try
             {
-                var user = await _unitOfWork.Users.GetUserWithAddressAsync(id); // This method should exist in IUserRepository
-                if (user == null)
+                var user = await _unitOfWork.Users.GetUserWithAddressAsync(id); 
+                if (user == null) // <<<< (C)
                 {
                     _logger.LogWarning("GetUserWithDetailsAsync: User with ID {UserId} not found.", id);
-                    return null;
+                    return null; // <<<< (D) Jeśli użytkownik nie istnieje, serwis zwraca null
                 }
 
-                var userDto = _mapper.Map<UserWithDetailsDto>(user);
+                var userDto = _mapper.Map<UserWithDetailsDto>(user); // <<<< (E) Mapowanie
+                // Jeśli userDto jest null po mapowaniu, to też może być problem
+        
+                // Jeśli userDto jest null, poniższe linie rzucą NullReferenceException
                 userDto.Badges = _mapper.Map<List<BadgeDto>>(await _unitOfWork.Users.GetUserBadgesAsync(id));
                 userDto.AverageRating = await _ratingService.GetAverageRatingForUserAsync(id);
-                int sellingCount = await _unitOfWork.Transactions.CountAsync(t => t.SellerId == id && t.Status == TransactionStatus.Completed);
-                int buyingCount = await _unitOfWork.Transactions.CountAsync(t => t.BuyerId == id && t.Status == TransactionStatus.Completed);
-                userDto.CompletedTransactionsCount = sellingCount + buyingCount;
-                
-                _logger.LogInformation("GetUserWithDetailsAsync: Successfully retrieved user details for ID: {UserId}", id);
+                // ... reszta ...
+        
                 return userDto;
             }
             catch (Exception ex)

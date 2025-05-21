@@ -434,7 +434,6 @@
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/bin/Debug/net8.0/package-lock.json
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/bin/Debug/net8.0/package.json
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/bin/Debug/net8.0/LeafLoop.staticwebassets.runtime.json
-/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/bin/Debug/net8.0/LeafLoop.staticwebassets.endpoints.json
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/bin/Debug/net8.0/LeafLoop
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/bin/Debug/net8.0/LeafLoop.deps.json
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/bin/Debug/net8.0/LeafLoop.runtimeconfig.json
@@ -590,9 +589,7 @@
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/scopedcss/projectbundle/LeafLoop.bundle.scp.css
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/staticwebassets.build.json
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/staticwebassets.development.json
-/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/staticwebassets.build.endpoints.json
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/staticwebassets/msbuild.LeafLoop.Microsoft.AspNetCore.StaticWebAssets.props
-/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/staticwebassets/msbuild.LeafLoop.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/staticwebassets/msbuild.build.LeafLoop.props
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.LeafLoop.props
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.LeafLoop.props
@@ -604,3 +601,5 @@
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/LeafLoop.pdb
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/LeafLoop.genruntimeconfig.cache
 /Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/obj/Debug/net8.0/ref/LeafLoop.dll
+/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/bin/Debug/net8.0/Castle.Core.dll
+/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/bin/Debug/net8.0/Moq.dll

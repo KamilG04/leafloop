@@ -5,10 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using LeafLoop.Models;
-using LeafLoop.Repositories.Interfaces; // Contains IUnitOfWork, IItemRepository
+using LeafLoop.Repositories.Interfaces; 
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
-using Microsoft.EntityFrameworkCore; // For CountAsync() if used directly on IQueryable
+using Microsoft.EntityFrameworkCore; 
 using Microsoft.Extensions.Logging;
 
 namespace LeafLoop.Services
@@ -53,14 +53,10 @@ namespace LeafLoop.Services
             _logger.LogInformation("Attempting to get items for UserID: {UserId}", userId);
             try
             {
-                // Option 1: Use the repository method (you need to ensure it exists and includes necessary relations for ItemDto)
+               
                 var items = await _unitOfWork.Items.GetItemsByUserWithRelationsAsync(userId);
             
-                // Option 2: If you don't want a new repo method, use FindAsync but remember to include relations for mapping
-                // var items = await _unitOfWork.Items.FindAsync(
-                //    expression: i => i.UserId == userId,
-                //    includes: new Expression<Func<Item, object>>[] { i => i.Category, i => i.Photos.OrderBy(p=>p.Id).Take(1) } // Example includes
-                // );
+               
             
                 return _mapper.Map<IEnumerable<ItemDto>>(items);
             }
@@ -156,11 +152,9 @@ namespace LeafLoop.Services
             if (pageSize <= 0 || pageSize > 100) pageSize = 10;
             try
             {
-                // Repository method GetItemsByCategoryAsync needs to support pagination or fetch all and paginate here
+                
                 var items = await _unitOfWork.Items.GetItemsByCategoryAsync(categoryId); 
-                // Example of in-memory pagination if repo doesn't do it (less efficient for large datasets)
-                // var paginatedItems = items.Skip((page - 1) * pageSize).Take(pageSize);
-                // Better: Modify GetItemsByCategoryAsync in repo to accept page/pageSize
+                
                 _logger.LogWarning("GetItemsByCategoryAsync in service currently fetches all items for category {CategoryId} then relies on client/further processing for pagination. Consider adding pagination to repository method.", categoryId);
                 return _mapper.Map<IEnumerable<ItemDto>>(items); 
             }
@@ -258,7 +252,7 @@ namespace LeafLoop.Services
 
         public async Task<bool> IsItemOwnerAsync(int itemId, int userId)
         {
-            // This check can be done without loading the full entity if performance is critical
+            
             // e.g., await _unitOfWork.Items.AnyAsync(i => i.Id == itemId && i.UserId == userId);
             _logger.LogDebug("Checking item ownership for ItemId: {ItemId}, UserId: {UserId}", itemId, userId);
             try
@@ -269,7 +263,7 @@ namespace LeafLoop.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking item ownership. ItemId: {ItemId}, UserId: {UserId}", itemId, userId);
-                return false; // Or re-throw depending on desired behavior
+                return false; 
             }
         }
 
@@ -298,8 +292,7 @@ namespace LeafLoop.Services
                     _logger.LogWarning("UserID {UserId} is not authorized to modify tags for ItemID: {ItemId}", userId, itemId);
                     throw new UnauthorizedAccessException("User is not authorized to modify this item's tags.");
                 }
-                // Assuming IUnitOfWork.Tags has AddTagToItemAsync or similar method
-                // This logic might be more complex and belong in a TagService or directly here if simple enough
+               
                 await _unitOfWork.Tags.AddTagToItemAsync(itemId, tagId); 
                 await _unitOfWork.CompleteAsync();
                 _logger.LogInformation("Successfully added TagId: {TagId} to ItemId: {ItemId}", tagId, itemId);
