@@ -32,5 +32,6 @@ namespace LeafLoop.Repositories.Interfaces
 
         // Exists method
         Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
+        IQueryable<T> GetAllAsQueryable();
     }
 }

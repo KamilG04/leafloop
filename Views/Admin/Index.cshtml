@@ -3,107 +3,208 @@
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="container-fluid">
-    <h1>Admin Dashboard</h1>
+<div class="container-fluid pt-3">
+    <h1 class="display-6 mb-4">@ViewData["Title"]</h1>
 
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Users</h5>
-                    <h2>@Model.Statistics.TotalUsers</h2>
-                    <p class="mb-0">Active: @Model.Statistics.ActiveUsers</p>
+    @if (Model?.Statistics != null)
+    {
+        <div class="row mb-4 g-3">
+            <div class="col-md-6 col-lg-3">
+                <div class="card bg-primary text-white shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title mb-0">Total Users</h5>
+                                <h2 class="display-5 fw-bold">@Model.Statistics.TotalUsers</h2>
+                            </div>
+                            <i class="bi bi-people-fill fs-1 opacity-50"></i>
+                        </div>
+                        <p class="mb-0 small mt-2">Active: @Model.Statistics.ActiveUsers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card bg-success text-white shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title mb-0">Total Items</h5>
+                                <h2 class="display-5 fw-bold">@Model.Statistics.TotalItems</h2>
+                            </div>
+                            <i class="bi bi-box-seam-fill fs-1 opacity-50"></i>
+                        </div>
+                        <p class="mb-0 small mt-2">Available: @Model.Statistics.ActiveItems</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card bg-info text-white shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title mb-0">Total Transactions</h5>
+                                <h2 class="display-5 fw-bold">@Model.Statistics.TotalTransactions</h2>
+                            </div>
+                            <i class="bi bi-arrow-left-right fs-1 opacity-50"></i>
+                        </div>
+                        <p class="mb-0 small mt-2">Completed: @Model.Statistics.CompletedTransactions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card bg-warning text-dark shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title mb-0">Pending Reports</h5>
+                                <h2 class="display-5 fw-bold">@Model.Statistics.PendingReports</h2>
+                            </div>
+                            <i class="bi bi-exclamation-triangle-fill fs-1 opacity-50"></i>
+                        </div>
+                        <p class="mb-0 small mt-2">Need Review</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Items</h5>
-                    <h2>@Model.Statistics.TotalItems</h2>
-                    <p class="mb-0">Available: @Model.Statistics.ActiveItems</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Transactions</h5>
-                    <h2>@Model.Statistics.TotalTransactions</h2>
-                    <p class="mb-0">Completed: @Model.Statistics.CompletedTransactions</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Pending Reports</h5>
-                    <h2>@Model.Statistics.PendingReports</h2>
-                    <p class="mb-0">Need Review</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Recent Activities -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Today's Activity</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <h6>New Users</h6>
+                                <h3 class="fw-bold">@Model.Statistics.UsersToday</h3>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>New Items</h6>
+                                <h3 class="fw-bold">@Model.Statistics.ItemsToday</h3>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>New Transactions</h6>
+                                <h3 class="fw-bold">@Model.Statistics.TransactionsToday</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Statistics are currently unavailable.</div>
+    }
+
+
     <div class="row">
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
                 <div class="card-header">
-                    <h5 class="mb-0">Recent Users</h5>
+                    <h5 class="mb-0"><i class="bi bi-people me-2"></i>Recent Users</h5>
                 </div>
                 <div class="card-body">
-                    @if (Model.RecentUsers != null && Model.RecentUsers.Any())
+                    @if (Model?.RecentUsers != null && Model.RecentUsers.Any())
                     {
-                        <div class="list-group">
-                            @foreach (var user in Model.RecentUsers)
+                        <ul class="list-group list-group-flush">
+                            @foreach (var user in Model.RecentUsers.Take(5))
                             {
-                                <a href="@Url.Action("UserDetails", new { id = user.Id })" class="list-group-item list-group-item-action">
-                                    <div class="d-flex justify-content-between">
-                                        <h6 class="mb-1">@user.FirstName @user.LastName</h6>
-                                        <small>@user.CreatedDate.ToString("g")</small>
-                                    </div>
-                                    <p class="mb-1">@user.Email</p>
-                                </a>
+                                <li class="list-group-item">
+                                    <a asp-controller="Admin" asp-action="UserDetails" asp-route-id="@user.Id" class="text-decoration-none">
+                                        @user.FirstName @user.LastName (@user.Email)
+                                    </a>
+                                    <small class="text-muted float-end">Joined: @user.CreatedDate.ToString("yyyy-MM-dd")</small>
+                                </li>
                             }
-                        </div>
+                        </ul>
                     }
                     else
                     {
-                        <p>No recent users.</p>
+                        <p class="text-muted">No recent users.</p>
                     }
+                </div>
+                <div class="card-footer text-center">
+                    <a asp-controller="Admin" asp-action="Users" class="btn btn-sm btn-outline-secondary">View All Users</a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
                 <div class="card-header">
-                    <h5 class="mb-0">Recent Items</h5>
+                    <h5 class="mb-0"><i class="bi bi-card-list me-2"></i>Recent Items</h5>
                 </div>
                 <div class="card-body">
-                    @if (Model.RecentItems != null && Model.RecentItems.Any())
+                    @if (Model?.RecentItems != null && Model.RecentItems.Any())
                     {
-                        <div class="list-group">
-                            @foreach (var item in Model.RecentItems)
+                        <ul class="list-group list-group-flush">
+                            @foreach (var item in Model.RecentItems.Take(5))
                             {
-                                <a href="@Url.Action("Details", "Items", new { id = item.Id })" class="list-group-item list-group-item-action">
-                                    <div class="d-flex justify-content-between">
-                                        <h6 class="mb-1">@item.Name</h6>
-                                        <small>@item.DateAdded.ToString("g")</small>
-                                    </div>
-                                    <p class="mb-1">By: @item.UserName</p>
-                                </a>
+                                <li class="list-group-item">
+                                    <a asp-controller="Items" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none">
+                                        @item.Name
+                                    </a>
+                                    <small class="text-muted float-end">Added: @item.DateAdded.ToString("yyyy-MM-dd")</small>
+                                    <br />
+                                    <small>By: @(item.UserName ?? "N/A")</small>
+                                </li>
                             }
-                        </div>
+                        </ul>
                     }
                     else
                     {
-                        <p>No recent items.</p>
+                        <p class="text-muted">No recent items.</p>
                     }
+                </div>
+                <div class="card-footer text-center">
+                    <a asp-controller="Admin" asp-action="Items" class="btn btn-sm btn-outline-secondary">View All Items</a>
                 </div>
             </div>
         </div>
     </div>
+
+    @if (Model?.RecentAdminActions != null && Model.RecentAdminActions.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>Recent Admin Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Admin</th>
+                                    <th>Action</th>
+                                    <th>Entity</th>
+                                    <th>Details</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var action in Model.RecentAdminActions.Take(10))
+                                {
+                                    <tr>
+                                        <td>@action.ActionDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td>@(action.AdminUserName ?? "N/A")</td>
+                                        <td>@action.Action</td>
+                                        <td>@(string.IsNullOrEmpty(action.EntityType) ? "-" : $"{action.EntityType} (ID: {action.EntityId?.ToString() ?? "N/A"})")</td>
+                                        <td><small>@action.Details</small></td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a asp-controller="Admin" asp-action="AdminLogs" class="btn btn-sm btn-outline-secondary">View All Admin Logs</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>

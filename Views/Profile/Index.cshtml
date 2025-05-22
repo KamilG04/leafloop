@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model LeafLoop.ViewModels.Profile.ProfileViewModel
 @{
     var fullName = $"{Model.FirstName} {Model.LastName}".Trim();
@@ -7,7 +8,7 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-lg-8 mb-4 mb-lg-0">
-            <div id="react-user-profile"
+            <div id="react-user-profile" 
                  data-user-id="@Model.UserId"
                  data-profile-vm="@Newtonsoft.Json.JsonConvert.SerializeObject(Model)">
                 <div class="d-flex justify-content-center align-items-center py-5">
@@ -51,15 +52,15 @@
                 </div>
                 @if (Model.IsCurrentUserProfile || (Model.RecentItems != null && Model.RecentItems.Any()))
                 {
-                    <div class="card-footer bg-light text-center">
+                    <div class="card-footer bg-light text-center py-3">
                         @if (Model.IsCurrentUserProfile)
                         {
-                            <a asp-controller="Items" asp-action="Create" class="btn btn-success me-2">
+                            <a asp-controller="Items" asp-action="Create" class="btn btn-success me-2 mb-2 mb-md-0">
                                 <i class="bi bi-plus-circle"></i> Dodaj nowy przedmiot
                             </a>
                         }
                         <a asp-controller="Items" asp-action="UserItems" asp-route-userId="@Model.UserId" class="btn btn-outline-secondary">
-                            <i class="bi bi-list-ul"></i> Zobacz wszystkie przedmioty użytkownika (@Model.TotalItemsCount)
+                            <i class="bi bi-list-ul"></i> Zobacz wszystkie przedmioty (@Model.TotalItemsCount)
                         </a>
                     </div>
                 }
@@ -67,7 +68,7 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card mb-4 shadow-sm">
+             <div class="card mb-4 shadow-sm">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0"><i class="bi bi-lightning-charge-fill me-2"></i>Szybkie akcje</h5>
                 </div>
@@ -85,9 +86,7 @@
                         <a asp-controller="Transactions" asp-action="Index" class="list-group-item list-group-item-action @(Model.IsCurrentUserProfile ? "" : "d-none")">
                             <i class="bi bi-arrow-left-right me-2"></i> Moje transakcje
                         </a>
-                        <a asp-controller="Messages" asp-action="Index" class="list-group-item list-group-item-action @(Model.IsCurrentUserProfile ? "" : "d-none")">
-                            <i class="bi bi-envelope-fill me-2"></i> Wiadomości
-                        </a>
+                        @* Usunięto link "Wiadomości" zgodnie z prośbą *@
                         @if (!Model.IsCurrentUserProfile)
                         {
                             <a asp-controller="Messages" asp-action="Create" asp-route-receiverId="@Model.UserId" class="list-group-item list-group-item-action">
@@ -116,7 +115,7 @@
                             Zakończone transakcje
                             <span class="badge bg-primary rounded-pill">@Model.TotalTransactionsCount</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Średnia ocena
                             <span class="badge bg-warning text-dark rounded-pill">@(Model.AverageRating > 0 ? Model.AverageRating.ToString("0.0") + "/5.0" : "Brak ocen")</span>
                         </li>

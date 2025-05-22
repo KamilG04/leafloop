@@ -1,20 +1,14 @@
-@* Ścieżka: Views/Profile/Edit.cshtml *@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     ViewData["Title"] = "Edytuj Profil";
-    // Pobierz userId przekazane z kontrolera ProfileController.Edit()
-    // ViewBag.UserId jest ustawiany w akcji GET kontrolera ProfileController
     var userId = ViewBag.UserId ?? 0;
-    // Jeśli chcesz przekazać więcej danych z ProfileViewModel do komponentu React,
-    // możesz to zrobić serializując cały model lub jego części, podobnie jak w Index.cshtml
-    // np. @model LeafLoop.ViewModels.Profile.ProfileViewModel (jeśli przekażesz model z akcji Edit GET)
-    // data-profile-edit-vm="@Newtonsoft.Json.JsonConvert.SerializeObject(Model)"
 }
 
 <div class="container mt-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Strona Główna</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Profile" asp-action="Index">Mój Profil</a></li> {/* Zakładając, że /Profile/Index to zawsze Twój profil, lub dodaj ID jeśli trzeba */}
+            <li class="breadcrumb-item"><a asp-controller="Profile" asp-action="Index">Mój Profil</a></li>
             <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
         </ol>
     </nav>
@@ -23,9 +17,6 @@
 
     @if (userId > 0)
     {
-        // Kontener dla komponentu React - przekazuje ID użytkownika
-        // Komponent React ProfileEditForm powinien być odpowiedzialny za pobranie aktualnych danych
-        // użytkownika do edycji za pomocą API, używając przekazanego data-user-id.
         <div id="react-profile-edit-form-container" data-user-id="@userId">
             <div class="text-center py-5">
                 <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">

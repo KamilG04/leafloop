@@ -4,7 +4,7 @@ using LeafLoop.Repositories.Interfaces;
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
-
+using Microsoft.EntityFrameworkCore;
 namespace LeafLoop.Services
 {
     public class AdminService : IAdminService
@@ -59,7 +59,67 @@ namespace LeafLoop.Services
                 throw;
             }
         }
+        // Zaktualizuj lub dodaj nową metodę w AdminService.cs
+        // W pliku AdminService.cs
+        public async Task<PagedResult<AdminLogDto>> GetAdminLogsAsync(int pageNumber, int pageSize)
+        {
+            _logger.LogInformation("Fetching admin logs. Page: {PageNumber}, PageSize: {PageSize}", pageNumber, pageSize);
+            try
+            {
+                // Upewnij się, że IAdminLogRepository (dostępne przez _unitOfWork.AdminLogs)
+                // implementuje i udostępnia metodę GetAllAsQueryable() zwracającą IQueryable<AdminLog>
+                IQueryable<AdminLog> query = _unitOfWork.AdminLogs.GetAllAsQueryable();
 
+                var totalCount = await query.CountAsync(); // Teraz powinno działać
+
+                var logsEntities = await query
+                    .Include(log => log.AdminUser) // Teraz powinno działać
+                    .OrderByDescending(log => log.ActionDate)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync(); // Teraz powinno działać
+
+                var logDtos = _mapper.Map<List<AdminLogDto>>(logsEntities);
+                return new PagedResult<AdminLogDto>(logDtos, totalCount, pageNumber, pageSize);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting paginated admin logs. Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
+                throw;
+            }
+        }
+        public async Task<bool> ForceDeleteItemAsync(int itemId, int adminUserId)
+        {
+            _logger.LogInformation("Admin (ID: {AdminUserId}) attempting to force delete ItemID: {ItemId}", adminUserId, itemId);
+            try
+            {
+                var item = await _unitOfWork.Items.GetByIdAsync(itemId);
+                if (item == null)
+                {
+                    _logger.LogWarning("ForceDeleteItemAsync: Item with ID {ItemId} not found.", itemId);
+                    return false; // Lub rzuć KeyNotFoundException
+                }
+
+                // Tutaj NIE sprawdzamy item.UserId == adminUserId, bo to operacja siłowa admina
+                _unitOfWork.Items.Remove(item);
+                var changes = await _unitOfWork.CompleteAsync();
+
+                if (changes > 0)
+                {
+                    // Logowanie akcji admina powinno być tutaj lub w kontrolerze po udanej operacji
+                    // await LogAdminActionAsync(adminUserId, new AdminActionDto { Action = "Force Delete Item", EntityType = "Item", EntityId = itemId, Details = $"Item: {item.Name}" }, "IP_ADDRESS_HERE");
+                    _logger.LogInformation("Item {ItemId} force deleted by Admin {AdminId}", itemId, adminUserId);
+                    return true;
+                }
+                _logger.LogWarning("ForceDeleteItemAsync: No changes saved to DB for ItemID {ItemId}.", itemId);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during ForceDeleteItemAsync for ItemID: {ItemId} by AdminID: {AdminUserId}", itemId, adminUserId);
+                throw; // Lub return false, w zależności od oczekiwanego zachowania
+            }
+        }
         public async Task<AdminStatisticsDto> GetStatisticsAsync()
         {
             try

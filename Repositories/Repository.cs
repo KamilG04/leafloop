@@ -19,7 +19,10 @@ namespace LeafLoop.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _dbSet = _context.Set<T>();
         }
-
+        public IQueryable<T> GetAllAsQueryable() // <<< --- IMPLEMENTACJA NOWEJ METODY --- >>>
+        {
+            return _dbSet.AsQueryable();
+        }
         public async Task<T> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);

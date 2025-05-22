@@ -1,55 +1,92 @@
-@model IEnumerable<LeafLoop.Services.DTOs.ItemDto>
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model LeafLoop.Services.DTOs.PagedResult<LeafLoop.Services.DTOs.ItemDto>
 @{
     ViewData["Title"] = "Item Management";
 }
 
-<div class="container-fluid">
-    <h1>Item Management</h1>
-    
-    <div class="card">
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">@ViewData["Title"]</h1>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">All Items</h5>
+            @* TODO: Add search/filter form here *@
+        </div>
         <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Owner</th>
-                        <th>Category</th>
-                        <th>Status</th>
-                        <th>Date Added</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
+            @if (Model != null && Model.Items.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
                         <tr>
-                            <td>@item.Id</td>
-                            <td>@item.Name</td>
-                            <td>@item.UserName</td>
-                            <td>@item.CategoryName</td>
-                            <td>
-                                @if (item.IsAvailable)
-                                {
-                                    <span class="badge bg-success">Available</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Unavailable</span>
-                                }
-                            </td>
-                            <td>@item.DateAdded.ToString("d")</td>
-                            <td>
-                                <a href="@Url.Action("Details", "Items", new { id = item.Id })" class="btn btn-sm btn-info">View</a>
-                                <form asp-action="DeleteItem" asp-route-id="@item.Id" method="post" class="d-inline" 
-                                      onsubmit="return confirm('Are you sure you want to delete this item?');">
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                </form>
-                            </td>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Owner</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Date Added</th>
+                            <th>Actions</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td><a asp-controller="Items" asp-action="Details" asp-route-id="@item.Id">@item.Name</a></td>
+                                <td>@(item.UserName ?? "N/A")</td>
+                                <td>@(item.CategoryName ?? "N/A")</td>
+                                <td>
+                                    @if (item.IsAvailable)
+                                    {
+                                        <span class="badge bg-success">Available</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Unavailable</span>
+                                    }
+                                </td>
+                                <td>@item.DateAdded.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <a asp-controller="Items" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-1" title="Edit Item">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form asp-controller="Admin" asp-action="DeleteItem" asp-route-id="@item.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('Are you sure you want to delete this item: \'@item.Name.Replace("'", "\\'")\'? This action cannot be undone.');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Item">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+
+                <nav aria-label="Items pagination">
+                    <ul class="pagination justify-content-center mt-4">
+                        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                            <a class="page-link" asp-action="Items" asp-route-page="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize" asp-route-searchTerm="@Context.Request.Query["searchTerm"]" asp-route-categoryId="@Context.Request.Query["categoryId"]">&laquo; Previous</a>
+                        </li>
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" asp-action="Items" asp-route-page="@i" asp-route-pageSize="@Model.PageSize" asp-route-searchTerm="@Context.Request.Query["searchTerm"]" asp-route-categoryId="@Context.Request.Query["categoryId"]">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                            <a class="page-link" asp-action="Items" asp-route-page="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize" asp-route-searchTerm="@Context.Request.Query["searchTerm"]" asp-route-categoryId="@Context.Request.Query["categoryId"]">Next &raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+            else
+            {
+                <div class="alert alert-info">No items found matching your criteria.</div>
+            }
         </div>
     </div>
 </div>

@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="utf-8" />
@@ -6,16 +9,15 @@
     <title>@ViewData["Title"] - LeafLoop</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dark-mode.css" asp-append-version="true" />
-   
+    <link rel="stylesheet" href="~/LeafLoop.styles.css" asp-append-version="true" />
     <script type="importmap"></script>
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-
 <header>
-    <nav class="navbar navbar-expand-sm navbar-light border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container">
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                 <i class="bi bi-recycle text-success me-2"></i>LeafLoop
@@ -27,43 +29,43 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Items" asp-action="Index">Przedmioty</a>
+                        <a class="nav-link text-dark" asp-controller="Items" asp-action="Index">Przedmioty</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Events" asp-action="Index">Wydarzenia</a>
+                        <a class="nav-link text-dark" asp-controller="Events" asp-action="Index">Wydarzenia</a>
                     </li>
-                    @if (User.Identity.IsAuthenticated)
+                  
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Items" asp-action="MyItems">Moje przedmioty</a>
+                            <a class="nav-link text-dark" asp-controller="Items" asp-action="MyItems">Moje przedmioty</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Transactions" asp-action="Index">Transakcje</a>
+                            <a class="nav-link text-dark" asp-controller="Transactions" asp-action="Index">Transakcje</a>
                         </li>
                     }
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <button id="theme-toggle" class="btn btn-link nav-link">
+                    <li class="nav-item me-2">
+                        <button id="theme-toggle" class="btn btn-outline-secondary btn-sm" title="Zmień motyw">
                             <i class="bi bi-moon-stars"></i>
                         </button>
                     </li>
                     <partial name="_LoginPartial" />
-
                     @if (User.IsInRole("Admin"))
                     {
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-gear"></i> Admin
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-gear-fill"></i> Admin
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown"> {/* Dodałem dropdown-menu-end dla lepszego wyrównania */}
-                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a></li>
-                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Zarządzaj użytkownikami</a></li>
-                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Items">Zarządzaj przedmiotami</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Panel Administratora</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Zarządzaj Użytkownikami</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Items">Zarządzaj Przedmiotami</a></li>
                                 <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reports">Zgłoszenia</a></li>
-                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="AdminLogs">Logi administratora</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="AdminLogs">Logi Administratora</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="SystemSettings">Ustawienia systemu</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="SystemSettings">Ustawienia Systemu</a></li>
                             </ul>
                         </li>
                     }
@@ -72,46 +74,50 @@
         </div>
     </nav>
 </header>
-<main role="main" class="pb-3">
-    @RenderBody()
-</main>
 
-<footer class="border-top footer text-muted">
-    <div class="container py-4">
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <h5 class="text-success">LeafLoop</h5>
-                <p class="text-muted">Platforma wymiany i recyklingu przedmiotów. Daj przedmiotom drugie życie!</p>
+<div class="container">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="border-top footer text-muted mt-auto py-3 bg-light">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-4 col-md-12 mb-3 mb-lg-0">
+                <h5 class="text-success"><i class="bi bi-recycle me-1"></i>LeafLoop</h5>
+                <p class="small">Platforma wymiany i recyklingu przedmiotów. </p>
             </div>
-            <div class="col-md-2 mb-3">
+            <div class="col-lg-2 col-md-4 col-6">
                 <h6>Nawigacja</h6>
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" href="/">Strona główna</a></li>
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" asp-controller="Items" asp-action="Index">Przedmioty</a></li>
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" asp-controller="Events" asp-action="Index">Wydarzenia</a></li>
+                    <li class="nav-item mb-1"><a class="nav-link p-0 text-muted" asp-controller="Home" asp-action="Index">Strona główna</a></li>
+                    <li class="nav-item mb-1"><a class="nav-link p-0 text-muted" asp-controller="Items" asp-action="Index">Przedmioty</a></li>
+                    <li class="nav-item mb-1"><a class="nav-link p-0 text-muted" asp-controller="Events" asp-action="Index">Wydarzenia</a></li>
                 </ul>
             </div>
-            <div class="col-md-2 mb-3">
+            <div class="col-lg-3 col-md-4 col-6">
                 <h6>Informacje</h6>
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" asp-controller="Home" asp-action="Privacy">Polityka prywatności</a></li>
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" asp-controller="Home" asp-action="About">O nas</a></li>
-                    <li class="nav-item"><a class="nav-link p-0 text-muted" asp-controller="Home" asp-action="Contact">Kontakt</a></li>
+                    <li class="nav-item mb-1"><a class="nav-link p-0 text-muted" asp-controller="Home" asp-action="Privacy">Polityka prywatności</a></li>
+                    <li class="nav-item mb-1"><a class="nav-link p-0 text-muted" asp-controller="Home" asp-action="About">O nas</a></li>
+                    <li class="nav-item mb-1"><a class="nav-link p-0 text-muted" asp-controller="Home" asp-action="Contact">Kontakt</a></li>
+                    <li class="nav-item mb-1"><a class="nav-link p-0 text-muted" asp-controller="Home" asp-action="Faq">FAQ</a></li>
                 </ul>
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-lg-3 col-md-4">
                 <h6>Dołącz do nas</h6>
-                <p class="text-muted">Śledź nas w mediach społecznościowych</p>
-                <div class="d-flex gap-3">
-                    <a href="#" class="text-success fs-4"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="text-success fs-4"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="text-success fs-4"><i class="bi bi-twitter"></i></a>
+                <p class="small">Śledź nas w mediach społecznościowych:</p>
+                <div class="d-flex fs-4">
+                    <a href="#" class="text-success me-3" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-success me-3" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-success" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
                 </div>
             </div>
         </div>
-        <div class="d-flex justify-content-between pt-4 mt-4 border-top">
-            <p>&copy; @DateTime.Now.Year - LeafLoop - Wszelkie prawa zastrzeżone</p> {/* Dynamiczny rok */}
-            <p>Made with <i class="bi bi-heart-fill text-danger"></i> for the planet</p>
+        <div class="d-flex flex-column flex-sm-row justify-content-between pt-4 mt-4 border-top">
+            <p class="small">&copy; @DateTime.Now.Year - LeafLoop. Wszelkie prawa zastrzeżone.</p>
+            <p class="small">Made with <i class="bi bi-heart-fill text-danger"></i> for the planet.</p>
         </div>
     </div>
 </footer>
@@ -120,12 +126,10 @@
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true" type="module"></script>
 
-@if (User.Identity.IsAuthenticated)
+@if (User.Identity != null && User.Identity.IsAuthenticated)
 {
     <script>
         console.log("User is authenticated according to server-side check");
-        // Usunąłem logowanie claims dla bezpieczeństwa, chyba że jest to absolutnie konieczne do debugowania
-        // console.log("User claims:", @Html.Raw(Json.Serialize(User.Claims.Select(c => new { type = c.Type, value = c.Value }))));
     </script>
 }
 else
@@ -136,22 +140,23 @@ else
 }
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const hasJwtCookie = document.cookie.includes('jwt_token='); // Proste sprawdzenie, może wymagać ulepszenia
+        const hasJwtCookie = document.cookie.includes('jwt_token=');
         console.log("Client-side check: Has JWT cookie:", hasJwtCookie);
 
-        const isLoggedInServerSide = @(User.Identity.IsAuthenticated ? "true" : "false");
+        const isLoggedInServerSide = @(User.Identity != null && User.Identity.IsAuthenticated ? "true" : "false");
         if (isLoggedInServerSide && !hasJwtCookie) {
             console.warn("Server indicates user is logged in, but no JWT cookie found client-side. This might indicate a logout or cookie issue.");
         }
     });
 </script>
-@if (Context.Request.Cookies["jwt_token"] != null || User.Identity.IsAuthenticated) // Sprawdzenie tokena JWT lub statusu uwierzytelnienia
+@if (Context.Request.Cookies["jwt_token"] != null || (User.Identity != null && User.Identity.IsAuthenticated))
 {
     <script src="~/js/token-test.js" asp-append-version="true"></script>
 }
-@if (User.Identity.IsAuthenticated)
+@if (User.Identity != null && User.Identity.IsAuthenticated)
 {
-    <script src="~/js/auth-test.js" asp-append-version="true"></script> }
+    <script src="~/js/auth-test.js" asp-append-version="true"></script>
+}
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

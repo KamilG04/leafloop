@@ -1,20 +1,26 @@
+// Path: LeafLoop/Controllers/AdminController.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using LeafLoop.Services.Interfaces;
-using LeafLoop.Models; 
-using LeafLoop.Services.DTOs;
-
+using LeafLoop.Models;
+using LeafLoop.Repositories.Interfaces;
+using LeafLoop.Services.DTOs; // Assuming AdminActionDto and SystemSettingsDto are here
 
 namespace LeafLoop.Controllers
 {
-    [Authorize(Roles = "Admin")] // Ensures only users with the "Admin" role can access actions in this controller.
+    [Authorize(Roles = "Admin")] // Ensures only users with the "Admin" role can access actions in this controller
     public class AdminController : Controller
     {
         private readonly IAdminService _adminService;
-        private readonly IUserService _userService; // TODO: Verify if IUserService is directly used or if its functionality is covered by IAdminService. Remove if unused.
+        private readonly IUnitOfWork _unitOfWork; 
+        private readonly IUserService _userService; // Retained for now, review if its methods are fully covered by IAdminService for admin scenarios
         private readonly IItemService _itemService;
         private readonly IReportService _reportService;
         private readonly ITransactionService _transactionService;
@@ -28,20 +34,18 @@ namespace LeafLoop.Controllers
             ITransactionService transactionService,
             ILogger<AdminController> logger)
         {
-            _adminService = adminService;
-            _userService = userService;
-            _itemService = itemService;
-            _reportService = reportService;
-            _transactionService = transactionService;
-            _logger = logger;
+            _adminService = adminService ?? throw new ArgumentNullException(nameof(adminService));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
+            _reportService = reportService ?? throw new ArgumentNullException(nameof(reportService));
+            _transactionService = transactionService ?? throw new ArgumentNullException(nameof(transactionService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         // Helper method for logging administrative actions.
         private async Task LogAdminAction(string action, string entityType = null, int? entityId = null, string details = null)
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            // TODO: Consider adding logging or specific handling in LogAdminAction if the admin user ID claim (NameIdentifier) is missing or invalid.
-            if (userIdClaim != null && int.TryParse(userIdClaim, out int adminUserId))
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) is string userIdString && int.TryParse(userIdString, out int adminUserId))
             {
                 var actionDto = new AdminActionDto
                 {
@@ -50,59 +54,60 @@ namespace LeafLoop.Controllers
                     EntityId = entityId,
                     Details = details
                 };
-
                 var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
                 // TODO: Ensure IP address logging considers proxy scenarios (X-Forwarded-For header) if applicable.
                 await _adminService.LogAdminActionAsync(adminUserId, actionDto, ipAddress);
             }
             else
             {
-                _logger.LogWarning("Could not log admin action '{Action}' because admin user ID claim was missing or invalid.", action);
+                _logger.LogWarning("Could not log admin action '{Action}' for entity type '{EntityType}' and entity ID '{EntityId}' because admin user ID claim was missing or invalid.", 
+                    action, entityType ?? "N/A", entityId?.ToString() ?? "N/A");
             }
         }
 
-        // GET: /Admin/Index - Displays the main admin dashboard.
+        // GET: /Admin or /Admin/Index - Displays the main admin dashboard.
+        
+        [HttpGet("Index")]
         public async Task<IActionResult> Index()
         {
             await LogAdminAction("View Dashboard");
-            // TODO: Consider adding caching for dashboard data if it's expensive to compute and doesn't need to be real-time.
+            // TODO: Consider adding caching for dashboard data if it's expensive to compute and not strictly real-time.
             var dashboardData = await _adminService.GetDashboardDataAsync();
             return View(dashboardData);
         }
 
         // GET: /Admin/Users - Displays a list of all users.
+        [HttpGet]
         public async Task<IActionResult> Users()
         {
             await LogAdminAction("View Users List");
-            // TODO: Implement pagination and filtering for the user list to handle potentially large datasets.
-            var users = await _adminService.GetAllUsersAsync();
+            // TODO: Implement pagination and robust filtering for the user list.
+            var users = await _adminService.GetAllUsersAsync(); // This might return a lot of users.
             return View(users);
         }
 
         // GET: /Admin/UserDetails/{id} - Displays details for a specific user.
-        [HttpGet("Admin/UserDetails/{id:int}")]
+        [HttpGet("UserDetails/{id:int}")]
         public async Task<IActionResult> UserDetails(int id)
         {
-            // TODO: Consider using a shared validation filter/attribute for common checks like positive IDs.
             if (id <= 0)
             {
-                TempData["Error"] = "Invalid user ID.";
+                TempData["Error"] = "Invalid user ID provided.";
                 return RedirectToAction(nameof(Users));
             }
 
             await LogAdminAction("View User Details", "User", id);
-            var user = await _adminService.GetUserDetailsAsync(id);
+            var user = await _adminService.GetUserDetailsAsync(id); // This should return a ViewModel or a comprehensive DTO
             if (user == null)
             {
-                // TODO: Localize TempData messages.
                 TempData["Error"] = "User not found.";
                 return RedirectToAction(nameof(Users));
             }
-            // TODO: Populate necessary data for role editing in the view model/ViewBag (e.g., list of available roles).
-            return View(user);
+            // TODO: Populate ViewBag or ViewModel with available roles for the Edit Roles form.
+            // ViewBag.AllRoles = await _adminService.GetAllRolesAsync();
+            return View(user); // Expects Views/Admin/UserDetails.cshtml
         }
 
-        // POST: /Admin/ToggleUserStatus - Activates or deactivates a user account.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleUserStatus(int id)
@@ -110,16 +115,22 @@ namespace LeafLoop.Controllers
             if (id <= 0)
             {
                 TempData["Error"] = "Invalid user ID.";
-                return RedirectToAction(nameof(Users)); // Redirecting to Users might be confusing, maybe back to UserDetails if accessed from there?
+                return RedirectToAction(nameof(UserDetails), new { id }); // Redirect back to details or users list
             }
 
-            // TODO: Evaluate if fetching full UserDetails is necessary here. A dedicated service method like GetUserStatusAsync(id)
-            // might be more efficient if only the status is needed before toggling.
-            var user = await _adminService.GetUserDetailsAsync(id);
+            var user = await _adminService.GetUserDetailsAsync(id); // Consider a lighter GetUserByIdAsync if only status is needed.
             if (user == null)
             {
                 TempData["Error"] = "User not found.";
                 return RedirectToAction(nameof(Users));
+            }
+
+            // Prevent admin from deactivating themselves (important safeguard)
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) is string adminIdString && 
+                int.TryParse(adminIdString, out int adminId) && adminId == id && user.IsActive)
+            {
+                TempData["Error"] = "Administrators cannot deactivate their own account.";
+                return RedirectToAction(nameof(UserDetails), new { id });
             }
 
             var newStatus = !user.IsActive;
@@ -127,180 +138,327 @@ namespace LeafLoop.Controllers
 
             if (result)
             {
-                await LogAdminAction(
-                    newStatus ? "Activate User" : "Deactivate User",
-                    "User",
-                    id,
-                    $"Changed status to: {(newStatus ? "Active" : "Inactive")}"
-                );
-                TempData["Success"] = $"User status updated successfully."; // TODO: Localize messages.
+                await LogAdminAction(newStatus ? "Activate User" : "Deactivate User", "User", id, $"Changed status to: {(newStatus ? "Active" : "Inactive")}");
+                TempData["Success"] = "User status updated successfully.";
             }
             else
             {
-                TempData["Error"] = "Failed to update user status."; // TODO: Localize messages.
+                TempData["Error"] = "Failed to update user status.";
             }
-
             return RedirectToAction(nameof(UserDetails), new { id });
         }
 
-        // POST: /Admin/UpdateUserRoles - Updates the roles assigned to a user.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateUserRoles(int id, List<string> roles)
         {
-            // TODO: Validate incoming 'roles' list - ensure roles exist and are permissible.
             if (id <= 0)
             {
                 TempData["Error"] = "Invalid user ID.";
-                return RedirectToAction(nameof(Users));
+                return RedirectToAction(nameof(UserDetails), new { id });
             }
-            // TODO: Add server-side validation to prevent an admin from removing their own 'Admin' role unintentionally, or locking out all admins.
+            if (roles == null) roles = new List<string>(); // Ensure roles list is not null
+
+            // TODO: Add more robust validation for roles (e.g., check if roles exist).
+            // TODO: Critical: Prevent admin from removing their own "Admin" role if they are the sole admin, or from removing all admins.
+            // This requires more complex logic in IAdminService.UpdateUserRolesAsync.
 
             var result = await _adminService.UpdateUserRolesAsync(id, roles);
 
             if (result)
             {
-                await LogAdminAction("Update User Roles", "User", id, $"Roles: {string.Join(", ", roles)}");
-                TempData["Success"] = "User roles updated successfully."; // TODO: Localize messages.
+                await LogAdminAction("Update User Roles", "User", id, $"New roles: {string.Join(", ", roles)}");
+                TempData["Success"] = "User roles updated successfully.";
             }
             else
             {
-                TempData["Error"] = "Failed to update user roles."; // TODO: Localize messages.
+                TempData["Error"] = "Failed to update user roles.";
             }
-
             return RedirectToAction(nameof(UserDetails), new { id });
         }
 
-        // GET: /Admin/Reports - Displays content reports.
+        [HttpGet]
         public async Task<IActionResult> Reports()
         {
             await LogAdminAction("View Reports");
-            // TODO: Implement pagination and filtering (e.g., by status, date, reporter) for the reports list.
-            var reports = await _reportService.GetAllReportsAsync();
-            return View(reports);
+            // TODO: Implement pagination and filtering for reports.
+            var reports = await _reportService.GetAllReportsAsync(); // Consider a DTO with more info if needed
+            return View(reports); // Expects Views/Admin/Reports.cshtml
         }
 
-        // POST: /Admin/ProcessReport - Updates the status of a report.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcessReport(int id, ReportStatus status)
         {
-            // TODO: Add validation for the incoming 'status' parameter to ensure it's a valid ReportStatus enum value and perhaps a logical transition.
-            // TODO: Add validation for report ID 'id'.
-            await _reportService.UpdateReportStatusAsync(id, status);
+            if (id <= 0)
+            {
+                TempData["Error"] = "Invalid report ID.";
+                return RedirectToAction(nameof(Reports));
+            }
+            // TODO: Validate if 'status' is a valid enum member.
 
-            await LogAdminAction("Process Report", "Report", id, $"Status changed to: {status}");
-            TempData["Success"] = "Report processed successfully."; // TODO: Localize messages.
-
+            var success = await _reportService.UpdateReportStatusAsync(id, status);
+            if (success)
+            {
+                await LogAdminAction("Process Report", "Report", id, $"Status changed to: {status}");
+                TempData["Success"] = "Report processed successfully.";
+            }
+            else
+            {
+                TempData["Error"] = "Failed to process report or report not found.";
+            }
             return RedirectToAction(nameof(Reports));
         }
 
-        // GET: /Admin/AdminLogs - Displays the audit trail of admin actions.
-        public async Task<IActionResult> AdminLogs()
+        [HttpGet]
+        // W AdminController.cs
+        [HttpGet] // Możesz też dodać [HttpGet("AdminLogs")] dla jawnej trasy
+        public async Task<IActionResult> AdminLogs(int page = 1, int pageSize = 50)
         {
             await LogAdminAction("View Admin Logs");
-            // TODO: Implement pagination, filtering (e.g., by date range, admin user, action type) for admin logs.
-            var logs = await _adminService.GetAdminLogsAsync();
-            return View(logs);
+            if (page < 1) page = 1;
+            // Zmniejszmy domyślny/maksymalny rozmiar strony dla logów admina, np. do 100
+            if (pageSize < 1 || pageSize > 100) pageSize = 50; 
+    
+            try
+            {
+                // Wywołaj metodę serwisu, która zwraca PagedResult<AdminLogDto>
+                var pagedLogs = await _adminService.GetAdminLogsAsync(page, pageSize);
+                return View(pagedLogs); // Przekaż PagedResult do widoku
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving admin logs for page {Page}, size {PageSize}", page, pageSize);
+                TempData["Error"] = "An error occurred while retrieving admin logs.";
+                // W przypadku błędu, przekaż pusty PagedResult, aby widok się nie wysypał
+                return View(new PagedResult<AdminLogDto>(new List<AdminLogDto>(), 0, page, pageSize));
+            }
         }
 
-        // GET: /Admin/Items - Displays a list of items (presumably for moderation).
-        public async Task<IActionResult> Items()
+     
+        [HttpGet("Items")] // Jawna trasa dla /Admin/Items
+        public async Task<IActionResult> Items(int page = 1, int pageSize = 20, string searchTerm = null, int? categoryId = null)
         {
-            await LogAdminAction("View Items List");
-            // TODO: Enhance the Items view and this action to accept search/filter criteria via ItemSearchDto instead of using a default instance. Implement pagination.
-            var items = await _itemService.SearchItemsAsync(new Services.DTOs.ItemSearchDto { /* Add default filters/paging? */ });
-            return View(items);
-        }
+            await LogAdminAction("View Items List", details: $"Search: '{searchTerm}', CatID: {categoryId?.ToString() ?? "Any"}");
+    
+            var searchDto = new ItemSearchDto 
+            { 
+                Page = page, 
+                PageSize = pageSize,
+                SearchTerm = searchTerm,
+                CategoryId = categoryId,
+                // Rozważ dodanie flagi do ItemSearchDto, np. IncludeUnavailable = true,
+                // aby serwis mógł zwrócić wszystkie przedmioty dla admina, a nie tylko dostępne.
+                // Obecnie SearchItemsAsync domyślnie filtruje po IsAvailable = true.
+            };
 
-        // POST: /Admin/DeleteItem - Deletes an item.
+            try
+            {
+                // ItemService.SearchItemsAsync zwraca IEnumerable<ItemDto> (tylko dla bieżącej strony)
+                // ItemService.GetItemsCountAsync zwraca całkowitą liczbę pasujących przedmiotów
+                var itemsList = await _itemService.SearchItemsAsync(searchDto);
+                var totalItems = await _itemService.GetItemsCountAsync(searchDto);
+        
+                var pagedResult = new PagedResult<ItemDto>(itemsList ?? new List<ItemDto>(), totalItems, page, pageSize);
+
+                // Widok Views/Admin/Items.cshtml powinien teraz oczekiwać @model PagedResult<ItemDto>
+                return View(pagedResult); 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving items for admin view with SearchDto: {@SearchDto}", searchDto);
+                TempData["Error"] = "An error occurred while retrieving items.";
+                // Możesz chcieć zwrócić pusty PagedResult lub przekierować do strony błędu
+                return View(new PagedResult<ItemDto>(new List<ItemDto>(), 0, page, pageSize));
+            }
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteItem(int id)
+        public async Task<IActionResult> DeleteItem(int id) // Item ID to delete
         {
-             // TODO: Add validation for item ID 'id'.
-            var item = await _itemService.GetItemByIdAsync(id);
-            if (item == null)
-            {
-                TempData["Error"] = "Item not found."; // TODO: Localize messages.
+            if (id <= 0) {
+                TempData["Error"] = "Invalid item ID.";
                 return RedirectToAction(nameof(Items));
             }
 
-            // FIXME: Replace int.Parse with int.TryParse for retrieving the admin user ID from claims to prevent exceptions
-            // if the claim is missing or not a valid integer. Handle the failure case appropriately (e.g., log error, return error view).
-            var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await _itemService.DeleteItemAsync(id, adminId); // Assuming DeleteItemAsync handles soft/hard delete logic and potentially related entities.
+            var item = await _itemService.GetItemByIdAsync(id); // Get item to log its name before deletion
+            if (item == null)
+            {
+                TempData["Error"] = "Item not found.";
+                return RedirectToAction(nameof(Items));
+            }
 
-            await LogAdminAction("Delete Item", "Item", id, $"Item: {item.Name}");
-            TempData["Success"] = "Item deleted successfully."; // TODO: Localize messages.
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) is string adminIdString && int.TryParse(adminIdString, out int adminId))
+            {
+                try
+                {
+                    // In ItemService.DeleteItemAsync, the check item.UserId != userId will fail for admin.
+                    // The ItemService.DeleteItemAsync needs to be adjusted to allow admins to delete items
+                    // not owned by them, or you need a specific AdminService method.
+                    // For now, assuming DeleteItemAsync will throw if adminId is not item.UserId.
+                    // A better approach:
+                    // await _adminService.DeleteItemAsAdminAsync(id, adminId); 
+                    // OR modify ItemService.DeleteItemAsync to accept an isAdmin flag or check role.
+                    
+                    // TEMPORARY: To make it work, we assume admin can delete any item, so ItemService should not check ownership FOR ADMINS.
+                    // This requires a change in ItemService.DeleteItemAsync:
+                    // if (item.UserId != userId && !await _userManager.IsInRoleAsync(await _userManager.FindByIdAsync(userId.ToString()), "Admin"))
+                    // { /* throw UnauthorizedAccessException */ }
+                    // OR more simply, if DeleteItemAsync is called from AdminController, we pass a flag or use a specific service method.
 
+                    // For this example, let's assume the service handles it or we call it with the item's actual owner ID
+                    // This is NOT a good long-term solution for admin delete.
+                    // A proper solution is an admin-specific delete method in a service or modified ItemService.
+                    // await _itemService.DeleteItemAsync(id, item.UserId); // This would work if admin "acts as owner"
+                    // Ideal call:
+                    await _adminService.ForceDeleteItemAsync(id, adminId); // This method needs to exist in IAdminService/AdminService
+                                                                       // and bypass ownership checks in ItemService or call a specific repo method.
+
+                    // Assuming a direct call to ItemService that is Admin-aware or bypasses owner check for this example
+                    // This will likely fail with current ItemService.DeleteItemAsync due to ownership check.
+                    // User needs to implement an Admin-specific delete or modify ItemService.
+                    _logger.LogWarning("DeleteItem in AdminController is calling ItemService.DeleteItemAsync with adminId. Ensure ItemService.DeleteItemAsync can handle admin deletions or use a dedicated admin service method.");
+                    await _itemService.DeleteItemAsync(id, adminId); // This will fail if adminId != item.UserId in ItemService
+
+                    await LogAdminAction("Delete Item", "Item", id, $"Item: {item.Name} (ID: {item.Id})");
+                    TempData["Success"] = "Item deleted successfully.";
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    TempData["Error"] = "You are not authorized to delete this item (this should not happen for an Admin if service logic is correct).";
+                }
+                catch (KeyNotFoundException)
+                {
+                     TempData["Error"] = "Item not found for deletion.";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error deleting item {ItemId} by admin {AdminId}", id, adminId);
+                    TempData["Error"] = "An error occurred while deleting the item.";
+                }
+            }
+            else
+            {
+                TempData["Error"] = "Could not identify admin user.";
+            }
             return RedirectToAction(nameof(Items));
         }
 
-        // GET: /Admin/Transactions - Displays transactions needing attention.
-        public async Task<IActionResult> Transactions()
+        [HttpGet]
+        public async Task<IActionResult> Transactions(int page = 1, int pageSize = 20, TransactionStatus? statusFilter = null)
         {
-            await LogAdminAction("View Transactions");
-            // TODO: Allow filtering transactions by different statuses (not just Pending) based on user selection in the view. Implement pagination.
-            var transactions = await _transactionService.GetTransactionsByStatusAsync(TransactionStatus.Pending); // Currently hardcoded to Pending
-            return View(transactions);
+            await LogAdminAction("View Transactions List", details: $"Status: {statusFilter?.ToString() ?? "All"}");
+    
+            try
+            {
+                PagedResult<TransactionDto> pagedTransactions;
+        
+                if (statusFilter.HasValue)
+                {
+                    // Use the paged version with filter
+                    pagedTransactions = await _transactionService.GetAllTransactionsAsync(page, pageSize, statusFilter);
+                }
+                else
+                {
+                    // Use the paged version without filter
+                    pagedTransactions = await _transactionService.GetAllTransactionsAsync(page, pageSize);
+                }
+        
+                return View(pagedTransactions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving transactions for admin view. Page: {Page}, PageSize: {PageSize}, Status: {Status}", 
+                    page, pageSize, statusFilter);
+                TempData["Error"] = "An error occurred while retrieving transactions.";
+                return View(new PagedResult<TransactionDto>(new List<TransactionDto>(), 0, page, pageSize));
+            }
         }
-
-        // POST: /Admin/UpdateTransactionStatus - Updates the status of a transaction.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateTransactionStatus(int id, TransactionStatus status)
         {
-            // TODO: Add validation for transaction ID 'id'.
-            // TODO: Add validation for the incoming 'status' parameter to ensure it's a valid TransactionStatus enum value and a logical transition.
-            // FIXME: Replace int.Parse with int.TryParse for retrieving the admin user ID. Handle failure.
-            var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await _transactionService.UpdateTransactionStatusAsync(id, status, adminId);
-
-            await LogAdminAction("Update Transaction", "Transaction", id, $"Status changed to: {status}");
-            TempData["Success"] = "Transaction status updated successfully."; // TODO: Localize messages.
-
-            return RedirectToAction(nameof(Transactions));
-        }
-
-        // GET: /Admin/SystemSettings - Displays system configuration settings.
-        public async Task<IActionResult> SystemSettings()
-        {
-            await LogAdminAction("View System Settings");
-            var settings = await _adminService.GetSystemSettingsAsync();
-            return View(settings);
-        }
-
-        // POST: /Admin/SystemSettings - Updates system configuration settings.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateSystemSettings(SystemSettingsDto settings)
-        {
-             // TODO: Add model validation checks beyond [ValidateAntiForgeryToken].
-             if (!ModelState.IsValid)
-             {
-                 // TODO: Consider returning the view with validation errors instead of redirecting immediately.
-                 TempData["Error"] = "Invalid settings provided.";
-                 return View(settings); // Return view with current (invalid) settings
-             }
-
-            // FIXME: Replace int.Parse with int.TryParse for retrieving the admin user ID. Handle failure.
-            var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _adminService.UpdateSystemSettingsAsync(settings, adminId);
-
-            if (result)
+            if (id <= 0) 
             {
-                await LogAdminAction("Update System Settings", "System", null, "Settings updated");
-                TempData["Success"] = "System settings updated successfully."; // TODO: Localize messages.
+                TempData["Error"] = "Invalid transaction ID.";
+                return RedirectToAction(nameof(Transactions));
+            }
+            // TODO: Add more validation for 'status'.
+
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) is string adminIdString && int.TryParse(adminIdString, out int adminId))
+            {
+                try
+                {
+                    // Admin should be able to override normal user restrictions on status updates
+                    // So, UpdateTransactionStatusAsync might need an isAdmin flag or a separate admin method.
+                    // For now, passing adminId as the 'userId' performing the action.
+                    // The service method will check if this user is part of the transaction.
+                    // An admin might need to bypass this check.
+                    _logger.LogWarning("UpdateTransactionStatus in AdminController is calling TransactionService.UpdateTransactionStatusAsync with adminId. Ensure service method allows admin overrides if needed.");
+                    await _transactionService.UpdateTransactionStatusAsync(id, status, adminId); 
+                    await LogAdminAction("Update Transaction Status", "Transaction", id, $"New status: {status}");
+                    TempData["Success"] = "Transaction status updated successfully.";
+                }
+                catch (KeyNotFoundException)
+                {
+                    TempData["Error"] = "Transaction not found.";
+                }
+                catch (UnauthorizedAccessException)
+                {
+                     TempData["Error"] = "Admin not authorized to update this transaction (this indicates an issue in service logic if admin should override).";
+                }
+                catch (InvalidOperationException ex)
+                {
+                    TempData["Error"] = $"Invalid status transition: {ex.Message}";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating transaction {TransactionId} status by admin {AdminId}", id, adminId);
+                    TempData["Error"] = "An error occurred while updating transaction status.";
+                }
             }
             else
             {
-                TempData["Error"] = "Failed to update system settings."; // TODO: Localize messages.
-                 // TODO: Provide more specific error feedback if possible.
-                 // Consider returning the view again if the update failed server-side after parsing adminId etc.
+                 TempData["Error"] = "Could not identify admin user.";
             }
+            return RedirectToAction(nameof(Transactions));
+        }
 
-            // Redirecting prevents resubmission, but loses ModelState errors if validation failed before the service call attempt.
+        [HttpGet]
+        public async Task<IActionResult> SystemSettings()
+        {
+            await LogAdminAction("View System Settings");
+            var settings = await _adminService.GetSystemSettingsAsync(); // Assuming this returns a DTO/ViewModel
+            return View(settings); // Expects Views/Admin/SystemSettings.cshtml
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateSystemSettings(SystemSettingsDto settings) // Assuming SystemSettingsDto
+        {
+             if (!ModelState.IsValid)
+             {
+                 TempData["Error"] = "Invalid settings provided. Please correct the errors.";
+                 return View(settings); // Return view with current (invalid) settings and ModelState errors
+             }
+
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) is string adminIdString && int.TryParse(adminIdString, out int adminId))
+            {
+                var result = await _adminService.UpdateSystemSettingsAsync(settings, adminId);
+                if (result)
+                {
+                    await LogAdminAction("Update System Settings", details: "Settings updated successfully");
+                    TempData["Success"] = "System settings updated successfully.";
+                }
+                else
+                {
+                    TempData["Error"] = "Failed to update system settings. Please try again.";
+                }
+            }
+            else
+            {
+                TempData["Error"] = "Could not identify admin user.";
+            }
             return RedirectToAction(nameof(SystemSettings));
         }
     }

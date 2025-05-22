@@ -19,5 +19,6 @@ namespace LeafLoop.Services.Interfaces
         Task<bool> CanUserAccessTransactionAsync(int transactionId, int userId);
         Task ConfirmTransactionCompletionAsync(int id, int userId);
         Task CheckAndAutoCompleteTransactionsAsync();
+        Task<PagedResult<TransactionDto>> GetAllTransactionsAsync(int pageNumber, int pageSize, TransactionStatus? filterByStatus = null);
     }
 }

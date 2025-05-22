@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "3X3/Hv5gRFfUfLG/9hPvyiTbaINs7WhyQawAZ9Mg0+w=",
+  "Hash": "7s/HrPSKnWUrLPBaCReP0d/VwJM1pucgkhmYwEMlu7Y=",
   "Source": "LeafLoop",
   "BasePath": "_content/LeafLoop",
   "Mode": "Default",
@@ -1003,25 +1003,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/site.js"
-    },
-    {
-      "Identity": "/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/wwwroot/js/token-test.js",
-      "SourceId": "LeafLoop",
-      "SourceType": "Discovered",
-      "ContentRoot": "/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/wwwroot/",
-      "BasePath": "_content/LeafLoop",
-      "RelativePath": "js/token-test.js",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot/js/token-test.js"
     },
     {
       "Identity": "/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/wwwroot/js/utils/auth.js",

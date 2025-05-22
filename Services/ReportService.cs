@@ -103,26 +103,26 @@ namespace LeafLoop.Services
             }
         }
 
-        public async Task UpdateReportStatusAsync(int id, ReportStatus status)
+        // Przykład w ReportService.cs
+        public async Task<bool> UpdateReportStatusAsync(int id, ReportStatus status)
         {
             try
             {
-                var report = await _unitOfWork.Reports.GetByIdAsync(id);
-                
+                var report = await _unitOfWork.Reports.GetByIdAsync(id); // Zakładając, że masz takie repozytorium i metodę
                 if (report == null)
                 {
-                    throw new KeyNotFoundException($"Report with ID {id} not found");
+                    _logger.LogWarning("Report with ID {ReportId} not found for status update.", id);
+                    return false; // Raport nie znaleziony
                 }
-                
                 report.Status = status;
-                
-                _unitOfWork.Reports.Update(report);
-                await _unitOfWork.CompleteAsync();
+                // _unitOfWork.Reports.Update(report); // Jeśli repozytorium tego wymaga
+                var changes = await _unitOfWork.CompleteAsync();
+                return changes > 0; // Zwróć true, jeśli zmiany zostały zapisane
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while updating report status: {ReportId}", id);
-                throw;
+                _logger.LogError(ex, "Error updating report status for ReportID {ReportId}", id);
+                return false; // Błąd podczas operacji
             }
         }
 

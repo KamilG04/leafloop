@@ -1,4 +1,3 @@
-// darkModeToggle.js (entry point)
 import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import DarkModeToggle from './DarkModeToggleComponent';

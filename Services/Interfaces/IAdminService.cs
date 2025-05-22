@@ -22,10 +22,11 @@ namespace LeafLoop.Services.Interfaces
         
         // Admin Logging
         Task LogAdminActionAsync(int adminUserId, AdminActionDto actionDto, string ipAddress);
-        Task<IEnumerable<AdminLogDto>> GetAdminLogsAsync();
-        
-        // System Management - Added these missing methods
+        Task<PagedResult<AdminLogDto>> GetAdminLogsAsync(int pageNumber, int pageSize); 
+
         Task<SystemSettingsDto> GetSystemSettingsAsync();
         Task<bool> UpdateSystemSettingsAsync(SystemSettingsDto settings, int adminUserId);
+        Task<bool> ForceDeleteItemAsync(int itemId, int adminUserId);
+        
     }
 }

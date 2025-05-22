@@ -12,7 +12,7 @@ namespace LeafLoop.Services.Interfaces
         Task<IEnumerable<ReportDto>> GetReportsByStatusAsync(ReportStatus status);
         Task<IEnumerable<ReportDto>> GetReportsByContentTypeAsync(ContentType contentType);
         Task<int> CreateReportAsync(ReportCreateDto reportDto);
-        Task UpdateReportStatusAsync(int id, ReportStatus status);
+        Task<bool> UpdateReportStatusAsync(int id, ReportStatus status);
         Task DeleteReportAsync(int id);
     }
 }

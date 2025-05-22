@@ -3,8 +3,9 @@ using LeafLoop.Models;
 using LeafLoop.Repositories.Interfaces;
 using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.EntityFrameworkCore;
 namespace LeafLoop.Services
 {
     public class TransactionService : ITransactionService
@@ -43,7 +44,7 @@ namespace LeafLoop.Services
                 throw;
             }
         }
-
+        
         // Metoda GetTransactionWithDetailsAsync (bez zmian)
         public async Task<TransactionWithDetailsDto> GetTransactionWithDetailsAsync(int id)
         {
@@ -421,6 +422,58 @@ namespace LeafLoop.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking for transactions to auto-complete");
+                throw;
+            }
+        }
+        // Na górze pliku TransactionService.cs dodaj, jeśli brakuje:
+// using Microsoft.EntityFrameworkCore;
+// using System.Linq;
+// W pliku TransactionService.cs
+
+// ... (konstruktor i inne metody bez zmian) ...
+// W TransactionService.cs
+        public async Task<PagedResult<TransactionDto>> GetAllTransactionsAsync(int pageNumber, int pageSize, TransactionStatus? filterByStatus = null)
+        {
+            _logger.LogInformation("Fetching all transactions for admin. Page: {PageNumber}, PageSize: {PageSize}, StatusFilter: {StatusFilter}", 
+                pageNumber, pageSize, filterByStatus?.ToString() ?? "All");
+            try
+            {
+                // Start with a base query
+                var query = _unitOfWork.Transactions.GetAllAsQueryable();
+        
+                // Apply includes - make sure to use the right method chain
+                query = query
+                    .Include(t => t.Item)
+                    .ThenInclude(i => i.Photos)
+                    .Include(t => t.Buyer)
+                    .Include(t => t.Seller);
+
+                // Apply status filter if provided
+                if (filterByStatus.HasValue)
+                {
+                    query = query.Where(t => t.Status == filterByStatus.Value);
+                }
+
+                // Get total count for pagination
+                var totalCount = await query.CountAsync();
+
+                // Get paginated data
+                var transactionEntities = await query
+                    .OrderByDescending(t => t.StartDate)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                // Map to DTOs
+                var transactionDtos = _mapper.Map<List<TransactionDto>>(transactionEntities); 
+
+                // Return paged result
+                return new PagedResult<TransactionDto>(transactionDtos, totalCount, pageNumber, pageSize);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all transactions with pagination for admin. Page: {Page}, Size: {Size}, Status: {Status}",
+                    pageNumber, pageSize, filterByStatus);
                 throw;
             }
         }
