@@ -30,8 +30,12 @@ namespace LeafLoop.Models
         public int OrganizerId { get; set; }
         
         public OrganizerType OrganizerType { get; set; }
-        
-        
+        /*
+        public void SetStartDate(DateTime date)
+        {
+            StartDate = date.Kind == DateTimeKind.Utc ? date : DateTime.SpecifyKind(date, DateTimeKind.Utc);
+        }
+        */ //to plus ten null od daty to perm fix ale japierdole 
         public virtual Address Address { get; set; }
         public virtual ICollection<EventParticipant> Participants { get; set; }
     }

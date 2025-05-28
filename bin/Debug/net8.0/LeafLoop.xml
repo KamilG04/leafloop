@@ -964,6 +964,73 @@
             <response code="404">If the user with the specified ID is not found.</response>
             <response code="500">If an internal server error occurs.</response>
         </member>
+        <member name="T:LeafLoop.Controllers.EventsController">
+            <summary>
+            Controller for Events views - serves React-based event management interface
+            </summary>
+        </member>
+        <member name="M:LeafLoop.Controllers.EventsController.Index">
+            <summary>
+            Main events page - displays React-based events interface
+            </summary>
+            <returns>Events index view with React components</returns>
+        </member>
+        <member name="M:LeafLoop.Controllers.EventsController.Calendar">
+            <summary>
+            Events calendar view (future feature)
+            </summary>
+            <returns>Calendar view of events</returns>
+        </member>
+        <member name="M:LeafLoop.Controllers.EventsController.MyEvents">
+            <summary>
+            My events page - shows events created by the current user
+            Requires authentication
+            </summary>
+            <returns>User's events view</returns>
+        </member>
+        <member name="M:LeafLoop.Controllers.EventsController.Details(System.Int32)">
+            <summary>
+            Event details page - shows detailed view of a specific event
+            </summary>
+            <param name="id">Event ID</param>
+            <returns>Event details view</returns>
+        </member>
+        <member name="M:LeafLoop.Controllers.EventsController.Create">
+            <summary>
+            Create event page - shows form for creating new events
+            Requires authentication
+            </summary>
+            <returns>Create event view</returns>
+        </member>
+        <member name="M:LeafLoop.Controllers.EventsController.Edit(System.Int32)">
+            <summary>
+            Edit event page - shows form for editing existing events
+            Requires authentication and ownership/admin rights
+            </summary>
+            <param name="id">Event ID to edit</param>
+            <returns>Edit event view</returns>
+        </member>
+        <member name="M:LeafLoop.Controllers.EventsController.Participants(System.Int32)">
+            <summary>
+            Participants page - shows list of event participants
+            </summary>
+            <param name="id">Event ID</param>
+            <returns>Participants view</returns>
+        </member>
+        <member name="M:LeafLoop.Controllers.EventsController.Register(System.Int32)">
+            <summary>
+            Register for event action - handles GET requests to register
+            Redirects to event details after registration attempt
+            </summary>
+            <param name="id">Event ID</param>
+            <returns>Redirect to event details</returns>
+        </member>
+        <member name="M:LeafLoop.Controllers.EventsController.Error">
+            <summary>
+            Error handling for events-related errors
+            </summary>
+            <returns>Error view</returns>
+        </member>
         <member name="T:LeafLoop.Middleware.EnhancedErrorHandlingMiddleware">
             <summary>
             Middleware for handling exceptions in a standardized way across the application.

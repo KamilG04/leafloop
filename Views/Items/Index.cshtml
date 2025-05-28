@@ -1,17 +1,45 @@
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @{
-    ViewData["Title"] = "Przedmioty";
+    ViewData["Title"] = "Przeglądaj Przedmioty";
 }
 
-<!-- React will render everything in this container -->
+<h1>@ViewData["Title"]</h1>
+
 <div id="react-item-list-container">
-    <div class="d-flex justify-content-center my-5">
-        <div class="spinner-border text-success" role="status">
+    <div class="alert alert-info">
+        <h4>🔄 Ładowanie przedmiotów...</h4>
+        <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Ładowanie...</span>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="~/js/dist/itemList.bundle.js" asp-append-version="true"></script>
+    <script>
+        // To jest fragment kodu, który miałeś wcześniej do testowania API
+        // i ładowania komponentu React.
+        // Możesz go tu przywrócić lub od razu ładować swój główny bundle.
+        console.log('🟢 Items/Index.cshtml - SCRIPTS SECTION LOADED!');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🟢 Items/Index.cshtml - DOM READY');
+
+            const container = document.getElementById('react-item-list-container');
+            console.log('🟢 Items/Index.cshtml - Container found:', container);
+
+            if (container) {
+                // Tutaj logika ładowania Twojego skompilowanego komponentu React
+                // np. itemList.bundle.js
+                // Przykład:
+                const script = document.createElement('script');
+                // Upewnij się, że ścieżka jest poprawna, jeśli plik jest w podfolderze np. 'dist'
+                script.src = '/js/dist/itemList.bundle.js'; // Zakładając, że tu jest Twój bundle
+                script.onload = () => console.log('🟢 React bundle (itemList.bundle.js) loaded from Items/Index.cshtml');
+                script.onerror = () => console.error('🔴 React bundle (itemList.bundle.js) failed to load from Items/Index.cshtml');
+                document.head.appendChild(script); // Lub document.body.appendChild(script);
+
+            } else {
+                console.error('🔴 Items/Index.cshtml - Container #react-item-list-container not found!');
+            }
+        });
+    </script>
 }

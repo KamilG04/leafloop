@@ -37,6 +37,7 @@ namespace LeafLoop.Services.DTOs
         public OrganizerType OrganizerType { get; set; }
     }
 
+    // W LeafLoop.Services.DTOs
     public class EventUpdateDto
     {
         public int Id { get; set; }
@@ -45,6 +46,7 @@ namespace LeafLoop.Services.DTOs
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int ParticipantsLimit { get; set; }
+        public AddressDto Address { get; set; } // <--- DODAJ TĘ WŁAŚCIWOŚĆ
     }
   
 

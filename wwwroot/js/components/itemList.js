@@ -2,41 +2,60 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import ApiService from '../services/api.js';
 
-const ItemCard = ({ item }) => (
-    <div className="col mb-4">
-        <div className="card h-100 shadow-sm">
-            <div style={{ height: '200px', overflow: 'hidden' }}>
-                {item.mainPhotoPath ? (
+const ItemCard = ({ item }) => {
+    // Use ApiService.getImageUrl for consistent image handling
+    const photoPath = ApiService.getImageUrl(item.mainPhotoPath);
+
+    const handleImageError = (e) => {
+        const placeholder = ApiService.getImageUrl(null);
+        if (e.target.src !== placeholder) {
+            e.target.src = placeholder;
+        }
+    };
+
+    return (
+        <div className="col mb-4">
+            <div className="card h-100 shadow-sm">
+                <div style={{ height: '200px', overflow: 'hidden' }}>
                     <img
-                        src={item.mainPhotoPath}
+                        src={photoPath}
                         className="card-img-top"
-                        alt={item.name}
+                        alt={item.name || 'Przedmiot'}
                         style={{ objectFit: 'cover', height: '100%', width: '100%' }}
+                        onError={handleImageError}
+                        loading="lazy"
                     />
-                ) : (
-                    <div className="bg-light d-flex align-items-center justify-content-center h-100">
-                        <i className="bi bi-image text-secondary" style={{ fontSize: '3rem' }}></i>
-                    </div>
-                )}
-            </div>
-            <div className="card-body d-flex flex-column">
-                <h5 className="card-title text-truncate">{item.name}</h5>
-                <p className="card-text small text-muted flex-grow-1">
-                    {item.description?.substring(0, 70)}...
-                </p>
-                <div className="d-flex gap-1 mb-2">
-                    <span className={`badge bg-${item.isAvailable ? 'success' : 'secondary'}`}>
-                        {item.isAvailable ? 'Dostępny' : 'Niedostępny'}
-                    </span>
-                    <span className="badge bg-info">{item.condition}</span>
                 </div>
-                <a href={`/Items/Details/${item.id}`} className="btn btn-outline-success mt-auto">
-                    Zobacz szczegóły
-                </a>
+                <div className="card-body d-flex flex-column">
+                    <h5 className="card-title text-truncate" title={item.name}>
+                        {item.name || 'Bez nazwy'}
+                    </h5>
+                    <p className="card-text small text-muted flex-grow-1">
+                        {item.description ?
+                            (item.description.length > 70 ?
+                                    `${item.description.substring(0, 70)}...` :
+                                    item.description
+                            ) :
+                            'Brak opisu'
+                        }
+                    </p>
+                    <div className="d-flex gap-1 mb-2">
+                        <span className={`badge bg-${item.isAvailable ? 'success' : 'secondary'}`}>
+                            {item.isAvailable ? 'Dostępny' : 'Niedostępny'}
+                        </span>
+                        <span className="badge bg-info">{item.condition || 'Nieokreślony'}</span>
+                    </div>
+                    <div className="small text-muted mb-2">
+                        Kategoria: {item.categoryName || 'Brak'}
+                    </div>
+                    <a href={`/Items/Details/${item.id}`} className="btn btn-outline-success mt-auto">
+                        Zobacz szczegóły
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const ItemList = () => {
     const [items, setItems] = useState([]);
@@ -49,18 +68,39 @@ const ItemList = () => {
     const [categories, setCategories] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
 
     // Load categories
     useEffect(() => {
-        ApiService.get('/api/categories')
-            .then(data => setCategories(data || []))
-            .catch(err => console.error('Failed to load categories:', err));
+        const loadCategories = async () => {
+            try {
+                const response = await ApiService.get('/api/categories');
+                console.log('Categories response:', response);
+
+                // Handle different response structures
+                let categoriesData = [];
+                if (response && Array.isArray(response)) {
+                    categoriesData = response;
+                } else if (response && response.data && Array.isArray(response.data)) {
+                    categoriesData = response.data;
+                }
+
+                setCategories(categoriesData);
+            } catch (err) {
+                console.error('Failed to load categories:', err);
+                setCategories([]);
+            }
+        };
+
+        loadCategories();
     }, []);
 
     // Load items
     useEffect(() => {
         const loadItems = async () => {
             setLoading(true);
+            setError(null);
+
             try {
                 const params = new URLSearchParams({
                     page: page.toString(),
@@ -69,12 +109,44 @@ const ItemList = () => {
                     ...(categoryId && { categoryId })
                 });
 
-                const data = await ApiService.get(`/api/items?${params}`);
-                setItems(Array.isArray(data) ? data : []);
-                setError(null);
+                console.log('Loading items with params:', params.toString());
+
+                const response = await ApiService.get(`/api/items?${params}`);
+                console.log('Items API response:', response);
+
+                // Handle different response structures from your API
+                if (response) {
+                    // Sprawdź czy to response z paginacją
+                    if (response.data && Array.isArray(response.data)) {
+                        // Paginated response with wrapper
+                        setItems(response.data);
+                        setTotalPages(response.totalPages || 1);
+                        setTotalItems(response.totalItems || 0);
+                    } else if (Array.isArray(response)) {
+                        // Direct array response
+                        setItems(response);
+                        setTotalPages(1);
+                        setTotalItems(response.length);
+                    } else {
+                        // Unknown structure
+                        console.warn('Unexpected API response structure:', response);
+                        setItems([]);
+                        setTotalPages(1);
+                        setTotalItems(0);
+                    }
+                } else {
+                    // Empty response
+                    setItems([]);
+                    setTotalPages(1);
+                    setTotalItems(0);
+                }
+
             } catch (err) {
-                setError(err.message);
+                console.error('Error loading items:', err);
+                setError(err.message || 'Nie udało się załadować przedmiotów.');
                 setItems([]);
+                setTotalPages(1);
+                setTotalItems(0);
             } finally {
                 setLoading(false);
             }
@@ -85,7 +157,13 @@ const ItemList = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        setPage(1);
+        setPage(1); // Reset to first page when searching
+    };
+
+    const goToPage = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages && newPage !== page) {
+            setPage(newPage);
+        }
     };
 
     if (loading) {
@@ -143,23 +221,105 @@ const ItemList = () => {
                 </div>
             </div>
 
+            {/* Error state */}
             {error && (
                 <div className="alert alert-danger">
-                    {error}
+                    <span>{error}</span>
+                    <button
+                        className="btn btn-outline-danger btn-sm mt-2 ms-2"
+                        onClick={() => window.location.reload()}
+                    >
+                        <i className="bi bi-arrow-clockwise me-1"></i> Spróbuj ponownie
+                    </button>
                 </div>
             )}
 
-            {!error && items.length === 0 && (
-                <div className="alert alert-info">
-                    Brak przedmiotów do wyświetlenia.
+            {/* No items state */}
+            {!error && items.length === 0 && !loading && (
+                <div className="alert alert-info text-center">
+                    <p className="mb-2">Brak przedmiotów do wyświetlenia.</p>
+                    {(searchTerm || categoryId) && (
+                        <button
+                            className="btn btn-outline-primary btn-sm"
+                            onClick={() => {
+                                setSearchTerm('');
+                                setCategoryId('');
+                                setPage(1);
+                            }}
+                        >
+                            Wyczyść filtry
+                        </button>
+                    )}
                 </div>
             )}
 
-            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4">
-                {items.map(item => (
-                    <ItemCard key={item.id} item={item} />
-                ))}
-            </div>
+            {/* Items grid */}
+            {items.length > 0 && (
+                <>
+                    <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4">
+                        {items.map(item => (
+                            <ItemCard key={item.id} item={item} />
+                        ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <nav aria-label="Nawigacja strona" className="mt-4">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                <small className="text-muted">
+                                    Strona {page} z {totalPages} ({totalItems} przedmiotów)
+                                </small>
+                            </div>
+                            <ul className="pagination justify-content-center">
+                                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => goToPage(page - 1)}
+                                        disabled={page === 1}
+                                    >
+                                        Poprzednia
+                                    </button>
+                                </li>
+
+                                {/* Page numbers */}
+                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                    let pageNum;
+                                    if (totalPages <= 5) {
+                                        pageNum = i + 1;
+                                    } else if (page <= 3) {
+                                        pageNum = i + 1;
+                                    } else if (page >= totalPages - 2) {
+                                        pageNum = totalPages - 4 + i;
+                                    } else {
+                                        pageNum = page - 2 + i;
+                                    }
+
+                                    return (
+                                        <li key={pageNum} className={`page-item ${page === pageNum ? 'active' : ''}`}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => goToPage(pageNum)}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+
+                                <li className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => goToPage(page + 1)}
+                                        disabled={page === totalPages}
+                                    >
+                                        Następna
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    )}
+                </>
+            )}
         </div>
     );
 };
@@ -169,4 +329,6 @@ const container = document.getElementById('react-item-list-container');
 if (container) {
     const root = ReactDOM.createRoot(container);
     root.render(<ItemList />);
+} else {
+    console.error("Nie znaleziono kontenera '#react-item-list-container'. Sprawdź czy widok zawiera odpowiedni element div.");
 }

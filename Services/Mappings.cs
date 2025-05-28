@@ -154,14 +154,24 @@ namespace LeafLoop.Services.Mappings
             CreateMap<Notification, NotificationDto>();
             CreateMap<NotificationCreateDto, Notification>();
 
-            // --- Event mappings ---
-             CreateMap<Event, EventDto>()
-                 .ForMember(dest => dest.CurrentParticipantsCount, opt => opt.MapFrom(src => src.Participants != null ? src.Participants.Count : 0))
-                 .ForMember(dest => dest.OrganizerName, opt => opt.Ignore()); // TODO: Implement OrganizerName mapping
-             
-             CreateMap<Event, EventWithDetailsDto>() 
-                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address)) 
-                 .ForMember(dest => dest.Participants, opt => opt.Ignore()); // TODO: Map Participants
+            // --- Event mappings --
+            CreateMap<Event, EventDto>()
+                .ForMember(dest => dest.CurrentParticipantsCount, opt => opt.MapFrom(src => src.Participants != null ? src.Participants.Count : 0))
+                
+                // .ForMember(dest => dest.OrganizerName, opt => opt.MapFrom(src => src.ActualOrganizerNamePropertyIfExistsOnEventEntity))
+                ; // Pozostawiamy bez mapowania OrganizerName tutaj, serwis to uzupełni
+
+            CreateMap<Event, EventWithDetailsDto>()
+                .IncludeBase<Event, EventDto>() // Dziedziczy mapowanie CurrentParticipantsCount
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                // Zakładamy, że Event.Participants to ICollection<EventParticipant>, a EventParticipant.User to encja User
+                // Chcemy zmapować listę encji User (z Event.Participants) na listę UserDto
+                .ForMember(dest => dest.Participants, opt => opt.MapFrom(src =>
+                    src.Participants != null
+                        ? src.Participants.Select(ep => ep.User) // Wybiera encje User z EventParticipant
+                        : new List<User>())) // AutoMapper użyje istniejącego mapowania User -> UserDto
+                ;
+
 
              CreateMap<EventCreateDto, Event>();
              CreateMap<EventUpdateDto, Event>();

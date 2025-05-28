@@ -24,7 +24,7 @@ using Microsoft.OpenApi.Models;
 // FIXME: IdentityModelEventSource.ShowPII should only be true in Development for security reasons.
 // Consider using: IdentityModelEventSource.ShowPII = builder.Environment.IsDevelopment();
 IdentityModelEventSource.ShowPII = true;
-
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -305,7 +305,23 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+app.Use(async (context, next) =>
+{
+    // Użyj ILogger jeśli jest dostępny, inaczej Console.WriteLine
+    var loggerFactory = context.RequestServices.GetRequiredService<ILoggerFactory>();
+    var startupLogger = loggerFactory.CreateLogger("StartupPipeline");
 
+    startupLogger.LogInformation("--- REQUEST IN: {Method} {Path}", context.Request.Method, context.Request.Path);
+    try
+    {
+        await next.Invoke();
+    }
+    finally
+    {
+        startupLogger.LogInformation("--- REQUEST OUT: {Path}, Status: {StatusCode}, ContentType: {ContentType}, Length: {ContentLength}",
+            context.Request.Path, context.Response.StatusCode, context.Response.ContentType, context.Response.ContentLength);
+    }
+});
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -398,6 +414,19 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"); // For conventional MVC routes.
 
+app.MapControllerRoute(
+    name: "events",
+    pattern: "Events/{action=Index}/{id?}",
+    defaults: new { controller = "Events" }
+);
+/*
+app.MapControllerRoute(
+    name: "items_test_sciezka_UNIQUE",
+    pattern: "MOJA-SCIEZKA-ITEMS-TEST/{action=Index}/{id?}",
+    defaults: new { controller = "Items" }
+);
+*/
+// ... your other routes ...
 // Seed data - This should be idempotent.
 using (var scope = app.Services.CreateScope())
 {

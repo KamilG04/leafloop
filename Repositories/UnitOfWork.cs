@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using LeafLoop.Data;
+using LeafLoop.Data; // Upewnij się, że LeafLoopDbContext jest tutaj
 using LeafLoop.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace LeafLoop.Repositories
+namespace LeafLoop.Repositories // Zwykle UnitOfWork jest w tym samym namespace co Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
@@ -32,11 +32,20 @@ namespace LeafLoop.Repositories
         private ICommentRepository _commentRepository;
         private ISubscriptionRepository _subscriptionRepository;
         private ISavedSearchRepository _savedSearchRepository;
+        private IAdminRepository _adminRepository; // Zadeklarowane wcześniej
+
+        // Dodaj repozytorium dla EventParticipant, jeśli operacje na nim są częste i złożone
+        // private IRepository<EventParticipant> _eventParticipantRepository;
+
 
         public UnitOfWork(LeafLoopDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+
+        // Właściwość do uzyskania dostępu do kontekstu, jeśli potrzebne w serwisach (używaj ostrożnie)
+        public LeafLoopDbContext Context => _context;
+
 
         // Repository properties with lazy loading
         public IUserRepository Users => _userRepository ??= new UserRepository(_context);
@@ -51,16 +60,25 @@ namespace LeafLoop.Repositories
         public IBadgeRepository Badges => _badgeRepository ??= new BadgeRepository(_context);
         public IRatingRepository Ratings => _ratingRepository ??= new RatingRepository(_context);
         public IMessageRepository Messages => _messageRepository ??= new MessageRepository(_context);
-        public INotificationRepository Notifications => _notificationRepository ??= new NotificationRepository(_context);
+
+        public INotificationRepository Notifications =>
+            _notificationRepository ??= new NotificationRepository(_context);
+
         public IReportRepository Reports => _reportRepository ??= new ReportRepository(_context);
         public ICommentRepository Comments => _commentRepository ??= new CommentRepository(_context);
-        public ISubscriptionRepository Subscriptions => _subscriptionRepository ??= new SubscriptionRepository(_context);
-        public ISavedSearchRepository SavedSearches => _savedSearchRepository ??= new SavedSearchRepository(_context);
-      
-        private IAdminRepository _adminRepository;
 
+        public ISubscriptionRepository Subscriptions =>
+            _subscriptionRepository ??= new SubscriptionRepository(_context);
+
+        public ISavedSearchRepository SavedSearches => _savedSearchRepository ??= new SavedSearchRepository(_context);
         public IAdminRepository AdminLogs => _adminRepository ??= new AdminRepository(_context);
-        // Generic entity methods implementation
+
+        // Przykład generycznego repozytorium dla EventParticipant, jeśli nie masz dedykowanego
+        // public IRepository<EventParticipant> EventParticipants => 
+        //    _eventParticipantRepository ??= new Repository<EventParticipant>(_context);
+
+
+        // Generic entity methods implementation (bez zmian)
         public async Task<T> GetEntityByIdAsync<T>(int id) where T : class
         {
             return await _context.Set<T>().FindAsync(id);
@@ -93,7 +111,8 @@ namespace LeafLoop.Repositories
 
         public void UpdateEntity<T>(T entity) where T : class
         {
-            _context.Set<T>().Attach(entity);
+            _context.Set<T>()
+                .Attach(entity); // Lub Add, jeśli nie jesteś pewien czy jest śledzona i chcesz uniknąć błędu
             _context.Entry(entity).State = EntityState.Modified;
         }
 
@@ -119,87 +138,130 @@ namespace LeafLoop.Repositories
         // Basic save changes
         public async Task<int> CompleteAsync()
         {
+            // Tutaj można dodać logowanie, jeśli jest potrzebne
+            // _logger.LogInformation("UnitOfWork.CompleteAsync called. Saving changes...");
             return await _context.SaveChangesAsync();
         }
 
-        // Transaction management methods
+        // Transaction management methods (bez zmian - są poprawne)
         public async Task BeginTransactionAsync()
         {
+            if (_transaction != null)
+            {
+                // Może warto zalogować ostrzeżenie lub rzucić wyjątek, jeśli transakcja już istnieje
+                return;
+            }
+
             _transaction = await _context.Database.BeginTransactionAsync();
         }
 
         public async Task CommitTransactionAsync()
         {
+            if (_transaction == null)
+            {
+                // Może warto zalogować ostrzeżenie lub rzucić wyjątek
+                throw new InvalidOperationException("Transaction has not been started.");
+            }
+
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); // Upewnij się, że zmiany są zapisane PRZED commitem transakcji
                 await _transaction.CommitAsync();
+            }
+            catch
+            {
+                await RollbackTransactionAsync(); // Rollback w przypadku błędu SaveChanges lub Commit
+                throw;
             }
             finally
             {
-                await _transaction.DisposeAsync();
-                _transaction = null;
+                await DisposeTransactionAsync();
             }
         }
 
         public async Task RollbackTransactionAsync()
         {
+            if (_transaction == null)
+            {
+                // Może warto zalogować ostrzeżenie
+                return;
+            }
+
             try
             {
                 await _transaction.RollbackAsync();
             }
             finally
             {
+                await DisposeTransactionAsync();
+            }
+        }
+
+        private async Task DisposeTransactionAsync()
+        {
+            if (_transaction != null)
+            {
                 await _transaction.DisposeAsync();
                 _transaction = null;
             }
         }
 
-        // Execute code within a transaction
+
         public async Task ExecuteInTransactionAsync(Func<Task> action)
         {
             var strategy = _context.Database.CreateExecutionStrategy();
-            await strategy.ExecuteAsync(async () => {
+            await strategy.ExecuteAsync(async () =>
+            {
                 await using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
                     await action();
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
+                    await _context.SaveChangesAsync(); // Zapisz zmiany w kontekście
+                    await transaction.CommitAsync(); // Zatwierdź transakcję
                 }
                 catch
                 {
-                    await transaction.RollbackAsync();
-                    throw;
+                    await transaction.RollbackAsync(); // Wycofaj w przypadku błędu
+                    throw; // Rzuć wyjątek dalej
                 }
             });
         }
 
-        // Execute code within a transaction with return value
         public async Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> action)
         {
             var strategy = _context.Database.CreateExecutionStrategy();
-            return await strategy.ExecuteAsync(async () => {
+            return await strategy.ExecuteAsync(async () =>
+            {
                 await using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
                     var result = await action();
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
+                    await _context.SaveChangesAsync(); // Zapisz zmiany w kontekście
+                    await transaction.CommitAsync(); // Zatwierdź transakcję
                     return result;
                 }
                 catch
                 {
-                    await transaction.RollbackAsync();
-                    throw;
+                    await transaction.RollbackAsync(); // Wycofaj w przypadku błędu
+                    throw; // Rzuć wyjątek dalej
                 }
             });
         }
 
         public void Dispose()
         {
-            _transaction?.Dispose();
-            _context.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _transaction?.Dispose();
+                _context?.Dispose();
+            }
         }
     }
+
 }

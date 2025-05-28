@@ -62,6 +62,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vVXNlcnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/Views/Events/index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRXZlbnRzL2luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/Views/Home/About.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9BYm91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -96,6 +100,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/Views/Items/MyItems.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSXRlbXMvTXlJdGVtcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/Views/Items/UserItems.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSXRlbXMvVXNlckl0ZW1zLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/kamilglowacki/Downloads/leafloopkoniecjestbliski/leafloop/Views/Profile/Edit.cshtml]

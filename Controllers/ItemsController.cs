@@ -1,18 +1,16 @@
-using LeafLoop.Models; // Assuming ErrorViewModel is defined here or in a related namespace
-using LeafLoop.Services.DTOs; // Assuming CategoryDto is defined here
+using LeafLoop.Models;
+using LeafLoop.Services.DTOs;
 using LeafLoop.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging; // Added for ILogger
-using System; // Added for ArgumentNullException
-using System.Collections.Generic; // Added for List
-using System.Threading.Tasks; // Added for Task
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace LeafLoop.Controllers
 {
-    // This MVC controller is primarily responsible for serving views that will host React components.
-    // Data operations are expected to be handled by separate API controllers called by these React components.
-    public class ItemsController : Controller // Inherits from Controller, not ControllerBase, as it serves Views
+    public class ItemsController : Controller
     {
         private readonly IItemService _itemService;
         private readonly ICategoryService _categoryService;
@@ -28,84 +26,95 @@ namespace LeafLoop.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // GET: /Items or /Items/Index
-        // This view is expected to host a React component for displaying/searching items.
+        // --- Akcja Index z routingiem atrybutowym ---
+        [HttpGet]                // Domyślnie dla metody GET
+        [Route("Items")]         // Obsłuży GET /Items
+        [Route("Items/Index")]   // Obsłuży GET /Items/Index
         public IActionResult Index()
         {
-            _logger.LogInformation("Serving Items Index view, intended for React component mounting.");
-            // TODO: This MVC action serves a view for React. Ensure the corresponding API endpoint (e.g., /api/items)
-            // for data fetching by the React component is implemented with features like pagination and filtering.
+            _logger.LogInformation(">>> ItemsController.Index() VIA ATTRIBUTE ROUTE - Rendering view for React component.");
+            // Teraz normalnie zwracamy widok, który będzie hostował Reacta
             return View();
         }
 
-        // GET: /Items/Details/5
-        // This view is expected to host a React component for displaying item details.
+        // --- Pozostałe akcje ---
+        // Możemy zostawić je dla routingu konwencjonalnego,
+        // lub dodać jawne atrybuty [Route] dla spójności.
+
+        // GET: /Items/Details/{id}
+        [HttpGet("Items/Details/{id:int}")]
         public IActionResult Details(int id)
         {
             if (id <= 0)
             {
                 _logger.LogWarning("Invalid item ID requested for Details view: {ItemId}", id);
-                // TODO: Verify that an 'ErrorViewModel' and a corresponding 'Error.cshtml' view exist
-                // and are correctly configured for displaying errors.
-                // Consider if a more user-friendly "Not Found" page might be better than a generic error for invalid IDs.
-                return View("Error",
-                    new ErrorViewModel { Message = "Invalid item ID provided." });
+                return View("Error", new ErrorViewModel { Message = "Invalid item ID provided." });
             }
 
             _logger.LogInformation("Serving Item Details view for ItemId: {ItemId}", id);
-            ViewBag.ItemId = id; 
+            ViewBag.ItemId = id;
             return View();
         }
 
         // GET: /Items/Create
-        // This view displays a form (likely a React component) for adding a new item.
-        [Authorize] // Requires user to be logged in.
+        [HttpGet("Items/Create")]
+        [Authorize]
         public async Task<IActionResult> Create()
         {
             _logger.LogInformation("Serving Create Item view for an authenticated user.");
             try
             {
-                // Fetch categories to populate a dropdown or similar UI element in the form.
                 var categories = await _categoryService.GetAllCategoriesAsync();
                 ViewBag.Categories = categories ?? new List<CategoryDto>();
-                // TODO: If the number of categories can be very large, consider if _categoryService.GetAllCategoriesAsync() is optimal.
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading categories for the create item form.");
-                ViewBag.Categories = new List<CategoryDto>(); // Provide an empty list in case of error.
-                // TODO: Localize user-facing error messages.
+                ViewBag.Categories = new List<CategoryDto>();
                 ModelState.AddModelError(string.Empty, "Failed to load categories required for the form. Please try again later.");
             }
             return View();
         }
 
-        // GET: /Items/Edit/5
-        // This view displays a form (likely a React component) for editing an existing item.
-        [Authorize] // Requires user to be logged in.
-        [HttpGet] // Explicitly specify HTTP GET.
+        // GET: /Items/Edit/{id}
+        [HttpGet("Items/Edit/{id:int}")]
+        [Authorize]
         public IActionResult Edit(int id)
         {
             if (id <= 0)
             {
                 _logger.LogWarning("Invalid item ID requested for Edit view: {ItemId}", id);
-               
                 return View("Error", new ErrorViewModel { Message = "Invalid item ID provided." });
             }
 
             _logger.LogInformation("Serving Edit Item view for ItemId: {ItemId}", id);
-            ViewBag.ItemId = id; 
+            ViewBag.ItemId = id;
             return View();
         }
 
         // GET: /Items/MyItems
-        // This view displays a list of items belonging to the currently logged-in user (likely via a React component).
-        [Authorize] // Requires user to be logged in.
+        [HttpGet("Items/MyItems")]
+        [Authorize]
         public IActionResult MyItems()
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             _logger.LogInformation("Serving MyItems view for user: {UserId}", userId);
             return View();
+        }
+
+        // GET: /Items/UserItems?userId={userId} LUB /Items/UserItems/{userId} jeśli zmodyfikujemy route
+        [HttpGet("Items/UserItems")] // Można też zrobić [HttpGet("Items/UserItems/{userId:int}")] i pobierać z trasy
+        public IActionResult UserItems(int userId) // Parametr z query string ?userId=X
+        {
+            if (userId <= 0)
+            {
+                _logger.LogWarning("UserItems: Invalid userId provided: {UserId}", userId);
+                return BadRequest("Invalid user ID.");
+            }
+
+            _logger.LogInformation("Serving UserItems view for UserID: {UserId}", userId);
+            ViewBag.TargetUserId = userId;
+            return View(); // Oczekuje widoku Views/Items/UserItems.cshtml
         }
     }
 }

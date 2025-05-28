@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using LeafLoop.Data;
 using LeafLoop.Repositories.Interfaces;
 
 namespace LeafLoop.Repositories.Interfaces
@@ -44,7 +45,7 @@ namespace LeafLoop.Repositories.Interfaces
         
         // Save changes to database
         Task<int> CompleteAsync();
-        
+        LeafLoopDbContext Context { get; }
         // Transaction management methods
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();

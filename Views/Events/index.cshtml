@@ -1,0 +1,128 @@
+@{
+    ViewData["Title"] = "Wydarzenia";
+}
+
+@section Styles {
+    <style>
+        .event-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .nav-pills .nav-link.active {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .nav-pills .nav-link {
+            color: #28a745;
+            border: 1px solid #28a745;
+            margin: 0 0.25rem;
+        }
+        .nav-pills .nav-link:hover {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            font-weight: 500;
+        }
+        .btn-register:hover {
+            background: linear-gradient(135deg, #218838, #1ea885);
+            color: white;
+            transform: translateY(-1px);
+        }
+        .participant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .event-map {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .status-badge {
+            border-radius: 15px;
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+        }
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1.5rem;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-footer {
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 1.5rem;
+        }
+        .leaflet-container {
+            font-family: inherit;
+        }
+        .progress {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            border-radius: 10px;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .card-footer {
+            padding: 1rem 1.5rem 1.5rem;
+        }
+
+        /* Mobile styles */
+        @@media (max-width: 768px) {
+            .event-card {
+                margin-bottom: 1rem;
+            }
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+        }
+    </style>
+}
+
+<!-- React Events Container -->
+<div id="react-events-page">
+    <!-- Loading placeholder while React loads -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+            <div class="text-center">
+                <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Ładowanie wydarzeń...</span>
+                </div>
+                <p class="mt-3 text-muted">Ładowanie wydarzeń...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Include Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+
+    <!-- Include React Events Bundle -->
+    <script src="~/js/dist/eventsPage.bundle.js" asp-append-version="true" type="module"></script>
+}

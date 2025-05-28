@@ -1,0 +1,33 @@
+@* Ścieżka: Views/Items/UserItems.cshtml *@
+@{
+    ViewData["Title"] = "Przedmioty Użytkownika";
+    var targetUserId = ViewBag.TargetUserId ?? 0;
+}
+
+<div class="container mt-4">
+    <h1>@ViewData["Title"]</h1>
+    @if (targetUserId > 0)
+    {
+        <p>Przedmioty użytkownika o ID: @targetUserId</p>
+        @* Kontener dla komponentu React, który wyświetli przedmioty danego użytkownika *@
+        <div id="react-user-item-list-container" data-user-id="@targetUserId">
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Ładowanie przedmiotów użytkownika...</span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger">Nie podano ID użytkownika.</div>
+    }
+</div>
+
+@section Scripts {
+  
+ 
+  
+    <script src="~/js/components/MyItemList.js" asp-append-version="true"></script>
+    
+}

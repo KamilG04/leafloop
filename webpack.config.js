@@ -5,7 +5,7 @@ module.exports = {
         // Services
         api: './wwwroot/js/services/api.js',
 
-        // Components
+        // Existing Components
         itemList: './wwwroot/js/components/itemList.js',
         myItemList: './wwwroot/js/components/MyItemList.js',
         itemDetails: './wwwroot/js/components/itemDetails.js',
@@ -16,6 +16,14 @@ module.exports = {
         transactionDetails: './wwwroot/js/components/TransactionDetails.js',
         profileEditForm: './wwwroot/js/components/ProfileEditForm.js',
         initNearbyItemsPage: './wwwroot/js/components/initNearbyItemsPage.js',
+
+        // Events - TYLKO główny entry point
+        eventsPage: './wwwroot/js/components/EventsPage.js',
+
+        // Location Components  
+        locationPicker: './wwwroot/js/components/locationPicker.js',
+        userLocationMap: './wwwroot/js/components/userLocationMap.js',
+        nearbyItems: './wwwroot/js/components/nearbyItems.js',
     },
     output: {
         path: path.resolve(__dirname, 'wwwroot/js/dist'),
@@ -41,17 +49,19 @@ module.exports = {
             {
                 test: /\.css$/,
                 use: [
-                    'style-loader', 
-                    'css-loader'    
+                    'style-loader',
+                    'css-loader'
                 ]
             },
             {
-                test: /\.(png|svg|jpg|jpeg|gif)$/i, // Obsługuje różne formaty obrazków
-                type: 'asset/resource', // Kopiuje plik do katalogu wyjściowego i eksportuje URL
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                type: 'asset/resource',
             }
         ]
     },
     resolve: {
         extensions: ['.js', '.jsx']
-    }
+    },
+    // Dodaj devtool dla lepszego debugowania
+    devtool: 'source-map'
 };
